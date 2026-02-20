@@ -1,0 +1,64 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #ffffff;
+    --foreground: #0f172a;
+    
+    --card: #ffffff;
+    --card-foreground: #0f172a;
+    
+    --popover: #ffffff;
+    --popover-foreground: #0f172a;
+    
+    --primary: #4B0082;
+    --primary-foreground: #ffffff;
+    
+    --secondary: #F3E8FF;
+    --secondary-foreground: #4B0082;
+    
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+    
+    --accent: #f1f5f9;
+    --accent-foreground: #0f172a;
+    
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+    
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    --ring: #4B0082;
+    
+    --radius: 1rem;
+  }
+}
+
+/* Global Scrollbar Hiding */
+* {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+*::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari and Opera */
+}
+
+body {
+  @apply bg-background text-foreground;
+  direction: rtl;
+  overflow-x: hidden;
+  font-family: 'Tajawal', sans-serif;
+}
+
+.font-ruqaa {
+  font-family: 'Aref Ruqaa', serif;
+}
+
+/* Custom Utilities for Glassmorphism */
+.glass-panel {
+  @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
+}
