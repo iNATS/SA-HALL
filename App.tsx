@@ -364,7 +364,7 @@ const App: React.FC = () => {
   if (loading) return <div className="h-screen flex items-center justify-center"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>;
 
   const isAuthPage = ['vendor_login', 'vendor_register', 'guest_login', 'request_pending', 'request_rejected', 'vendor_subscription_setup'].includes(activeTab);
-  const isPublicPage = ['home', 'browse_halls', 'browse_services', 'hall_details', 'store_page'].includes(activeTab);
+  const isPublicPage = ['home', 'browse_halls', 'browse_services', 'hall_details', 'store_page', 'terms_of_service', 'privacy_policy', 'service_level_agreement', 'help_center'].includes(activeTab);
   
   return (
     <NotificationProvider userId={userProfile?.id}>
