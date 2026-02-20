@@ -4,7 +4,11 @@ import { supabase } from '../../supabaseClient';
 import { Facebook, Instagram, Twitter, MapPin, Mail, Phone, ChevronDown, Linkedin } from 'lucide-react';
 import { FooterConfig } from '../../types';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  onNavigate?: (tab: string) => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const [config, setConfig] = useState<FooterConfig>({
     app_section: {
         show: true,
@@ -171,10 +175,10 @@ export const Footer: React.FC = () => {
                 <div className="space-y-6">
                     <h4 className="font-black text-gray-900 text-xl">السياسات والدعم</h4>
                     <ul className="space-y-4 text-sm text-gray-500 font-bold">
-                        <li><a href="#" className="hover:text-primary transition-colors">شروط الاستخدام</a></li>
-                        <li><a href="#" className="hover:text-primary transition-colors">سياسة الخصوصية</a></li>
-                        <li><a href="#" className="hover:text-primary transition-colors">اتفاقية مستوى الخدمة</a></li>
-                        <li><a href="#" className="hover:text-primary transition-colors">مركز المساعدة</a></li>
+                        <li><button onClick={() => onNavigate?.('terms_of_service')} className="hover:text-primary transition-colors">شروط الاستخدام</button></li>
+                        <li><button onClick={() => onNavigate?.('privacy_policy')} className="hover:text-primary transition-colors">سياسة الخصوصية</button></li>
+                        <li><button onClick={() => onNavigate?.('service_level_agreement')} className="hover:text-primary transition-colors">اتفاقية مستوى الخدمة</button></li>
+                        <li><button onClick={() => onNavigate?.('help_center')} className="hover:text-primary transition-colors">مركز المساعدة</button></li>
                     </ul>
                 </div>
 

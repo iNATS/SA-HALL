@@ -29,10 +29,14 @@ import { VendorAccounting } from './pages/VendorAccounting';
 import { HallDetails } from './pages/HallDetails';
 import { ChaletDetails } from './pages/ChaletDetails';
 import { ServiceDetails } from './pages/ServiceDetails';
-import { GuestLogin } from './pages/GuestLogin'; 
+import { ForgotPassword } from './pages/ForgotPassword'; 
 import { GuestPortal } from './pages/GuestPortal'; 
 import { VendorMarketplace } from './pages/VendorMarketplace';
 import { VendorClients } from './pages/VendorClients'; 
+import { TermsOfService } from './pages/TermsOfService';
+import { PrivacyPolicy } from './pages/PrivacyPolicy';
+import { ServiceLevelAgreement } from './pages/ServiceLevelAgreement';
+import { HelpCenter } from './pages/HelpCenter';
 import { VendorSubscriptionSetup } from './pages/VendorSubscriptionSetup'; // New Page
 import { Button } from './components/ui/Button';
 import { Input } from './components/ui/Input';
@@ -264,10 +268,10 @@ const App: React.FC = () => {
   };
 
   const renderContent = () => {
-    if (activeTab === 'vendor_login') return <VendorAuth isLogin onRegister={() => setActiveTab('vendor_register')} onLogin={handleLoginSuccess} onBack={() => setActiveTab('home')} />;
+    if (activeTab === 'vendor_login') return <VendorAuth isLogin onRegister={() => setActiveTab('vendor_register')} onLogin={handleLoginSuccess} onNavigate={handleNavigate} onBack={() => setActiveTab('home')} />;
     
     // FIX: Add Vendor Register Handler
-    if (activeTab === 'vendor_register') return <VendorAuth isLogin={false} onLogin={() => setActiveTab('vendor_login')} onRegister={handleLoginSuccess} onBack={() => setActiveTab('home')} />;
+    if (activeTab === 'vendor_register') return <VendorAuth isLogin={false} onLogin={() => setActiveTab('vendor_login')} onRegister={handleLoginSuccess} onNavigate={handleNavigate} onBack={() => setActiveTab('home')} />;
 
     // Status Page: Request Pending
     if (activeTab === 'request_pending') return (
@@ -346,7 +350,11 @@ const App: React.FC = () => {
       case 'browse_services': return <BrowseHalls user={userProfile} entityType="service" onBack={() => setActiveTab('home')} onNavigate={handleNavigate} initialFilters={browseFilters} />;
       case 'hall_details': return detailItem ? (detailType === 'service' ? <ServiceDetails item={detailItem} user={userProfile} onBack={() => setActiveTab('home')} /> : detailType === 'chalet' ? <ChaletDetails item={detailItem} user={userProfile} onBack={() => setActiveTab('home')} /> : <HallDetails item={detailItem} user={userProfile} onBack={() => setActiveTab('home')} />) : null;
       case 'store_page': return <PublicStore />;
-      case 'guest_login': return <GuestLogin onBack={() => setActiveTab('home')} />;
+      case 'forgot_password': return <ForgotPassword onBack={() => setActiveTab('vendor_login')} onSuccess={() => setActiveTab('vendor_login')} />;
+      case 'terms_of_service': return <TermsOfService onBack={() => setActiveTab('home')} />;
+      case 'privacy_policy': return <PrivacyPolicy onBack={() => setActiveTab('home')} />;
+      case 'service_level_agreement': return <ServiceLevelAgreement onBack={() => setActiveTab('home')} />;
+      case 'help_center': return <HelpCenter onBack={() => setActiveTab('home')} />;
       case 'guest_dashboard': return userProfile ? <GuestPortal user={userProfile} onLogout={handleLogout} /> : null;
       
       default: return <Home user={userProfile} onLoginClick={() => setActiveTab('vendor_login')} onRegisterClick={() => setActiveTab('vendor_register')} onBrowseHalls={(f) => { setBrowseFilters(f); setActiveTab('browse_halls'); }} onNavigate={handleNavigate} onLogout={handleLogout} logoUrl={themeConfig?.logoUrl} />;
@@ -373,7 +381,7 @@ const App: React.FC = () => {
                 <main className={`flex-1 p-4 lg:p-8 transition-all duration-300 ${userProfile ? 'lg:mr-72' : ''}`}>{renderContent()}</main>
             </div>
         )}
-        {isPublicPage && !isAuthPage && <Footer />}
+        {isPublicPage && !isAuthPage && <Footer onNavigate={handleNavigate} />}
         </div>
     </NotificationProvider>
   );

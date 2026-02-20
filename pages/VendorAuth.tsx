@@ -13,10 +13,11 @@ interface VendorAuthProps {
     onRegister?: () => void;
     onLogin?: () => void;
     onDataChange?: (data: any) => void;
+    onNavigate?: (tab: string) => void;
     onBack?: () => void;
 }
 
-export const VendorAuth: React.FC<VendorAuthProps> = ({ isLogin = false, onRegister, onLogin, onDataChange, onBack }) => {
+export const VendorAuth: React.FC<VendorAuthProps> = ({ isLogin = false, onRegister, onLogin, onDataChange, onNavigate, onBack }) => {
   const [mode, setMode] = useState<'login' | 'register'>(isLogin ? 'login' : 'register');
   const [regStep, setRegStep] = useState(1); // 1: Info, 2: OTP, 3: Password
   const [loading, setLoading] = useState(false);
@@ -304,7 +305,7 @@ export const VendorAuth: React.FC<VendorAuthProps> = ({ isLogin = false, onRegis
                     {mode === 'login' ? (
                         <>
                             <div className="flex flex-col gap-2 text-sm font-bold text-primary">
-                                <a href="/guest-login" onClick={(e) => { e.preventDefault(); }} className="hover:underline">دخول الضيوف</a>
+                                <button onClick={() => { if (onNavigate) onNavigate('forgot_password'); }} className="hover:underline">نسيت كلمة المرور</button>
                                 <button onClick={() => { setMode('register'); setRegStep(1); }} className="hover:underline">انضم كشريك الآن</button>
                             </div>
                         </>
