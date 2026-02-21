@@ -351,10 +351,10 @@ const App: React.FC = () => {
       case 'hall_details': return detailItem ? (detailType === 'service' ? <ServiceDetails item={detailItem} user={userProfile} onBack={() => setActiveTab('home')} /> : detailType === 'chalet' ? <ChaletDetails item={detailItem} user={userProfile} onBack={() => setActiveTab('home')} /> : <HallDetails item={detailItem} user={userProfile} onBack={() => setActiveTab('home')} />) : null;
       case 'store_page': return <PublicStore />;
       case 'forgot_password': return <ForgotPassword onBack={() => setActiveTab('vendor_login')} onSuccess={() => setActiveTab('vendor_login')} />;
-      case 'terms_of_service': return <TermsOfService onBack={() => setActiveTab('home')} />;
-      case 'privacy_policy': return <PrivacyPolicy onBack={() => setActiveTab('home')} />;
-      case 'service_level_agreement': return <ServiceLevelAgreement onBack={() => setActiveTab('home')} />;
-      case 'help_center': return <HelpCenter onBack={() => setActiveTab('home')} />;
+      case 'terms_of_service': return <TermsOfService />;
+      case 'privacy_policy': return <PrivacyPolicy />;
+      case 'service_level_agreement': return <ServiceLevelAgreement />;
+      case 'help_center': return <HelpCenter />;
       case 'guest_dashboard': return userProfile ? <GuestPortal user={userProfile} onLogout={handleLogout} /> : null;
       
       default: return <Home user={userProfile} onLoginClick={() => setActiveTab('vendor_login')} onRegisterClick={() => setActiveTab('vendor_register')} onBrowseHalls={(f) => { setBrowseFilters(f); setActiveTab('browse_halls'); }} onNavigate={handleNavigate} onLogout={handleLogout} logoUrl={themeConfig?.logoUrl} />;

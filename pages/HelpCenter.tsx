@@ -1,13 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { Button } from '../components/ui/Button';
-import { ArrowRight, HelpCircle, MessageCircle, Phone, Mail } from 'lucide-react';
+import { ArrowRight, HelpCircle, MessageCircle, Phone, Mail, Home } from 'lucide-react';
 
-interface HelpCenterProps {
-  onBack: () => void;
-}
-
-export const HelpCenter: React.FC<HelpCenterProps> = ({ onBack }) => {
+export const HelpCenter: React.FC = () => {
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
@@ -67,64 +63,75 @@ export const HelpCenter: React.FC<HelpCenterProps> = ({ onBack }) => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] text-gray-900 font-tajawal">
-      {/* Header Section */}
-      <section className="relative w-full pt-32 pb-16 bg-gradient-to-br from-orange-50 to-orange-100">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center">
-          <div className="inline-flex items-center gap-2 text-orange-600 bg-orange-50 px-4 py-1.5 rounded-full border border-orange-100 mb-6">
-            <HelpCircle className="w-4 h-4 fill-current" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em]">مركز المساعدة</span>
-          </div>
-
-          <h1 className="text-4xl lg:text-6xl font-black text-gray-900 leading-tight mb-6">
-            مركز <span className="text-transparent bg-clip-text bg-gradient-to-l from-orange-600 to-orange-500">المساعدة</span>
-          </h1>
-
-          <p className="text-lg text-gray-600 font-medium max-w-2xl mx-auto leading-relaxed">
-            نحن هنا لمساعدتك! ابحث عن الإجابات أو تواصل مع فريق الدعم لدينا.
-          </p>
+    <div className="min-h-screen bg-[#F9FAFB] text-gray-900 font-tajawal flex flex-col">
+      {/* Simple Header with Home Link */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <a href="/" className="flex items-center gap-2 text-orange-600 hover:text-orange-700 font-bold">
+            <Home className="w-5 h-5" />
+            <span>العودة للرئيسية</span>
+          </a>
         </div>
-      </section>
+      </header>
 
-      {/* Content Section */}
-      <section className="py-24 px-6 lg:px-12">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-[3rem] shadow-xl border border-gray-100 p-8 lg:p-12 mb-12">
-            <div
-              className="prose prose-lg max-w-none text-gray-700 leading-relaxed prose-headings:text-gray-900 prose-headings:font-black prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3 prose-h4:text-lg prose-h4:mt-4 prose-h4:mb-2 prose-p:mb-4 prose-ul:space-y-2"
-              dangerouslySetInnerHTML={{ __html: content }}
-            />
-          </div>
-
-          {/* Contact Cards */}
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            <div className="bg-white rounded-2xl p-8 text-center shadow-lg border border-gray-100 hover:shadow-xl transition-all">
-              <MessageCircle className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-              <h3 className="font-black text-gray-900 mb-2 text-lg">الدردشة المباشرة</h3>
-              <p className="text-sm text-gray-600 font-bold leading-relaxed">تحدث معنا مباشرة للحصول على مساعدة فورية</p>
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col">
+        {/* Header Section */}
+        <section className="relative w-full py-24 bg-gradient-to-br from-orange-50 to-orange-100">
+          <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center">
+            <div className="inline-flex items-center gap-2 text-orange-600 bg-orange-50 px-4 py-1.5 rounded-full border border-orange-100 mb-6">
+              <HelpCircle className="w-4 h-4 fill-current" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em]">مركز المساعدة</span>
             </div>
 
-            <div className="bg-white rounded-2xl p-8 text-center shadow-lg border border-gray-100 hover:shadow-xl transition-all">
-              <Phone className="w-12 h-12 text-green-600 mx-auto mb-4" />
-              <h3 className="font-black text-gray-900 mb-2 text-lg">اتصل بنا</h3>
-              <p className="text-sm text-gray-600 font-bold leading-relaxed">920012345 - متوفر من 9 ص إلى 6 م</p>
+            <h1 className="text-4xl lg:text-6xl font-black text-gray-900 leading-tight mb-6">
+              مركز <span className="text-transparent bg-clip-text bg-gradient-to-l from-orange-600 to-orange-500">المساعدة</span>
+            </h1>
+
+            <p className="text-lg text-gray-600 font-medium max-w-2xl mx-auto leading-relaxed">
+              نحن هنا لمساعدتك! ابحث عن الإجابات أو تواصل مع فريق الدعم لدينا.
+            </p>
+          </div>
+        </section>
+
+        {/* Content Section */}
+        <section className="py-24 px-6 lg:px-12 flex-1">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white rounded-[3rem] shadow-xl border border-gray-100 p-8 lg:p-12 mb-12">
+              <div
+                className="prose prose-lg max-w-none text-gray-700 leading-relaxed prose-headings:text-gray-900 prose-headings:font-black prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3 prose-h4:text-lg prose-h4:mt-4 prose-h4:mb-2 prose-p:mb-4 prose-ul:space-y-2"
+                dangerouslySetInnerHTML={{ __html: content }}
+              />
             </div>
 
-            <div className="bg-white rounded-2xl p-8 text-center shadow-lg border border-gray-100 hover:shadow-xl transition-all">
-              <Mail className="w-12 h-12 text-purple-600 mx-auto mb-4" />
-              <h3 className="font-black text-gray-900 mb-2 text-lg">البريد الإلكتروني</h3>
-              <p className="text-sm text-gray-600 font-bold leading-relaxed">support@hall.sa</p>
+            {/* Contact Cards */}
+            <div className="grid md:grid-cols-3 gap-6 mb-12">
+              <div className="bg-white rounded-2xl p-8 text-center shadow-lg border border-gray-100 hover:shadow-xl transition-all">
+                <MessageCircle className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+                <h3 className="font-black text-gray-900 mb-2 text-lg">الدردشة المباشرة</h3>
+                <p className="text-sm text-gray-600 font-bold leading-relaxed">تحدث معنا مباشرة للحصول على مساعدة فورية</p>
+              </div>
+
+              <div className="bg-white rounded-2xl p-8 text-center shadow-lg border border-gray-100 hover:shadow-xl transition-all">
+                <Phone className="w-12 h-12 text-green-600 mx-auto mb-4" />
+                <h3 className="font-black text-gray-900 mb-2 text-lg">اتصل بنا</h3>
+                <p className="text-sm text-gray-600 font-bold leading-relaxed">920012345 - متوفر من 9 ص إلى 6 م</p>
+              </div>
+
+              <div className="bg-white rounded-2xl p-8 text-center shadow-lg border border-gray-100 hover:shadow-xl transition-all">
+                <Mail className="w-12 h-12 text-purple-600 mx-auto mb-4" />
+                <h3 className="font-black text-gray-900 mb-2 text-lg">البريد الإلكتروني</h3>
+                <p className="text-sm text-gray-600 font-bold leading-relaxed">support@hall.sa</p>
+              </div>
             </div>
           </div>
+        </section>
+      </main>
 
-          <div className="flex justify-center">
-            <Button onClick={onBack} variant="outline" className="px-8 py-4 rounded-2xl font-bold text-lg border-2 border-gray-200 hover:border-orange-500 hover:text-orange-600 gap-3 transition-all">
-              <ArrowRight className="w-5 h-5" />
-              العودة للرئيسية
-            </Button>
-          </div>
-        </div>
-      </section>
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white text-center py-8 mt-auto">
+        <p className="text-sm text-gray-400">© 2024 SA Hall. جميع الحقوق محفوظة.</p>
+      </footer>
     </div>
   );
 };
