@@ -5,7 +5,6 @@ import { UserProfile, POSItem, Hall, POS_CATEGORIES } from '../types';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { PriceTag } from '../components/ui/PriceTag';
-import { Modal } from '../components/ui/Modal';
 import { 
   ShoppingCart, Plus, Minus, Trash2, Package, Search, PlusCircle, 
   Building2, Loader2, Receipt, Printer, LayoutGrid, ScanBarcode, RefreshCcw, 
@@ -18,7 +17,12 @@ interface CartItem {
   qty: number;
 }
 
-export const VendorPOS: React.FC<{ user: UserProfile }> = ({ user }) => {
+interface VendorPOSProps {
+  user: UserProfile;
+  onNavigate?: (tab: string, item?: any) => void;
+}
+
+export const VendorPOS: React.FC<VendorPOSProps> = ({ user, onNavigate }) => {
   const [activeTab, setActiveTab] = useState<'pos' | 'inventory'>('pos');
   const [items, setItems] = useState<POSItem[]>([]);
   const [filteredItems, setFilteredItems] = useState<POSItem[]>([]);
@@ -31,11 +35,8 @@ export const VendorPOS: React.FC<{ user: UserProfile }> = ({ user }) => {
   
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [receiptData, setReceiptData] = useState<any>(null);
-
-  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
-  const [currentItem, setCurrentItem] = useState<Partial<POSItem>>({ category: 'عام' });
+  const [currentItem, setCurrentItem] = useState<POSItem | null>(null);
 
   const { toast } = useToast();
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -141,7 +142,7 @@ export const VendorPOS: React.FC<{ user: UserProfile }> = ({ user }) => {
       vendor: user
     };
     setReceiptData(receipt);
-    setPaymentModalOpen(true);
+    await confirmPayment();
     setIsProcessing(false);
   };
 
@@ -180,7 +181,6 @@ export const VendorPOS: React.FC<{ user: UserProfile }> = ({ user }) => {
         
         toast({ title: 'تمت العملية', description: 'تم تسجيل المبيعات في النظام المالي وتحديث المخزون.', variant: 'success' });
         setCart([]);
-        setPaymentModalOpen(false);
         fetchItems();
 
     } catch (error) {
@@ -188,28 +188,6 @@ export const VendorPOS: React.FC<{ user: UserProfile }> = ({ user }) => {
         toast({ title: 'خطأ', description: 'حدث خطأ أثناء حفظ العملية.', variant: 'destructive' });
     } finally {
         setIsProcessing(false);
-    }
-  };
-
-  const handleSaveItem = async () => {
-    if (!currentItem.name || !currentItem.price || !selectedHallId) return;
-    const payload = {
-      ...currentItem,
-      vendor_id: user.id,
-      hall_id: selectedHallId,
-      price: Number(currentItem.price),
-      stock: Number(currentItem.stock || 0),
-      category: currentItem.category || 'عام'
-    };
-    const { error } = currentItem.id 
-      ? await supabase.from('pos_items').update(payload).eq('id', currentItem.id)
-      : await supabase.from('pos_items').insert([payload]);
-
-    if (!error) {
-      toast({ title: 'تم الحفظ', variant: 'success' });
-      setIsItemModalOpen(false);
-      setCurrentItem({ category: 'عام' });
-      fetchItems();
     }
   };
 
@@ -248,7 +226,7 @@ export const VendorPOS: React.FC<{ user: UserProfile }> = ({ user }) => {
                />
                <ScanBarcode className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 w-5 h-5" />
             </div>
-            <Button onClick={() => { setCurrentItem({ category: 'عام', stock: 100 }); setIsItemModalOpen(true); }} className="h-12 w-12 rounded-2xl p-0 flex items-center justify-center bg-gray-900 text-white hover:bg-black transition-transform active:scale-95">
+            <Button onClick={() => { setCurrentItem(null); onNavigate?.('vendor_pos_item_form'); }} className="h-12 w-12 rounded-2xl p-0 flex items-center justify-center bg-gray-900 text-white hover:bg-black transition-transform active:scale-95">
                <Plus className="w-6 h-6" />
             </Button>
          </div>
@@ -357,7 +335,7 @@ export const VendorPOS: React.FC<{ user: UserProfile }> = ({ user }) => {
                                      </td>
                                      <td className="p-4 text-center rounded-l-2xl border-y border-l border-transparent group-hover:border-gray-100">
                                          <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                             <button onClick={() => { setCurrentItem(item); setIsItemModalOpen(true); }} className="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors"><Edit3 className="w-4 h-4" /></button>
+                                             <button onClick={() => { setCurrentItem(item); onNavigate?.('vendor_pos_item_form', item); }} className="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors"><Edit3 className="w-4 h-4" /></button>
                                              <button onClick={() => handleDeleteItem(item.id)} className="p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors"><Trash2 className="w-4 h-4" /></button>
                                          </div>
                                      </td>
@@ -369,66 +347,6 @@ export const VendorPOS: React.FC<{ user: UserProfile }> = ({ user }) => {
              </div>
          )}
       </div>
-
-      <Modal isOpen={isItemModalOpen} onClose={() => setIsItemModalOpen(false)} title={currentItem.id ? 'تعديل المنتج' : 'إضافة منتج جديد'}>
-         <div className="space-y-4 text-right">
-            <Input label="اسم الصنف" value={currentItem.name || ''} onChange={e => setCurrentItem({...currentItem, name: e.target.value})} className="h-12 rounded-xl" />
-            <div className="grid grid-cols-2 gap-4">
-               <Input label="السعر" type="number" value={currentItem.price || ''} onChange={e => setCurrentItem({...currentItem, price: Number(e.target.value)})} className="h-12 rounded-xl" />
-               <Input label="الكمية (المخزون)" type="number" value={currentItem.stock || ''} onChange={e => setCurrentItem({...currentItem, stock: Number(e.target.value)})} className="h-12 rounded-xl" />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-               <Input label="الباركود (اختياري)" value={currentItem.barcode || ''} onChange={e => setCurrentItem({...currentItem, barcode: e.target.value})} className="h-12 rounded-xl" />
-               <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-500">التصنيف</label>
-                  <select className="w-full h-12 border border-gray-200 rounded-xl px-4 font-bold bg-white focus:ring-2 focus:ring-primary/10 outline-none" value={currentItem.category} onChange={e => setCurrentItem({...currentItem, category: e.target.value})}>
-                      {POS_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
-               </div>
-            </div>
-            <Button onClick={handleSaveItem} className="w-full h-14 rounded-xl font-black mt-4">حفظ البيانات</Button>
-         </div>
-      </Modal>
-
-      <Modal isOpen={paymentModalOpen} onClose={() => setPaymentModalOpen(false)} title="إتمام العملية">
-         <div className="text-center space-y-6">
-            <div className="bg-green-50 text-green-600 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 animate-in zoom-in border-4 border-green-100">
-               <CheckCircle2 className="w-10 h-10" />
-            </div>
-            <div className="space-y-2">
-               <h3 className="text-2xl font-black text-gray-900">إصدار الفاتورة</h3>
-               <p className="text-gray-500 text-sm font-bold">سيتم تسجيل الدفع وتحديث المخزون تلقائياً</p>
-            </div>
-            
-            {/* Receipt Preview */}
-            <div id="receipt-print" className="bg-white border p-6 w-80 mx-auto text-center font-mono text-xs shadow-none border-gray-100 rounded-none hidden print:block">
-               <div className="font-bold text-sm mb-2 border-b pb-2">{user.business_name || 'اسم المتجر'}</div>
-               {user.pos_config?.receipt_header && <div className="mb-2 whitespace-pre-wrap">{user.pos_config.receipt_header}</div>}
-               <div className="flex justify-between text-[10px] text-gray-500 mb-2">
-                  <span>{new Date().toLocaleDateString()}</span>
-                  <span>{receiptData?.orderId}</span>
-               </div>
-               <div className="border-t border-b border-dashed py-2 space-y-1 text-left">
-                  {cart.map((c, i) => (
-                     <div key={i} className="flex justify-between">
-                        <span>{c.item.name} x{c.qty}</span>
-                        <span>{(c.item.price * c.qty).toFixed(2)}</span>
-                     </div>
-                  ))}
-               </div>
-               <div className="pt-2 space-y-1 font-bold">
-                  <div className="flex justify-between"><span>Total</span><span>{total.toFixed(2)}</span></div>
-               </div>
-               <div className="mt-4 pt-2 border-t text-[10px] whitespace-pre-wrap">{user.pos_config?.receipt_footer}</div>
-               {user.pos_config?.tax_id && <div className="text-[9px] mt-1">Tax ID: {user.pos_config.tax_id}</div>}
-            </div>
-
-            <div className="flex gap-3 pt-6">
-               <Button variant="outline" onClick={() => { window.print(); confirmPayment(); }} className="flex-1 h-14 rounded-2xl font-bold gap-2 border-2 border-gray-100 hover:border-gray-200"><Printer className="w-5 h-5" /> طباعة وإنهاء</Button>
-               <Button onClick={confirmPayment} className="flex-1 h-14 rounded-2xl font-bold bg-green-600 hover:bg-green-700 text-white shadow-none">تأكيد بدون طباعة</Button>
-            </div>
-         </div>
-      </Modal>
       <style>{`@media print { body * { visibility: hidden; } #receipt-print, #receipt-print * { visibility: visible; position: absolute; left: 0; top: 0; width: 100%; } }`}</style>
     </div>
   );

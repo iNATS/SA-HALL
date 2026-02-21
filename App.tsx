@@ -38,6 +38,10 @@ import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { ServiceLevelAgreement } from './pages/ServiceLevelAgreement';
 import { HelpCenter } from './pages/HelpCenter';
 import { VendorSubscriptionSetup } from './pages/VendorSubscriptionSetup'; // New Page
+import { ServiceCategoryForm } from './pages/ServiceCategoryForm';
+import { VendorCouponForm } from './pages/VendorCouponForm';
+import { VendorPOS } from './pages/VendorPOS';
+import { VendorPOSItemForm } from './pages/VendorPOSItemForm';
 import { Button } from './components/ui/Button';
 import { Input } from './components/ui/Input';
 import { Modal } from './components/ui/Modal'; 
@@ -327,20 +331,20 @@ const App: React.FC = () => {
       case 'dashboard': return userProfile ? <Dashboard user={userProfile} /> : null;
       case 'my_halls': return userProfile ? <VendorHalls user={userProfile} /> : null;
       case 'hall_bookings': return userProfile ? <Bookings user={userProfile} /> : null;
-      case 'coupons': return userProfile ? <VendorCoupons user={userProfile} /> : null;
+      case 'coupons': return userProfile ? <VendorCoupons user={userProfile} onNavigate={handleNavigate} /> : null;
       case 'calendar': return userProfile ? <CalendarBoard user={userProfile} /> : null;
       case 'vendor_services': return userProfile ? <VendorServices user={userProfile} /> : null;
       case 'brand_settings': return userProfile ? <VendorBrandSettings user={userProfile} onUpdate={() => userProfile && fetchProfile(userProfile.id)} /> : null;
       case 'accounting': return userProfile ? <VendorAccounting user={userProfile} /> : null;
       case 'vendor_marketplace': return userProfile ? <VendorMarketplace user={userProfile} /> : null;
-      case 'vendor_clients': return userProfile ? <VendorClients user={userProfile} /> : null;
+      case 'vendor_pos': return userProfile ? <VendorPOS user={userProfile} onNavigate={handleNavigate} /> : null;
       
       // Admin
       case 'admin_dashboard': return <AdminDashboard />;
       case 'admin_vendors': return <VendorSubscriptions />;
       case 'admin_customers': return <UsersManagement />;
       case 'admin_cms': return <ContentCMS />;
-      case 'admin_categories': return <ServiceCategories />;
+      case 'admin_categories': return <ServiceCategories onNavigate={handleNavigate} />;
       case 'admin_store': return userProfile ? <AdminStore user={userProfile} /> : null;
       case 'settings': return <SystemSettings onThemeUpdate={refreshTheme} />;
       case 'admin_requests': return <AdminRequests />;
@@ -355,6 +359,9 @@ const App: React.FC = () => {
       case 'privacy_policy': return <PrivacyPolicy />;
       case 'service_level_agreement': return <ServiceLevelAgreement />;
       case 'help_center': return <HelpCenter />;
+      case 'service_category_form': return <ServiceCategoryForm category={detailItem} onBack={() => setActiveTab('admin_categories')} />;
+      case 'vendor_coupon_form': return <VendorCouponForm coupon={detailItem} onBack={() => setActiveTab('coupons')} />;
+      case 'vendor_pos_item_form': return <VendorPOSItemForm item={detailItem} onBack={() => setActiveTab('vendor_pos')} />;
       case 'guest_dashboard': return userProfile ? <GuestPortal user={userProfile} onLogout={handleLogout} /> : null;
       
       default: return <Home user={userProfile} onLoginClick={() => setActiveTab('vendor_login')} onRegisterClick={() => setActiveTab('vendor_register')} onBrowseHalls={(f) => { setBrowseFilters(f); setActiveTab('browse_halls'); }} onNavigate={handleNavigate} onLogout={handleLogout} logoUrl={themeConfig?.logoUrl} />;

@@ -4,14 +4,17 @@ import { supabase } from '../supabaseClient';
 import { UserProfile, Coupon } from '../types';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { Modal } from '../components/ui/Modal';
 import { Ticket, Plus, Trash2, Power, PowerOff, Loader2 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 
-export const VendorCoupons: React.FC<{ user: UserProfile }> = ({ user }) => {
+interface VendorCouponsProps {
+  user: UserProfile;
+  onNavigate?: (tab: string, item?: any) => void;
+}
+
+export const VendorCoupons: React.FC<VendorCouponsProps> = ({ user, onNavigate }) => {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentCoupon, setCurrentCoupon] = useState<Partial<Coupon>>({ 
     discount_type: 'percentage', 
     is_active: true,
@@ -39,7 +42,6 @@ export const VendorCoupons: React.FC<{ user: UserProfile }> = ({ user }) => {
 
     if (!error) {
       toast({ title: 'تم الحفظ', variant: 'success' });
-      setIsModalOpen(false);
       setCurrentCoupon({ discount_type: 'percentage', is_active: true });
       fetchData();
     } else {
@@ -68,7 +70,7 @@ export const VendorCoupons: React.FC<{ user: UserProfile }> = ({ user }) => {
           </h2>
           <p className="text-xs font-bold text-gray-400 mt-1">إدارة أكواد الخصم.</p>
         </div>
-        <Button onClick={() => { setCurrentCoupon({ discount_type: 'percentage', is_active: true }); setIsModalOpen(true); }} className="h-12 px-6 rounded-2xl font-black gap-2 bg-gray-900 text-white">
+        <Button onClick={() => { setCurrentCoupon({ discount_type: 'percentage', is_active: true }); onNavigate?.('vendor_coupon_form'); }} className="h-12 px-6 rounded-2xl font-black gap-2 bg-gray-900 text-white">
            كوبون جديد <Plus className="w-4 h-4" />
         </Button>
       </div>
@@ -109,26 +111,6 @@ export const VendorCoupons: React.FC<{ user: UserProfile }> = ({ user }) => {
               </tbody>
           </table>
       </div>
-
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="كوبون جديد">
-         <div className="space-y-4 text-right">
-            <Input label="الكود (EN)" value={currentCoupon.code || ''} onChange={e => setCurrentCoupon({...currentCoupon, code: e.target.value.toUpperCase()})} className="h-12 rounded-xl text-center font-black uppercase" />
-            <div className="grid grid-cols-2 gap-4">
-               <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-500">النوع</label>
-                  <select className="w-full h-12 border border-gray-200 rounded-xl px-4 text-xs font-bold bg-white outline-none" value={currentCoupon.discount_type} onChange={e => setCurrentCoupon({...currentCoupon, discount_type: e.target.value as any})}>
-                     <option value="percentage">نسبة مئوية (%)</option>
-                     <option value="fixed">مبلغ ثابت (SAR)</option>
-                  </select>
-               </div>
-               <Input label="القيمة" type="number" value={currentCoupon.discount_value || ''} onChange={e => setCurrentCoupon({...currentCoupon, discount_value: Number(e.target.value)})} className="h-12 rounded-xl font-bold" />
-            </div>
-            <Input label="تاريخ الانتهاء" type="date" value={currentCoupon.end_date || ''} onChange={e => setCurrentCoupon({...currentCoupon, end_date: e.target.value})} className="h-12 rounded-xl font-bold" />
-            <Button onClick={handleSave} disabled={saving} className="w-full h-12 rounded-xl font-black mt-2">
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'حفظ'}
-            </Button>
-         </div>
-      </Modal>
     </div>
   );
 };
