@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Users, Building2, ClipboardList,
   CalendarDays, Settings, X, Tag, Tag as TagIcon,
   FileText, BarChart3, Layers, Inbox,
-  Receipt, Store, LogOut, Star, Megaphone, UserCheck, Banknote
+  Receipt, Store, LogOut, Star, Megaphone, UserCheck, Banknote, Sparkles
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 
@@ -55,26 +55,31 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, activeTab, setActiveTab,
   } else if (user.role === 'vendor') {
     menuGroups = [
       {
-        title: "الرئيسية",
+        title: "لوحة القيادة",
         items: [
-          { id: 'dashboard', label: 'لوحة المعلومات', icon: <LayoutDashboard className="w-5 h-5" /> },
+          { id: 'dashboard', label: 'نظرة عامة', icon: <LayoutDashboard className="w-5 h-5" /> },
           { id: 'calendar', label: 'التقويم', icon: <CalendarDays className="w-5 h-5" /> },
           { id: 'hall_bookings', label: 'سجل الحجوزات', icon: <ClipboardList className="w-5 h-5" /> },
-        ]
-      },
-      {
-        title: "المالية والمشتريات",
-        items: [
-          { id: 'accounting', label: 'الفواتير والحسابات', icon: <Receipt className="w-5 h-5" /> },
-          { id: 'coupons', label: 'الخصومات والعروض', icon: <Tag className="w-5 h-5" /> },
-          { id: 'vendor_marketplace', label: 'متجر المنصة', icon: <Store className="w-5 h-5" /> },
         ]
       },
       {
         title: "إدارة الأصول",
         items: [
           { id: 'my_halls', label: 'القاعات', icon: <Building2 className="w-5 h-5" /> },
-          // Chalets removed
+          { id: 'vendor_services', label: 'الخدمات', icon: <Sparkles className="w-5 h-5" /> },
+        ]
+      },
+      {
+        title: "المالية",
+        items: [
+          { id: 'accounting', label: 'الفواتير والحسابات', icon: <Receipt className="w-5 h-5" /> },
+          { id: 'coupons', label: 'كوبونات الخصم', icon: <Tag className="w-5 h-5" /> },
+        ]
+      },
+      {
+        title: "العملاء",
+        items: [
+          { id: 'vendor_clients', label: 'إدارة العملاء', icon: <Users className="w-5 h-5" /> },
         ]
       },
       {
