@@ -43,6 +43,7 @@ import { VendorClients } from './pages/VendorClients';
 import { VendorSubscription } from './pages/VendorSubscription';
 import { VendorChooseType } from './pages/VendorChooseType';
 import { VendorBookings } from './pages/VendorBookings';
+import { VendorAddAssetPayment } from './pages/VendorAddAssetPayment';
 import { PopupAnnouncements } from './components/PopupAnnouncements';
 import { Button } from './components/ui/Button';
 import { Input } from './components/ui/Input';
@@ -112,7 +113,11 @@ const App: React.FC = () => {
   
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
-  
+
+  // Add Asset Payment State
+  const [isAddAssetPaymentOpen, setIsAddAssetPaymentOpen] = useState(false);
+  const [addAssetData, setAddAssetData] = useState<{type: 'hall' | 'service', data: any} | null>(null);
+
   // Navigation State
   const [browseFilters, setBrowseFilters] = useState<any>(null);
   const [detailItem, setDetailItem] = useState<any>(null);
@@ -711,6 +716,24 @@ const App: React.FC = () => {
             </div>
         )}
         {isPublicPage && !isAuthPage && <Footer />}
+        
+        {/* Add Asset Payment Modal */}
+        {isAddAssetPaymentOpen && addAssetData && userProfile && (
+          <VendorAddAssetPayment
+            user={userProfile}
+            assetType={addAssetData.type}
+            assetData={addAssetData.data}
+            onSuccess={() => {
+              setIsAddAssetPaymentOpen(false);
+              setAddAssetData(null);
+              setActiveTab('dashboard');
+            }}
+            onCancel={() => {
+              setIsAddAssetPaymentOpen(false);
+              setAddAssetData(null);
+            }}
+          />
+        )}
         </div>
     </NotificationProvider>
   );

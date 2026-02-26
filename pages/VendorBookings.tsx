@@ -185,7 +185,7 @@ export const VendorBookings: React.FC<VendorBookingsProps> = ({ user }) => {
           <div className="md:col-span-2 relative">
             <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <Input
-              placeholder="بحث بالعميل، رقم الحجز، المكان..."
+              placeholder="بحث بالعميل، رقم الحجز، القاعة..."
               value={filters.search}
               onChange={(e) => setFilters({ ...filters, search: e.target.value })}
               className="pr-10 h-10"
@@ -225,7 +225,7 @@ export const VendorBookings: React.FC<VendorBookingsProps> = ({ user }) => {
             <tr>
               <th className="p-4">رقم الحجز</th>
               <th className="p-4">العميل</th>
-              <th className="p-4">المكان</th>
+              <th className="p-4">القاعة</th>
               <th className="p-4">التاريخ</th>
               <th className="p-4">المبلغ</th>
               <th className="p-4">الحالة</th>

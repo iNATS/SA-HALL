@@ -239,7 +239,7 @@ export const CalendarBoard: React.FC<CalendarBoardProps> = ({ user }) => {
             value={selectedAsset}
             onChange={(e) => setSelectedAsset(e.target.value)}
           >
-            <option value="all">كل الأصول</option>
+            <option value="all">كل القاعات</option>
             {assets.map(a => (
               <option key={a.id} value={a.id}>{a.name}</option>
             ))}
@@ -327,7 +327,7 @@ export const CalendarBoard: React.FC<CalendarBoardProps> = ({ user }) => {
               <tr>
                 <th className="p-4">التاريخ</th>
                 <th className="p-4">العميل</th>
-                <th className="p-4">الأصل</th>
+                <th className="p-4">القاعة</th>
                 <th className="p-4">الحالة</th>
                 <th className="p-4">المبلغ</th>
                 <th className="p-4 text-center">إجراءات</th>

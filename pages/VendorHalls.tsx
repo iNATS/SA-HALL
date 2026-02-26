@@ -6,7 +6,7 @@ import { Input } from '../components/ui/Input';
 import { Modal } from '../components/ui/Modal';
 import { Badge } from '../components/ui/Badge';
 import { PriceTag } from '../components/ui/PriceTag';
-import { Plus, X, Loader2, Trash2, Package, CheckSquare, CalendarDays, Image as ImageIcon, Search, Building2, MapPin, Users, Edit3 } from 'lucide-react';
+import { Plus, X, Loader2, Trash2, Package, CheckSquare, CalendarDays, Image as ImageIcon, Search, Building2, MapPin, Users, Edit3, FileText } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { Calendar } from '../components/ui/Calendar';
 import { format, isSameDay, parseISO, eachDayOfInterval, getDay } from 'date-fns';
@@ -410,7 +410,7 @@ export const VendorHalls: React.FC<VendorHallsProps> = ({ user }) => {
                 الباقات والإضافات
               </button>
               <button onClick={() => setActiveTab('policies')} className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap ${activeTab === 'policies' ? 'bg-white shadow text-primary' : 'text-gray-500'}`}>
-                الشروط والأسعار الموسمية
+                الشروط والأحكام
               </button>
               {currentHall.id && (
                 <button onClick={() => setActiveTab('calendar')} className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap ${activeTab === 'calendar' ? 'bg-white shadow text-primary' : 'text-gray-500'}`}>
@@ -567,8 +567,49 @@ export const VendorHalls: React.FC<VendorHallsProps> = ({ user }) => {
 
               {activeTab === 'policies' && (
                 <div className="space-y-6">
+                  {/* الشروط والأحكام */}
                   <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-4">
-                    <h3 className="text-sm font-black text-primary mb-4">الأسعار الموسمية</h3>
+                    <h3 className="text-sm font-black text-primary mb-4 flex items-center gap-2">
+                      <FileText className="w-4 h-4" />
+                      الشروط والأحكام
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-500">سياسة الإلغاء</label>
+                        <textarea 
+                          className="w-full h-24 border border-gray-200 rounded-xl p-3 bg-white outline-none resize-none font-bold text-sm" 
+                          placeholder="اكتب سياسة الإلغاء الخاصة بالقاعة..."
+                          value={(currentHall as any).cancellation_policy || ''} 
+                          onChange={e => setCurrentHall({...currentHall, cancellation_policy: e.target.value} as any)} 
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-500">شروط الحجز</label>
+                        <textarea 
+                          className="w-full h-24 border border-gray-200 rounded-xl p-3 bg-white outline-none resize-none font-bold text-sm" 
+                          placeholder="اكتب شروط الحجز الخاصة بالقاعة..."
+                          value={(currentHall as any).terms_and_conditions || ''} 
+                          onChange={e => setCurrentHall({...currentHall, terms_and_conditions: e.target.value} as any)} 
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-500">معلومات إضافية</label>
+                        <textarea 
+                          className="w-full h-24 border border-gray-200 rounded-xl p-3 bg-white outline-none resize-none font-bold text-sm" 
+                          placeholder="أي معلومات أو شروط إضافية..."
+                          value={(currentHall as any).additional_info || ''} 
+                          onChange={e => setCurrentHall({...currentHall, additional_info: e.target.value} as any)} 
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* الأسعار الموسمية */}
+                  <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-4">
+                    <h3 className="text-sm font-black text-primary mb-4 flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      الأسعار الموسمية
+                    </h3>
                     <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 space-y-4">
                       <Input placeholder="اسم الموسم" value={newSeason.name} onChange={e => setNewSeason({...newSeason, name: e.target.value})} className="h-11 bg-white" />
                       <div className="grid grid-cols-3 gap-2">
