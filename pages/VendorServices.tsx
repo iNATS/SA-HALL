@@ -231,71 +231,101 @@ export const VendorServices: React.FC<VendorServicesProps> = ({ user }) => {
         </div>
       </div>
 
-      {/* Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {loading ? (
-          [1, 2, 3, 4].map(i => (
-            <div key={i} className="h-80 bg-gray-100 animate-pulse rounded-2xl"></div>
-          ))
-        ) : filteredServices.length === 0 ? (
-          <div className="col-span-full bg-white rounded-lg border border-gray-200 p-10 text-center">
-            <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 font-bold">لا توجد خدمات</p>
-          </div>
-        ) : (
-          filteredServices.map(s => (
-            <div key={s.id} className="group bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-primary/50 hover:shadow-lg transition-all flex flex-col relative">
-              <div className="aspect-[4/3] bg-gray-50 relative overflow-hidden">
-                {s.image_url ? (
-                    <img src={s.image_url} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                ) : (
-                    <div className="flex h-full items-center justify-center opacity-10"><Package className="w-16 h-16" /></div>
-                )}
-                <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-lg text-xs font-bold border border-gray-100 text-primary">
-                  {s.category}
-                </div>
-              </div>
-              <div className="p-4 flex-1 flex flex-col gap-3">
-                <h3 className="font-bold text-base text-gray-900 truncate">{s.name}</h3>
-                <div className="flex flex-wrap gap-1 mb-2">
-                  {s.service_areas && s.service_areas.length > 0 ? (
-                    s.service_areas.slice(0, 2).map((city, idx) => (
-                      <span key={idx} className="text-[10px] bg-gray-50 px-2 py-1 rounded-md text-gray-500 font-bold">
-                        {city}
-                      </span>
-                    ))
-                  ) : (
-                    <span className="text-[10px] bg-green-50 text-green-600 px-2 py-1 rounded-md font-bold">
-                      كل المناطق
-                    </span>
-                  )}
-                  {(s.service_areas?.length || 0) > 2 && (
-                    <span className="text-[10px] bg-gray-50 px-2 py-1 rounded-md text-gray-500 font-bold">
-                      +{s.service_areas!.length - 2}
-                    </span>
-                  )}
-                </div>
-                <PriceTag amount={s.price} className="text-lg font-bold" />
-                <div className="mt-auto flex gap-2">
-                  <Button
-                    variant="outline"
-                    className="flex-1 rounded-lg text-xs font-bold"
-                    onClick={() => { setCurrentService(s); setIsEditing(true); }}
-                  >
-                    <Edit3 className="w-3 h-3 ml-1" /> تعديل
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    className="w-10 h-10 p-0 rounded-lg"
-                    onClick={() => handleDelete(s.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
+      {/* Table */}
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <table className="w-full text-right">
+          <thead className="bg-gray-50 text-gray-500 text-xs font-bold uppercase">
+            <tr>
+              <th className="p-4">الخدمة</th>
+              <th className="p-4">التصنيف</th>
+              <th className="p-4">المناطق</th>
+              <th className="p-4">السعر</th>
+              <th className="p-4">الحالة</th>
+              <th className="p-4 text-center">إجراءات</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="p-10 text-center">
+                  <Loader2 className="w-6 h-6 animate-spin mx-auto text-gray-400" />
+                </td>
+              </tr>
+            ) : filteredServices.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="p-10 text-center text-gray-400 font-bold">
+                  لا توجد خدمات
+                </td>
+              </tr>
+            ) : (
+              filteredServices.map(s => (
+                <tr key={s.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-16 h-12 rounded-lg bg-gray-50 overflow-hidden flex-shrink-0 border border-gray-200">
+                        {s.image_url ? (
+                          <img src={s.image_url} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-300">
+                            <Package className="w-6 h-6" />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <div className="font-bold text-gray-900">{s.name}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <Badge variant="default">{s.category}</Badge>
+                  </td>
+                  <td className="p-4">
+                    {s.service_areas && s.service_areas.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {s.service_areas.slice(0, 2).map((city, idx) => (
+                          <span key={idx} className="text-[10px] bg-gray-50 px-2 py-1 rounded-md text-gray-500 font-bold">
+                            {city}
+                          </span>
+                        ))}
+                        {s.service_areas.length > 2 && (
+                          <span className="text-[10px] bg-gray-50 px-2 py-1 rounded-md text-gray-500 font-bold">
+                            +{s.service_areas.length - 2}
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-xs text-green-600 font-bold">كل المناطق</span>
+                    )}
+                  </td>
+                  <td className="p-4">
+                    <PriceTag amount={s.price} className="text-sm font-bold" />
+                  </td>
+                  <td className="p-4">
+                    <Badge variant={s.is_active ? 'success' : 'default'}>
+                      {s.is_active ? 'نشط' : 'غير نشط'}
+                    </Badge>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={() => { setCurrentService(s); setIsEditing(true); }}
+                        className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(s.id)}
+                        className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
 
       {/* Modal */}

@@ -334,60 +334,91 @@ export const VendorHalls: React.FC<VendorHallsProps> = ({ user }) => {
         </div>
       </div>
 
-      {/* Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {loading ? (
-          [1, 2, 3].map(i => (
-            <div key={i} className="h-80 bg-gray-100 animate-pulse rounded-2xl"></div>
-          ))
-        ) : filteredHalls.length === 0 ? (
-          <div className="col-span-full bg-white rounded-lg border border-gray-200 p-10 text-center">
-            <Building2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 font-bold">لا توجد قاعات</p>
-          </div>
-        ) : (
-          filteredHalls.map(hall => (
-            <div key={hall.id} className="group bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-primary/50 hover:shadow-lg transition-all flex flex-col">
-              <div className="aspect-[4/3] bg-gray-50 relative overflow-hidden">
-                {hall.image_url ? (
-                  <img src={hall.image_url} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                ) : (
-                  <div className="flex h-full items-center justify-center opacity-10">
-                    <Building2 className="w-16 h-16" />
-                  </div>
-                )}
-                <div className="absolute top-3 right-3">
-                  <Badge variant={hall.is_active ? 'success' : 'default'}>
-                    {hall.is_active ? 'نشط' : 'غير نشط'}
-                  </Badge>
-                </div>
-              </div>
-              <div className="p-4 flex-1 flex flex-col gap-3">
-                <h3 className="font-bold text-base text-gray-900 truncate">{hall.name}</h3>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <MapPin className="w-4 h-4 text-gray-400" />
-                  <span>{hall.city}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Users className="w-4 h-4 text-gray-400" />
-                  <span>{hall.capacity} ضيف</span>
-                </div>
-                {hall.price_per_night && (
-                  <PriceTag amount={hall.price_per_night} className="text-lg font-bold" />
-                )}
-                <div className="mt-auto flex gap-2">
-                  <Button
-                    variant="outline"
-                    className="flex-1 rounded-lg text-xs font-bold"
-                    onClick={() => handleEdit(hall)}
-                  >
-                    <Edit3 className="w-3 h-3 ml-1" /> تعديل
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
+      {/* Table */}
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <table className="w-full text-right">
+          <thead className="bg-gray-50 text-gray-500 text-xs font-bold uppercase">
+            <tr>
+              <th className="p-4">القاعة</th>
+              <th className="p-4">المدينة</th>
+              <th className="p-4">السعة</th>
+              <th className="p-4">سعر الليلة</th>
+              <th className="p-4">الحالة</th>
+              <th className="p-4 text-center">إجراءات</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="p-10 text-center">
+                  <Loader2 className="w-6 h-6 animate-spin mx-auto text-gray-400" />
+                </td>
+              </tr>
+            ) : filteredHalls.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="p-10 text-center text-gray-400 font-bold">
+                  لا توجد قاعات
+                </td>
+              </tr>
+            ) : (
+              filteredHalls.map(hall => (
+                <tr key={hall.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-16 h-12 rounded-lg bg-gray-50 overflow-hidden flex-shrink-0 border border-gray-200">
+                        {hall.image_url ? (
+                          <img src={hall.image_url} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-300">
+                            <Building2 className="w-6 h-6" />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <div className="font-bold text-gray-900">{hall.name}</div>
+                        <div className="text-xs text-gray-500">{hall.city}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <MapPin className="w-3 h-3 text-gray-400" />
+                      <span>{hall.city}</span>
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Users className="w-3 h-3 text-gray-400" />
+                      <span className="font-bold">{hall.capacity}</span> ضيف
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    {hall.price_per_night ? (
+                      <PriceTag amount={hall.price_per_night} className="text-sm font-bold" />
+                    ) : (
+                      <span className="text-sm text-gray-400">-</span>
+                    )}
+                  </td>
+                  <td className="p-4">
+                    <Badge variant={hall.is_active ? 'success' : 'default'}>
+                      {hall.is_active ? 'نشط' : 'غير نشط'}
+                    </Badge>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={() => handleEdit(hall)}
+                        className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
 
       {/* Edit Modal */}
@@ -573,34 +604,19 @@ export const VendorHalls: React.FC<VendorHallsProps> = ({ user }) => {
                       <FileText className="w-4 h-4" />
                       الشروط والأحكام
                     </h3>
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <label className="text-xs font-bold text-gray-500">سياسة الإلغاء</label>
-                        <textarea 
-                          className="w-full h-24 border border-gray-200 rounded-xl p-3 bg-white outline-none resize-none font-bold text-sm" 
-                          placeholder="اكتب سياسة الإلغاء الخاصة بالقاعة..."
-                          value={(currentHall as any).cancellation_policy || ''} 
-                          onChange={e => setCurrentHall({...currentHall, cancellation_policy: e.target.value} as any)} 
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-xs font-bold text-gray-500">شروط الحجز</label>
-                        <textarea 
-                          className="w-full h-24 border border-gray-200 rounded-xl p-3 bg-white outline-none resize-none font-bold text-sm" 
-                          placeholder="اكتب شروط الحجز الخاصة بالقاعة..."
-                          value={(currentHall as any).terms_and_conditions || ''} 
-                          onChange={e => setCurrentHall({...currentHall, terms_and_conditions: e.target.value} as any)} 
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-xs font-bold text-gray-500">معلومات إضافية</label>
-                        <textarea 
-                          className="w-full h-24 border border-gray-200 rounded-xl p-3 bg-white outline-none resize-none font-bold text-sm" 
-                          placeholder="أي معلومات أو شروط إضافية..."
-                          value={(currentHall as any).additional_info || ''} 
-                          onChange={e => setCurrentHall({...currentHall, additional_info: e.target.value} as any)} 
-                        />
-                      </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-gray-500">الشروط والأحكام العامة</label>
+                      <textarea 
+                        className="w-full h-48 border border-gray-200 rounded-xl p-3 bg-white outline-none resize-none font-bold text-sm" 
+                        placeholder="اكتب الشروط والأحكام الخاصة بالقاعة هنا...
+
+يمكنك تضمين:
+- سياسة الإلغاء والحجز
+- الشروط والأحكام العامة
+- معلومات إضافية هامة"
+                        value={(currentHall as any).terms_and_conditions || ''} 
+                        onChange={e => setCurrentHall({...currentHall, terms_and_conditions: e.target.value} as any)} 
+                      />
                     </div>
                   </div>
 
