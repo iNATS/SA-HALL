@@ -45,6 +45,7 @@ import { VendorChooseType } from './pages/VendorChooseType';
 import { VendorBookings } from './pages/VendorBookings';
 import { VendorAddAssetPayment } from './pages/VendorAddAssetPayment';
 import { AdminHomePageSections } from './pages/AdminHomePageSections';
+import { PaymentCallback } from './pages/PaymentCallback';
 import { PopupAnnouncements } from './components/PopupAnnouncements';
 import { Button } from './components/ui/Button';
 import { Input } from './components/ui/Input';
@@ -694,6 +695,7 @@ const App: React.FC = () => {
       case 'vendor_subscription': return userProfile ? <VendorSubscription user={userProfile} onComplete={() => { setRegStep(3); setActiveTab('vendor_register'); }} /> : null;
       case 'vendor_choose_type': return userProfile ? <VendorChooseType user={userProfile} /> : null;
       case 'admin_requests': return <AdminRequests />;
+      case 'payment-callback': return <PaymentCallback />;
       default: return <Home user={userProfile} onLoginClick={() => setActiveTab('vendor_login')} onRegisterClick={() => setActiveTab('vendor_register')} onBrowseHalls={(f) => { setBrowseFilters(f); setActiveTab('browse_halls'); }} onNavigate={handleNavigate} onLogout={handleLogout} />;
     }
   };

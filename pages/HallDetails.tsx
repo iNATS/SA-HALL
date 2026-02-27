@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../supabaseClient';
-import { Hall, UserProfile, VAT_RATE, HallPackage, BookingConfig, HallAddon, HALL_AMENITIES, Coupon } from '../types';
+import { Hall, UserProfile, VAT_RATE, HallPackage, BookingConfig, HallAddon, HALL_AMENITIES, Coupon, Service } from '../types';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Modal } from '../components/ui/Modal';
@@ -12,7 +12,7 @@ import { HyperPayForm } from '../components/Payment/HyperPayForm';
 import { prepareCheckout } from '../services/paymentService';
 import {
   MapPin, CheckCircle2, Loader2, Share2, Heart, ArrowRight, Star,
-  Calendar as CalendarIcon, Package, Info, Sparkles, Check, Users, Clock, Mail, Tag, FileText, Lock, Plus, Minus, CreditCard, ShoppingBag, Phone, User, MessageCircle, X, ShieldCheck, Moon
+  Calendar as CalendarIcon, Package, Info, Sparkles, Check, Users, Clock, Mail, Tag, FileText, Lock, Plus, Minus, CreditCard, ShoppingBag, Phone, User, MessageCircle, X, ShieldCheck, Moon, Scissors, Camera, Music, UtensilsCrossed
 } from 'lucide-react';
 import { Calendar } from '../components/ui/Calendar';
 import { useToast } from '../context/ToastContext';
@@ -275,7 +275,8 @@ export const HallDetails: React.FC<HallDetailsProps> = ({ item, user, onBack, on
               discount_amount: priceDetails.discountAmount,
               applied_coupon: appliedCoupon?.code,
               booking_option: paymentOption,
-              package_details: selectedPackage,
+              package_details: bookingType === 'package' ? selectedPackage : selectedNightPackage,
+              booking_type: bookingType,
               guest_name: guestData.name,
               guest_phone: normalizedPhone,
               guest_email: guestData.email,
@@ -286,6 +287,7 @@ export const HallDetails: React.FC<HallDetailsProps> = ({ item, user, onBack, on
               guests_children: guestCounts.women,
               items: [
                   ...(selectedPackage ? [{ name: `باقة: ${selectedPackage.name}`, price: selectedPackage.price, qty: (guestCounts.men + guestCounts.women), type: 'package' }] : []),
+                  ...(selectedNightPackage ? [{ name: `باقة ليلة: ${selectedNightPackage.package_name}`, price: selectedNightPackage.price, qty: bookingType === 'night_package' && selectedNightPackage.package_type === 'per_person' ? (guestCounts.men + guestCounts.women) : 1, type: 'night_package' }] : []),
                   ...selectedAddons.map(addon => ({ name: addon.name, price: addon.price, qty: 1, type: 'addon' }))
               ]
           }]).select().single();
@@ -320,29 +322,20 @@ export const HallDetails: React.FC<HallDetailsProps> = ({ item, user, onBack, on
   };
 
   const handlePaymentComplete = async () => {
-      // Payment completed successfully
-      if (createdBookingId) {
-          await supabase.from('bookings').update({
-              status: 'confirmed',
-              payment_status: 'paid'
-          }).eq('id', createdBookingId);
-      }
-      
+      // Payment completed successfully - user will be redirected to callback page
       setShowPaymentForm(false);
-      setShowSuccess(true);
-      toast({ title: 'تم الدفع بنجاح', description: 'تم تأكيد الحجز بنجاح.', variant: 'success' });
       setIsProcessing(false);
   };
 
   const handlePaymentCancel = async () => {
-      // Payment was cancelled
+      // Payment was cancelled by user
       if (createdBookingId) {
           await supabase.from('bookings').update({
               status: 'cancelled',
               payment_status: 'failed'
           }).eq('id', createdBookingId);
       }
-      
+
       setShowPaymentForm(false);
       toast({ title: 'تم إلغاء الدفع', description: 'تم إلغاء عملية الدفع.', variant: 'destructive' });
       setIsProcessing(false);
@@ -574,44 +567,7 @@ export const HallDetails: React.FC<HallDetailsProps> = ({ item, user, onBack, on
                         </div>
                     )}
 
-                    {/* Package Details Info */}
-                    {bookingType === 'package' && selectedPackage && (
-                        <div className="p-6 bg-gradient-to-l from-primary/10 to-primary/5 rounded-[2rem] border border-primary/20 space-y-4">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 bg-primary/20 rounded-2xl flex items-center justify-center">
-                                        <CalendarIcon className="w-6 h-6 text-primary" />
-                                    </div>
-                                    <div>
-                                        <h4 className="font-black text-lg text-gray-900">سعر الليلة الكاملة</h4>
-                                        <p className="text-xs text-gray-500 font-bold mt-1">مناسب للأعراس والمناسبات الكبيرة</p>
-                                    </div>
-                                </div>
-                                <div className="text-left">
-                                    <PriceTag amount={item.price_per_night} className="text-3xl font-black text-primary block" />
-                                    <span className="text-[10px] text-gray-400 font-bold">/ لليلة كاملة</span>
-                                </div>
-                            </div>
-                            
-                            {/* Max Capacity for Night */}
-                            <div className="grid grid-cols-2 gap-3 pt-4 border-t border-primary/10">
-                                <div className="bg-white p-3 rounded-xl border border-primary/10">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <Users className="w-4 h-4 text-primary" />
-                                        <span className="text-xs font-bold text-gray-500">الحد الأقصى للرجال</span>
-                                    </div>
-                                    <p className="text-lg font-black text-gray-900">{item.capacity_men || 0} رجل</p>
-                                </div>
-                                <div className="bg-white p-3 rounded-xl border border-primary/10">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <Users className="w-4 h-4 text-primary" />
-                                        <span className="text-xs font-bold text-gray-500">الحد الأقصى للنساء</span>
-                                    </div>
-                                    <p className="text-lg font-black text-gray-900">{item.capacity_women || 0} امرأة</p>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                    {/* Package Details Info - Removed as per requirements */}
                 </div>
 
                 {/* 3. Addons / Services */}
@@ -1006,7 +962,7 @@ export const HallDetails: React.FC<HallDetailsProps> = ({ item, user, onBack, on
                 <div className="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100">
                   <div className="flex items-center gap-2 text-xs text-gray-500">
                     <Users className="w-3 h-3" />
-                    <span>السعة: {pkg.capacity || pkg.min_capacity || 0} فرد</span>
+                    <span>��لسعة: {pkg.capacity || pkg.min_capacity || 0} فرد</span>
                   </div>
                 </div>
               </div>
@@ -1040,10 +996,10 @@ export const HallDetails: React.FC<HallDetailsProps> = ({ item, user, onBack, on
 
                     {/* Payment Form */}
                     <div className="p-6">
-                        <HyperPayForm 
+                        <HyperPayForm
                             checkoutId={checkoutData.checkoutId}
                             baseUrl={checkoutData.url}
-                            redirectUrl={window.location.href}
+                            redirectUrl={`${window.location.origin}/payment-callback`}
                         />
                     </div>
 
