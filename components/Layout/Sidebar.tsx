@@ -39,6 +39,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, activeTab, setActiveTab,
           { id: 'admin_halls', label: 'إدارة القاعات', icon: <Building2 className="w-5 h-5" /> },
           { id: 'admin_services', label: 'إدارة الخدمات', icon: <TagIcon className="w-5 h-5" /> },
           { id: 'admin_subscribers', label: 'إدارة المشتركين', icon: <UserCheck className="w-5 h-5" /> },
+          { id: 'admin_home_sections', label: 'أقسام الصفحة الرئيسية', icon: <LayoutDashboard className="w-5 h-5" /> },
           { id: 'admin_accounting', label: 'الحسابات', icon: <Banknote className="w-5 h-5" /> },
           { id: 'admin_coupons', label: 'كوبونات الخصم', icon: <Tag className="w-5 h-5" /> },
           { id: 'admin_store', label: 'إدارة المتجر (POS)', icon: <Store className="w-5 h-5" /> },
@@ -74,6 +75,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, activeTab, setActiveTab,
         items: [
           { id: 'accounting', label: 'الفواتير والحسابات', icon: <Receipt className="w-5 h-5" /> },
           { id: 'coupons', label: 'كوبونات الخصم', icon: <Tag className="w-5 h-5" /> },
+          { id: 'vendor_marketplace', label: 'متجر المنصة', icon: <Store className="w-5 h-5" /> },
         ]
       },
       {

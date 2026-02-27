@@ -4,13 +4,15 @@ import { supabase } from '../supabaseClient';
 import { Hall, UserProfile, VAT_RATE, HallPackage, BookingConfig, HallAddon, HALL_AMENITIES, Coupon } from '../types';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { Modal } from '../components/ui/Modal';
+import { Badge } from '../components/ui/Badge';
 import { PriceTag } from '../components/ui/PriceTag';
 import { InvoiceModal } from '../components/Invoice/InvoiceModal';
 import { HyperPayForm } from '../components/Payment/HyperPayForm';
 import { prepareCheckout } from '../services/paymentService';
 import {
   MapPin, CheckCircle2, Loader2, Share2, Heart, ArrowRight, Star,
-  Calendar as CalendarIcon, Package, Info, Sparkles, Check, Users, Clock, Mail, Tag, FileText, Lock, Plus, Minus, CreditCard, ShoppingBag, Phone, User, MessageCircle, X, ShieldCheck
+  Calendar as CalendarIcon, Package, Info, Sparkles, Check, Users, Clock, Mail, Tag, FileText, Lock, Plus, Minus, CreditCard, ShoppingBag, Phone, User, MessageCircle, X, ShieldCheck, Moon
 } from 'lucide-react';
 import { Calendar } from '../components/ui/Calendar';
 import { useToast } from '../context/ToastContext';
@@ -27,15 +29,18 @@ interface HallDetailsProps {
 
 export const HallDetails: React.FC<HallDetailsProps> = ({ item, user, onBack, onPay, onNavigate }) => {
   const [selectedPackage, setSelectedPackage] = useState<HallPackage | null>(null);
+  const [selectedNightPackage, setSelectedNightPackage] = useState<any | null>(null);
+  const [nightPackages, setNightPackages] = useState<any[]>([]);
   const [bookingDate, setBookingDate] = useState<Date | undefined>(undefined);
   const [blockedDates, setBlockedDates] = useState<Date[]>([]);
   const [bookingConfig, setBookingConfig] = useState<BookingConfig | null>(null);
+  const [showNightPackagesModal, setShowNightPackagesModal] = useState(false);
 
   // Image Gallery State
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Booking Type: 'night' or 'package'
-  const [bookingType, setBookingType] = useState<'night' | 'package'>(item.price_per_night && item.price_per_night > 0 ? 'night' : 'package');
+  // Booking Type: 'package' or 'night_package'
+  const [bookingType, setBookingType] = useState<'package' | 'night_package'>('package');
 
   // Guest Counts
   const [guestCounts, setGuestCounts] = useState({ men: 0, women: 0 });
@@ -60,15 +65,13 @@ export const HallDetails: React.FC<HallDetailsProps> = ({ item, user, onBack, on
 
   useEffect(() => {
     // 1. Set Default based on available options
-    if (item.price_per_night && item.price_per_night > 0) {
-        setBookingType('night');
-        // Set default guest counts based on capacity
-        setGuestCounts({ men: item.capacity_men || 50, women: item.capacity_women || 50 });
-    } else if (item.packages && item.packages.length > 0) {
+    if (item.packages && item.packages.length > 0) {
         const def = item.packages.find(p => p.is_default) || item.packages[0];
         setSelectedPackage(def);
         setBookingType('package');
         setGuestCounts({ men: def.min_men || 0, women: def.min_women || 0 });
+    } else if (nightPackages.length > 0) {
+        setBookingType('night_package');
     }
 
     // 2. Fetch Availability
@@ -81,7 +84,21 @@ export const HallDetails: React.FC<HallDetailsProps> = ({ item, user, onBack, on
     };
     fetchAvailability();
 
-    // 3. Fetch Config
+    // 3. Fetch Night Packages
+    const fetchNightPackages = async () => {
+      const { data } = await supabase.from('hall_night_packages').select('*').eq('hall_id', item.id).eq('is_active', true);
+      if (data && data.length > 0) {
+        setNightPackages(data);
+        const defaultPkg = data.find(p => p.is_default) || data[0];
+        setSelectedNightPackage(defaultPkg);
+        if (!item.packages || item.packages.length === 0) {
+          setBookingType('night_package');
+        }
+      }
+    };
+    fetchNightPackages();
+
+    // 4. Fetch Config
     const fetchConfig = async () => {
         const { data } = await supabase.from('system_settings').select('value').eq('key', 'platform_config').maybeSingle();
         if (data?.value?.booking_config) {
@@ -89,21 +106,28 @@ export const HallDetails: React.FC<HallDetailsProps> = ({ item, user, onBack, on
         }
     };
     fetchConfig();
-  }, [item.id, item.packages, item.price_per_night, item.capacity_men, item.capacity_women]);
+  }, [item.id]);
 
   // Pricing Logic (Night Price OR Package)
   const priceDetails = useMemo(() => {
       let baseCost = 0;
       let personPrice = 0;
 
-      if (bookingType === 'night') {
-          // Night price - fixed cost regardless of guest count
-          baseCost = item.price_per_night || 0;
-      } else if (selectedPackage) {
+      if (bookingType === 'package' && selectedPackage) {
           // Package price - per person
           personPrice = selectedPackage.price;
           const totalGuests = guestCounts.men + guestCounts.women;
           baseCost = totalGuests * personPrice;
+      } else if (bookingType === 'night_package' && selectedNightPackage) {
+          // Night package price
+          if (selectedNightPackage.package_type === 'per_person') {
+              personPrice = selectedNightPackage.price;
+              const totalGuests = guestCounts.men + guestCounts.women;
+              baseCost = totalGuests * personPrice;
+          } else {
+              // night or hourly - fixed price
+              baseCost = selectedNightPackage.price;
+          }
       }
 
       let seasonalMultiplier = 1;
@@ -141,7 +165,7 @@ export const HallDetails: React.FC<HallDetailsProps> = ({ item, user, onBack, on
       return {
           personPrice,
           packageTotal: bookingType === 'package' ? baseCost : 0,
-          nightPrice: bookingType === 'night' ? baseCost : 0,
+          nightPackageTotal: bookingType === 'night_package' ? baseCost : 0,
           seasonalIncrease,
           addonsTotal,
           subTotal,
@@ -150,7 +174,7 @@ export const HallDetails: React.FC<HallDetailsProps> = ({ item, user, onBack, on
           grandTotal,
           total: subTotal
       };
-  }, [bookingType, selectedPackage, bookingDate, guestCounts, item.seasonal_prices, item.price_per_night, selectedAddons, appliedCoupon]);
+  }, [bookingType, selectedPackage, selectedNightPackage, bookingDate, guestCounts, item.seasonal_prices, selectedAddons, appliedCoupon]);
 
   // Payment Amounts based on Grand Total
   const paymentAmounts = useMemo(() => {
@@ -405,19 +429,6 @@ export const HallDetails: React.FC<HallDetailsProps> = ({ item, user, onBack, on
 
                     {/* Booking Type Toggle */}
                     <div className="flex gap-3 mb-6">
-                        {item.price_per_night && item.price_per_night > 0 && (
-                            <button
-                                onClick={() => setBookingType('night')}
-                                className={`flex-1 p-4 rounded-2xl border-2 transition-all ${bookingType === 'night' ? 'border-primary bg-primary/5' : 'border-gray-100 hover:border-gray-200'}`}
-                            >
-                                <div className="flex items-center justify-between mb-2">
-                                    <CalendarIcon className={`w-5 h-5 ${bookingType === 'night' ? 'text-primary' : 'text-gray-400'}`} />
-                                    {bookingType === 'night' && <CheckCircle2 className="w-5 h-5 text-primary" />}
-                                </div>
-                                <p className="font-black text-sm text-gray-900">سعر الليلة</p>
-                                <PriceTag amount={item.price_per_night} className="text-lg font-black text-primary mt-1" />
-                            </button>
-                        )}
                         {item.packages && item.packages.length > 0 && (
                             <button
                                 onClick={() => { setBookingType('package'); if (!selectedPackage) { const def = item.packages?.find(p => p.is_default) || item.packages?.[0]; setSelectedPackage(def); setGuestCounts({ men: def?.min_men || 0, women: def?.min_women || 0 }); }}}
@@ -431,10 +442,140 @@ export const HallDetails: React.FC<HallDetailsProps> = ({ item, user, onBack, on
                                 <p className="text-xs text-gray-500 font-bold mt-1">تبدأ من {item.packages[0].price} ر.س</p>
                             </button>
                         )}
+                        {nightPackages.length > 0 && (
+                            <button
+                                onClick={() => { setBookingType('night_package'); if (!selectedNightPackage) { const def = nightPackages?.find(p => p.is_default) || nightPackages?.[0]; setSelectedNightPackage(def); setGuestCounts({ men: def?.capacity || 0, women: 0 }); }}}
+                                className={`flex-1 p-4 rounded-2xl border-2 transition-all ${bookingType === 'night_package' ? 'border-primary bg-primary/5' : 'border-gray-100 hover:border-primary/30'} bg-gradient-to-br from-purple-50 to-primary/5`}
+                            >
+                                <div className="flex items-center justify-between mb-2">
+                                    <Moon className={`w-5 h-5 ${bookingType === 'night_package' ? 'text-primary' : 'text-gray-400'}`} />
+                                    {bookingType === 'night_package' && <CheckCircle2 className="w-5 h-5 text-primary" />}
+                                </div>
+                                <p className="font-black text-sm text-gray-900">باقات الليالي</p>
+                                <p className="text-xs text-gray-500 font-bold mt-1">تبدأ من {nightPackages[0].price} ر.س</p>
+                            </button>
+                        )}
                     </div>
 
-                    {/* Night Price Details */}
-                    {bookingType === 'night' && item.price_per_night && item.price_per_night > 0 && (
+                    {/* Package/Night Package Selection - Detailed Grid View */}
+                    {bookingType === 'package' && item.packages && item.packages.length > 0 && (
+                        <div className="grid md:grid-cols-2 gap-4">
+                            {item.packages.map((pkg, idx) => (
+                                <div
+                                    key={idx}
+                                    onClick={() => { setSelectedPackage(pkg); setGuestCounts({ men: pkg.min_men, women: pkg.min_women }); }}
+                                    className={`cursor-pointer border-2 rounded-[2rem] p-6 transition-all relative overflow-hidden ${selectedPackage?.name === pkg.name ? 'border-primary bg-primary/5' : 'border-gray-100 hover:border-gray-200'}`}
+                                >
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${selectedPackage?.name === pkg.name ? 'bg-primary text-white' : 'bg-gray-100 text-gray-400'}`}>
+                                                <Users className="w-6 h-6" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-black text-lg text-gray-900">{pkg.name}</h4>
+                                                {pkg.is_default && <Badge variant="success" className="text-[10px] mt-1">افتراضية</Badge>}
+                                            </div>
+                                        </div>
+                                        {selectedPackage?.name === pkg.name && (
+                                            <CheckCircle2 className="w-6 h-6 text-primary" />
+                                        )}
+                                    </div>
+                                    
+                                    {pkg.description && (
+                                        <p className="text-sm text-gray-600 mb-4 leading-relaxed">{pkg.description}</p>
+                                    )}
+                                    
+                                    <div className="space-y-3 mb-4">
+                                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                                            <Users className="w-4 h-4 text-primary" />
+                                            <span className="font-bold">الرجال:</span>
+                                            <span className="text-gray-900 font-black">{pkg.min_men} - {pkg.max_men} رجل</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                                            <Users className="w-4 h-4 text-primary" />
+                                            <span className="font-bold">النساء:</span>
+                                            <span className="text-gray-900 font-black">{pkg.min_women} - {pkg.max_women} امرأة</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="bg-white rounded-xl p-4 border border-gray-100 mb-4">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-xs font-bold text-gray-500">سعر الفرد</span>
+                                            <div className="flex items-center gap-1">
+                                                <PriceTag amount={pkg.price} className="text-xl font-black text-primary" />
+                                                <span className="text-xs text-gray-500 font-bold">/ للشخص</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                                            <span className="text-xs font-bold text-gray-500">الحد الأدنى للإجمالي</span>
+                                            <span className="text-sm font-black text-gray-900">
+                                                {Math.round(pkg.price * (pkg.min_men + pkg.min_women))} ر.س
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                                        <Info className="w-3 h-3" />
+                                        <span>يمكنك كتابة العدد المطلوب أثناء الحجز</span>
+                                    </div>
+                                    
+                                    {selectedPackage?.name === pkg.name && (
+                                        <div className="absolute top-0 right-0 w-16 h-16 bg-primary rounded-full -mr-8 -mt-8 opacity-20" />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {bookingType === 'night_package' && nightPackages.length > 0 && (
+                        <div className="flex flex-nowrap gap-4 overflow-x-auto pb-4 no-scrollbar">
+                            {nightPackages.map((pkg, idx) => (
+                                <div
+                                    key={pkg.id}
+                                    onClick={() => { setSelectedNightPackage(pkg); setGuestCounts({ men: pkg.capacity || 0, women: 0 }); }}
+                                    className={`cursor-pointer border-2 rounded-[2rem] p-6 transition-all relative overflow-hidden min-w-[280px] flex-1 ${selectedNightPackage?.id === pkg.id ? 'border-primary bg-primary/5' : 'border-gray-100 hover:border-gray-200'} bg-gradient-to-br from-purple-50 to-primary/5`}
+                                >
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div className="flex items-center gap-2">
+                                            <Moon className="w-5 h-5 text-primary" />
+                                            <h4 className="font-black text-lg">{pkg.package_name}</h4>
+                                        </div>
+                                        {pkg.is_default && <Badge variant="success" className="text-[10px]">افتراضية</Badge>}
+                                    </div>
+                                    {pkg.description && (
+                                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">{pkg.description}</p>
+                                    )}
+                                    <div className="flex items-center gap-2 text-xs text-gray-600 mb-3">
+                                        {pkg.package_type === 'night' && <><Moon className="w-3 h-3" /> بالليلة</>}
+                                        {pkg.package_type === 'per_person' && <><Users className="w-3 h-3" /> للشخص</>}
+                                        {pkg.package_type === 'hourly' && <><Clock className="w-3 h-3" /> بالساعة ({pkg.duration_hours} ساعة)</>}
+                                    </div>
+                                    {pkg.includes && (
+                                        <div className="bg-white/50 p-2 rounded-lg mb-3">
+                                            <p className="text-[10px] font-bold text-gray-500 mb-1">تحتوي:</p>
+                                            <p className="text-xs text-gray-700 line-clamp-2">{pkg.includes}</p>
+                                        </div>
+                                    )}
+                                    <div className="flex items-center justify-between">
+                                        <PriceTag amount={pkg.price} className="text-2xl font-black text-primary" />
+                                        <span className="text-xs text-gray-500 font-bold">
+                                            {pkg.package_type === 'per_person' ? '/ للشخص' : pkg.package_type === 'hourly' ? `/ ${pkg.duration_hours} ساعة` : '/ لليلة'}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs text-gray-500 mt-2">
+                                        <Users className="w-3 h-3" />
+                                        <span>السعة: {pkg.capacity || pkg.min_capacity || 0} فرد</span>
+                                    </div>
+                                    {selectedNightPackage?.id === pkg.id && (
+                                        <div className="absolute top-0 right-0 w-16 h-16 bg-primary rounded-full -mr-8 -mt-8 opacity-20" />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Package Details Info */}
+                    {bookingType === 'package' && selectedPackage && (
                         <div className="p-6 bg-gradient-to-l from-primary/10 to-primary/5 rounded-[2rem] border border-primary/20 space-y-4">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
@@ -471,41 +612,9 @@ export const HallDetails: React.FC<HallDetailsProps> = ({ item, user, onBack, on
                             </div>
                         </div>
                     )}
-
-                    {/* Package Selection */}
-                    {bookingType === 'package' && item.packages && item.packages.length > 0 && (
-                        <div className="flex flex-nowrap gap-4 overflow-x-auto pb-4 no-scrollbar">
-                            {item.packages.map((pkg, idx) => (
-                                <div
-                                    key={idx}
-                                    onClick={() => { setSelectedPackage(pkg); setGuestCounts({ men: pkg.min_men, women: pkg.min_women }); }}
-                                    className={`cursor-pointer border-2 rounded-[2rem] p-6 transition-all relative overflow-hidden min-w-[280px] flex-1 ${selectedPackage?.name === pkg.name ? 'border-primary bg-primary/5' : 'border-gray-100 hover:border-gray-200'}`}
-                                >
-                                    <div className="flex justify-between items-start mb-4">
-                                        <h4 className="font-black text-lg">{pkg.name}</h4>
-                                        {selectedPackage?.name === pkg.name && <CheckCircle2 className="w-6 h-6 text-primary" />}
-                                    </div>
-                                    <div className="space-y-2 text-xs font-bold text-gray-500 mb-4">
-                                        <div className="flex justify-between bg-white p-2 rounded-lg border border-gray-100">
-                                            <span>رجال</span>
-                                            <span>{pkg.min_men} - {pkg.max_men}</span>
-                                        </div>
-                                        <div className="flex justify-between bg-white p-2 rounded-lg border border-gray-100">
-                                            <span>نساء</span>
-                                            <span>{pkg.min_women} - {pkg.max_women}</span>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-end gap-1">
-                                        <PriceTag amount={pkg.price} className="text-xl font-black text-primary block text-left" />
-                                        <span className="text-[10px] text-gray-400 font-bold mb-1">/ للفرد</span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
                 </div>
 
-                {/* 3. Addons / Services - MOVED HERE */}
+                {/* 3. Addons / Services */}
                 {item.addons && item.addons.length > 0 && (
                     <div className="bg-white border border-gray-100 rounded-[2.5rem] p-8 shadow-sm">
                         <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-2">
@@ -644,17 +753,7 @@ export const HallDetails: React.FC<HallDetailsProps> = ({ item, user, onBack, on
                             </div>
 
                             {/* Guest Counts & Pricing Logic */}
-                            {bookingType === 'night' ? (
-                                <div className="space-y-4 border-t border-gray-50 pt-4">
-                                    <div className="flex justify-between items-center">
-                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">نوع الحجز</label>
-                                        <span className="text-xs font-black text-primary bg-primary/5 px-2 py-1 rounded-lg">سعر الليلة</span>
-                                    </div>
-                                    <div className="bg-primary/5 p-4 rounded-2xl border border-primary/10">
-                                        <p className="text-xs font-bold text-gray-600">السعر ثابت بغض النظر عن عدد الضيوف</p>
-                                    </div>
-                                </div>
-                            ) : selectedPackage && (
+                            {bookingType === 'package' && selectedPackage && (
                                 <div className="space-y-4 border-t border-gray-50 pt-4">
                                     <div className="flex justify-between items-center">
                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">الباقة المختارة</label>
@@ -681,6 +780,43 @@ export const HallDetails: React.FC<HallDetailsProps> = ({ item, user, onBack, on
                                 </div>
                             )}
 
+                            {bookingType === 'night_package' && selectedNightPackage && (
+                                <div className="space-y-4 border-t border-gray-50 pt-4">
+                                    <div className="flex justify-between items-center">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">الباقة المختارة</label>
+                                        <span className="text-xs font-black text-primary bg-purple-50 px-2 py-1 rounded-lg">{selectedNightPackage.package_name}</span>
+                                    </div>
+                                    {selectedNightPackage.package_type === 'per_person' ? (
+                                        <div className="grid grid-cols-2 gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100">
+                                            <div>
+                                                <label className="text-[9px] font-bold text-gray-400 mb-1 block">رجال</label>
+                                                <div className="flex items-center gap-2 bg-white rounded-xl px-2 py-1 border border-gray-200">
+                                                    <button onClick={() => setGuestCounts(prev => ({...prev, men: Math.max(0, prev.men - 10)}))} className="p-1 hover:bg-gray-100 rounded"><Minus className="w-3 h-3" /></button>
+                                                    <span className="flex-1 text-center font-black text-sm">{guestCounts.men}</span>
+                                                    <button onClick={() => setGuestCounts(prev => ({...prev, men: prev.men + 10}))} className="p-1 hover:bg-gray-100 rounded"><Plus className="w-3 h-3" /></button>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="text-[9px] font-bold text-gray-400 mb-1 block">نساء</label>
+                                                <div className="flex items-center gap-2 bg-white rounded-xl px-2 py-1 border border-gray-200">
+                                                    <button onClick={() => setGuestCounts(prev => ({...prev, women: Math.max(0, prev.women - 10)}))} className="p-1 hover:bg-gray-100 rounded"><Minus className="w-3 h-3" /></button>
+                                                    <span className="flex-1 text-center font-black text-sm">{guestCounts.women}</span>
+                                                    <button onClick={() => setGuestCounts(prev => ({...prev, women: prev.women + 10}))} className="p-1 hover:bg-gray-100 rounded"><Plus className="w-3 h-3" /></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="bg-purple-50 p-4 rounded-2xl border border-purple-100">
+                                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                {selectedNightPackage.package_type === 'night' && <><Moon className="w-4 h-4" /> السعر ثابت لليلة كاملة</>}
+                                                {selectedNightPackage.package_type === 'hourly' && <><Clock className="w-4 h-4" /> السعر لـ {selectedNightPackage.duration_hours} ساعات</>}
+                                            </div>
+                                            <div className="mt-2 text-xs text-gray-500">السعة القصوى: {selectedNightPackage.capacity || selectedNightPackage.min_capacity || 0} فرد</div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             {/* Coupon Input */}
                             <div className="flex gap-2 pt-4 border-t border-gray-50">
                                 <div className="relative flex-1">
@@ -704,16 +840,42 @@ export const HallDetails: React.FC<HallDetailsProps> = ({ item, user, onBack, on
                             
                             {/* Summary Breakdown */}
                             <div className="text-center py-4 space-y-2 border-b border-gray-50">
-                                {/* Base Price */}
-                                {bookingType === 'night' ? (
-                                    <div className="flex justify-between text-xs font-bold text-gray-700">
-                                        <span>سعر الليلة</span>
-                                        <span>{Math.round(priceDetails.nightPrice)} ر.س</span>
+                                {/* Package/Night Package Name */}
+                                {bookingType === 'package' && selectedPackage && (
+                                    <div className="bg-primary/5 rounded-xl p-3 mb-2">
+                                        <div className="flex items-center justify-between mb-1">
+                                            <span className="text-xs font-bold text-gray-500">نوع الحجز</span>
+                                            <Badge variant="default">باقات الأفراد</Badge>
+                                        </div>
+                                        <div className="text-sm font-black text-gray-900">{selectedPackage.name}</div>
                                     </div>
-                                ) : selectedPackage && (
+                                )}
+                                {bookingType === 'night_package' && selectedNightPackage && (
+                                    <div className="bg-purple-50 rounded-xl p-3 mb-2">
+                                        <div className="flex items-center justify-between mb-1">
+                                            <span className="text-xs font-bold text-gray-500">نوع الحجز</span>
+                                            <Badge variant="success">باقات الليالي</Badge>
+                                        </div>
+                                        <div className="text-sm font-black text-gray-900">{selectedNightPackage.package_name}</div>
+                                        <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                                            {selectedNightPackage.package_type === 'night' && <><Moon className="w-3 h-3" /> بالليلة</>}
+                                            {selectedNightPackage.package_type === 'per_person' && <><Users className="w-3 h-3" /> للشخص</>}
+                                            {selectedNightPackage.package_type === 'hourly' && <><Clock className="w-3 h-3" /> بالساعة ({selectedNightPackage.duration_hours} ساعة)</>}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Base Price */}
+                                {bookingType === 'package' && selectedPackage && (
                                     <div className="flex justify-between text-xs font-bold text-gray-700">
                                         <span>الباقة ({selectedPackage.name})</span>
                                         <span>{Math.round(priceDetails.packageTotal)} ر.س</span>
+                                    </div>
+                                )}
+                                {bookingType === 'night_package' && selectedNightPackage && (
+                                    <div className="flex justify-between text-xs font-bold text-gray-700">
+                                        <span>باقة {selectedNightPackage.package_name}</span>
+                                        <span>{Math.round(priceDetails.nightPackageTotal)} ر.س</span>
                                     </div>
                                 )}
 
@@ -789,6 +951,74 @@ export const HallDetails: React.FC<HallDetailsProps> = ({ item, user, onBack, on
                 </div>
             </div>
         </div>
+
+        {/* Night Packages Modal */}
+        <Modal
+          isOpen={showNightPackagesModal}
+          onClose={() => setShowNightPackagesModal(false)}
+          title="باقات الليالي"
+        >
+          <div className="space-y-4">
+            {nightPackages.map((pkg) => (
+              <div
+                key={pkg.id}
+                onClick={() => {
+                  setSelectedNightPackage(pkg);
+                  setBookingType('night_package');
+                  setGuestCounts({ men: pkg.capacity || 0, women: 0 });
+                  setShowNightPackagesModal(false);
+                  toast({ title: 'تم الاختيار', description: `تم اختيار ${pkg.package_name}`, variant: 'success' });
+                }}
+                className={`cursor-pointer p-4 rounded-2xl border-2 transition-all ${
+                  selectedNightPackage?.id === pkg.id
+                    ? 'border-primary bg-primary/5'
+                    : 'border-gray-100 hover:border-primary/30'
+                }`}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                      <Moon className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-black text-gray-900">{pkg.package_name}</h4>
+                      <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                        {pkg.package_type === 'night' && <><Moon className="w-3 h-3" /> بالليلة</>}
+                        {pkg.package_type === 'per_person' && <><Users className="w-3 h-3" /> للشخص</>}
+                        {pkg.package_type === 'hourly' && <><Clock className="w-3 h-3" /> بالساعة ({pkg.duration_hours} ساعة)</>}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-left">
+                    <PriceTag amount={pkg.price} className="text-xl font-black text-primary" />
+                    {pkg.is_default && <Badge variant="success" className="text-[10px] mt-1">افتراضية</Badge>}
+                  </div>
+                </div>
+                {pkg.description && (
+                  <p className="text-sm text-gray-600 mb-2">{pkg.description}</p>
+                )}
+                {pkg.includes && (
+                  <div className="bg-gray-50 p-3 rounded-xl">
+                    <p className="text-xs font-bold text-gray-500 mb-1">تحتوي الباقة:</p>
+                    <p className="text-sm text-gray-700">{pkg.includes}</p>
+                  </div>
+                )}
+                <div className="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100">
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <Users className="w-3 h-3" />
+                    <span>السعة: {pkg.capacity || pkg.min_capacity || 0} فرد</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {nightPackages.length === 0 && (
+              <div className="text-center py-10 text-gray-400 font-bold">
+                <Moon className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                لا توجد باقات ليالي متاحة
+              </div>
+            )}
+          </div>
+        </Modal>
 
         {/* HyperPay Payment Modal */}
         {showPaymentForm && checkoutData && (

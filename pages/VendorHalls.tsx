@@ -6,7 +6,7 @@ import { Input } from '../components/ui/Input';
 import { Modal } from '../components/ui/Modal';
 import { Badge } from '../components/ui/Badge';
 import { PriceTag } from '../components/ui/PriceTag';
-import { Plus, X, Loader2, Trash2, Package, CheckSquare, CalendarDays, Image as ImageIcon, Search, Building2, MapPin, Users, Edit3, FileText } from 'lucide-react';
+import { Plus, X, Loader2, Trash2, Package, CheckSquare, CalendarDays, Image as ImageIcon, Search, Building2, MapPin, Users, Edit3, FileText, Moon, Clock } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { Calendar } from '../components/ui/Calendar';
 import { format, isSameDay, parseISO, eachDayOfInterval, getDay } from 'date-fns';
@@ -19,10 +19,21 @@ export const VendorHalls: React.FC<VendorHallsProps> = ({ user }) => {
   const [halls, setHalls] = useState<Hall[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'info' | 'packages' | 'calendar' | 'policies'>('info');
+  const [activeTab, setActiveTab] = useState<'info' | 'packages' | 'policies' | 'calendar' | 'night_packages'>('info');
   const [uploading, setUploading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+
+  // Night Packages State
+  const [nightPackages, setNightPackages] = useState<any[]>([]);
+  const [newNightPackage, setNewNightPackage] = useState<Partial<any>>({
+    package_type: 'night',
+    is_default: false,
+    is_active: true,
+    capacity: 100,
+    description: '',
+    includes: ''
+  });
 
   const [currentHall, setCurrentHall] = useState<Partial<Hall & { name_en?: string, description_en?: string, capacity_men?: number, capacity_women?: number }>>({
       images: [], amenities: [], city: SAUDI_CITIES[0], addons: [], packages: [], seasonal_prices: []
@@ -30,7 +41,7 @@ export const VendorHalls: React.FC<VendorHallsProps> = ({ user }) => {
 
   // Package State
   const [newPackage, setNewPackage] = useState<HallPackage>({
-      name: '', price: 0, min_men: 0, max_men: 100, min_women: 0, max_women: 100, is_default: false, items: []
+      name: '', price: 0, min_men: 0, max_men: 100, min_women: 0, max_women: 100, is_default: false, items: [], description: ''
   });
 
   // Addon State
@@ -82,6 +93,9 @@ export const VendorHalls: React.FC<VendorHallsProps> = ({ user }) => {
       if (data) {
           setBlockedDates(data.map(d => parseISO(d.booking_date)));
       }
+      // Fetch night packages
+      const { data: packagesData } = await supabase.from('hall_night_packages').select('*').eq('hall_id', hall.id);
+      setNightPackages(packagesData || []);
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -440,6 +454,9 @@ export const VendorHalls: React.FC<VendorHallsProps> = ({ user }) => {
               <button onClick={() => setActiveTab('packages')} className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap ${activeTab === 'packages' ? 'bg-white shadow text-primary' : 'text-gray-500'}`}>
                 الباقات والإضافات
               </button>
+              <button onClick={() => setActiveTab('night_packages')} className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap ${activeTab === 'night_packages' ? 'bg-white shadow text-primary' : 'text-gray-500'}`}>
+                باقات الليالي
+              </button>
               <button onClick={() => setActiveTab('policies')} className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap ${activeTab === 'policies' ? 'bg-white shadow text-primary' : 'text-gray-500'}`}>
                 الشروط والأحكام
               </button>
@@ -468,10 +485,6 @@ export const VendorHalls: React.FC<VendorHallsProps> = ({ user }) => {
                       <select className="w-full h-12 border border-gray-200 rounded-xl px-4 bg-white outline-none font-bold text-sm" value={currentHall.city} onChange={e => setCurrentHall({...currentHall, city: e.target.value})}>
                         {SAUDI_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
                       </select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-gray-500">سعر الليلة (ريال سعودي)</label>
-                      <Input type="number" value={currentHall.price_per_night || ''} onChange={e => setCurrentHall({...currentHall, price_per_night: Number(e.target.value)})} className="h-12" placeholder="أدخل سعر الليلة" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
@@ -544,6 +557,15 @@ export const VendorHalls: React.FC<VendorHallsProps> = ({ user }) => {
                         <Input label="أقل نساء" type="number" value={newPackage.min_women} onChange={e => setNewPackage({...newPackage, min_women: Number(e.target.value)})} className="h-10 bg-white" />
                         <Input label="أكثر نساء" type="number" value={newPackage.max_women} onChange={e => setNewPackage({...newPackage, max_women: Number(e.target.value)})} className="h-10 bg-white" />
                       </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-500">وصف الباقة</label>
+                        <textarea
+                          className="w-full h-20 border border-gray-200 rounded-xl p-3 bg-white outline-none resize-none font-bold text-sm"
+                          placeholder="اكتب وصفاً للباقة وما تتضمنه..."
+                          value={newPackage.description || ''}
+                          onChange={e => setNewPackage({...newPackage, description: e.target.value})}
+                        />
+                      </div>
                       <div className="flex items-center gap-2">
                         <input type="checkbox" checked={newPackage.is_default} onChange={e => setNewPackage({...newPackage, is_default: e.target.checked})} className="w-4 h-4 accent-primary" />
                         <span className="text-xs font-bold">باقة افتراضية</span>
@@ -558,7 +580,11 @@ export const VendorHalls: React.FC<VendorHallsProps> = ({ user }) => {
                           <button onClick={() => setCurrentHall(prev => ({...prev, packages: prev.packages?.filter((_, i) => i !== idx)}))} className="absolute top-4 left-4 text-red-500">
                             <Trash2 className="w-4 h-4" />
                           </button>
-                          <h4 className="font-bold text-gray-900">{pkg.name}</h4>
+                          <div className="flex items-start justify-between mb-2">
+                            <h4 className="font-bold text-gray-900">{pkg.name}</h4>
+                            {pkg.is_default && <Badge variant="success" className="text-[10px]">افتراضية</Badge>}
+                          </div>
+                          {pkg.description && <p className="text-sm text-gray-600 mb-2 line-clamp-2">{pkg.description}</p>}
                           <p className="text-sm text-gray-600 mt-1">
                             {pkg.min_men}-{pkg.max_men} رجال | {pkg.min_women}-{pkg.max_women} نساء
                           </p>
@@ -592,6 +618,78 @@ export const VendorHalls: React.FC<VendorHallsProps> = ({ user }) => {
                         </div>
                       ))}
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'night_packages' && currentHall.id && (
+                <div className="space-y-6">
+                  <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-4">
+                    <h3 className="text-sm font-black text-primary mb-4 flex items-center gap-2">
+                      <Moon className="w-4 h-4" />
+                      إضافة باقة ليالي جديدة
+                    </h3>
+                    <Input label="اسم الباقة" value={newNightPackage.package_name || ''} onChange={(e) => setNewNightPackage({...newNightPackage, package_name: e.target.value})} className="h-11 bg-white" placeholder="باقة الليلة الكاملة" />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-500">نوع الباقة</label>
+                        <select className="w-full h-11 border border-gray-200 rounded-xl px-3 text-sm font-bold bg-white outline-none" value={newNightPackage.package_type} onChange={(e) => setNewNightPackage({...newNightPackage, package_type: e.target.value})}>
+                          <option value="night">بالليلة</option>
+                          <option value="per_person">للشخص</option>
+                          <option value="hourly">بالساعة</option>
+                        </select>
+                      </div>
+                      <Input label="السعر (ر.س)" type="number" value={newNightPackage.price || ''} onChange={(e) => setNewNightPackage({...newNightPackage, price: Number(e.target.value)})} className="h-11 bg-white" />
+                    </div>
+                    {newNightPackage.package_type === 'hourly' && <Input label="المدة (ساعات)" type="number" value={newNightPackage.duration_hours || ''} onChange={(e) => setNewNightPackage({...newNightPackage, duration_hours: Number(e.target.value)})} className="h-11 bg-white" />}
+                    <Input label="عدد الأفراد (السعة)" type="number" value={newNightPackage.capacity || ''} onChange={(e) => setNewNightPackage({...newNightPackage, capacity: Number(e.target.value)})} className="h-11 bg-white" placeholder="أدخل عدد الأفراد" />
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-gray-500">وصف الباقة</label>
+                      <textarea className="w-full h-20 border border-gray-200 rounded-xl p-3 bg-white outline-none resize-none font-bold text-sm" value={newNightPackage.description || ''} onChange={(e) => setNewNightPackage({...newNightPackage, description: e.target.value})} placeholder="اكتب وصفاً للباقة..." />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-gray-500">محتويات الباقة</label>
+                      <textarea className="w-full h-20 border border-gray-200 rounded-xl p-3 bg-white outline-none resize-none font-bold text-sm" value={newNightPackage.includes || ''} onChange={(e) => setNewNightPackage({...newNightPackage, includes: e.target.value})} placeholder="مثال: قاعة رئيسية + غرفة عروس + موقف سيارات..." />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input type="checkbox" id="np_is_default" checked={newNightPackage.is_default || false} onChange={(e) => setNewNightPackage({...newNightPackage, is_default: e.target.checked})} className="w-4 h-4 accent-primary" />
+                      <label htmlFor="np_is_default" className="text-sm font-bold text-gray-700">باقة افتراضية</label>
+                    </div>
+                    <Button onClick={async () => {
+                      if (!newNightPackage.package_name || !newNightPackage.price || !newNightPackage.capacity) { toast({ title: 'تنبيه', description: 'يرجى إدخال جميع الحقول المطلوبة', variant: 'destructive' }); return; }
+                      const payload = { hall_id: currentHall.id, package_name: newNightPackage.package_name, package_type: newNightPackage.package_type, price: Number(newNightPackage.price), capacity: Number(newNightPackage.capacity), duration_hours: newNightPackage.package_type === 'hourly' ? newNightPackage.duration_hours : null, description: newNightPackage.description, includes: newNightPackage.includes, is_default: newNightPackage.is_default || false, is_active: true };
+                      if (payload.is_default) { await supabase.from('hall_night_packages').update({ is_default: false }).eq('hall_id', payload.hall_id); }
+                      const { error } = await supabase.from('hall_night_packages').insert([payload]);
+                      if (error) { toast({ title: 'خطأ', description: error.message, variant: 'destructive' }); } else { toast({ title: 'تم الحفظ', variant: 'success' }); setNewNightPackage({ package_type: 'night', is_default: false, is_active: true, capacity: 100, description: '', includes: '' }); const { data: packagesData } = await supabase.from('hall_night_packages').select('*').eq('hall_id', currentHall.id); setNightPackages(packagesData || []); }
+                    }} className="w-full h-11 rounded-xl font-bold bg-gray-900 text-white gap-2"><Plus className="w-4 h-4" /> إضافة الباقة</Button>
+                  </div>
+                  <div className="space-y-2">
+                    {nightPackages.map((pkg, idx) => (
+                      <div key={idx} className="p-4 border rounded-2xl flex justify-between items-center bg-white border-gray-200">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-bold text-gray-900">{pkg.package_name}</h4>
+                            {pkg.is_default && <Badge variant="success" className="text-[10px]">افتراضية</Badge>}
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                            {pkg.package_type === 'night' && <Moon className="w-3 h-3" />}
+                            {pkg.package_type === 'per_person' && <Users className="w-3 h-3" />}
+                            {pkg.package_type === 'hourly' && <Clock className="w-3 h-3" />}
+                            <span className="text-xs">{pkg.package_type === 'night' ? 'بالليلة' : pkg.package_type === 'per_person' ? 'للشخص' : `(${pkg.duration_hours} ساعة)`}</span>
+                          </div>
+                          <PriceTag amount={pkg.price} className="text-sm font-bold text-primary mt-1" />
+                          <div className="text-xs text-gray-500 mt-1">السعة: {pkg.capacity || pkg.min_capacity || 0} فرد</div>
+                          {pkg.description && <div className="text-xs text-gray-600 mt-1">{pkg.description}</div>}
+                          {pkg.includes && <div className="text-xs text-gray-500 mt-1"><span className="font-bold">تحتوي:</span> {pkg.includes}</div>}
+                        </div>
+                        <div className="flex gap-2">
+                          <button onClick={async () => { await supabase.from('hall_night_packages').update({ is_default: true }).eq('id', pkg.id); await supabase.from('hall_night_packages').update({ is_default: false }).eq('hall_id', currentHall.id).neq('id', pkg.id); const { data: packagesData } = await supabase.from('hall_night_packages').select('*').eq('hall_id', currentHall.id); setNightPackages(packagesData || []); }} className={`p-2 rounded-lg ${pkg.is_default ? 'bg-yellow-50 text-yellow-600' : 'bg-gray-50 text-gray-600'}`}><CheckSquare className="w-4 h-4" /></button>
+                          <button onClick={async () => { await supabase.from('hall_night_packages').update({ is_active: !pkg.is_active }).eq('id', pkg.id); const { data: packagesData } = await supabase.from('hall_night_packages').select('*').eq('hall_id', currentHall.id); setNightPackages(packagesData || []); }} className="p-2 rounded-lg bg-gray-50 text-gray-600">{pkg.is_active ? <CheckSquare className="w-4 h-4" /> : <CheckSquare className="w-4 h-4 text-gray-300" />}</button>
+                          <button onClick={async () => { if(!confirm('حذف الباقة؟')) return; await supabase.from('hall_night_packages').delete().eq('id', pkg.id); const { data: packagesData } = await supabase.from('hall_night_packages').select('*').eq('hall_id', currentHall.id); setNightPackages(packagesData || []); }} className="p-2 rounded-lg bg-red-50 text-red-500"><Trash2 className="w-4 h-4" /></button>
+                        </div>
+                      </div>
+                    ))}
+                    {nightPackages.length === 0 && <div className="text-center py-10 text-gray-400 font-bold border-2 border-dashed rounded-2xl"><Moon className="w-12 h-12 mx-auto mb-2 opacity-20" />لا توجد باقات ليالي مضافة لهذه القاعة</div>}
                   </div>
                 </div>
               )}

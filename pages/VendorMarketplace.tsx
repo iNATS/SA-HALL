@@ -1,27 +1,33 @@
-
 import React, { useEffect, useState, useMemo } from 'react';
 import { supabase } from '../supabaseClient';
 import { UserProfile, POSItem, StoreOrder } from '../types';
 import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
+import { Modal } from '../components/ui/Modal';
+import { Badge } from '../components/ui/Badge';
 import { PriceTag } from '../components/ui/PriceTag';
-import { ShoppingCart, Package, Search, Plus, Minus, Store, Loader2, Clock, Truck, CheckCircle2, X, ShoppingBag } from 'lucide-react';
+import { ShoppingCart, Package, Search, Plus, Minus, Store, Loader2, Clock, Truck, CheckCircle2, X, ShoppingBag, CreditCard } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { format } from 'date-fns';
 
-export const VendorMarketplace: React.FC<{ user: UserProfile }> = ({ user }) => {
+interface VendorMarketplaceProps {
+  user: UserProfile;
+}
+
+export const VendorMarketplace: React.FC<VendorMarketplaceProps> = ({ user }) => {
   const [activeTab, setActiveTab] = useState<'shop' | 'orders'>('shop');
   const [items, setItems] = useState<POSItem[]>([]);
   const [myOrders, setMyOrders] = useState<StoreOrder[]>([]);
   const [cart, setCart] = useState<{item: POSItem, qty: number}[]>([]);
-  
+
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  
+
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('الكل');
-  
+
   const { toast } = useToast();
 
   useEffect(() => {
@@ -40,11 +46,11 @@ export const VendorMarketplace: React.FC<{ user: UserProfile }> = ({ user }) => 
         .eq('vendor_id', user.id)
         .order('created_at', { ascending: false });
       setMyOrders(orders as any[] || []);
-      
+
       setLoading(false);
     };
     fetchData();
-  }, [user.id, activeTab]); 
+  }, [user.id, activeTab]);
 
   const categories = useMemo(() => {
       const cats = items.map(i => i.category || 'عام');
@@ -101,30 +107,35 @@ export const VendorMarketplace: React.FC<{ user: UserProfile }> = ({ user }) => 
             items: orderItems,
             total_amount: total,
             status: 'pending',
-            payment_method: 'transfer' // Default for B2B in this context
+            payment_status: 'pending',
+            delivery_status: 'pending'
         }]).select().single();
 
         if (error) throw error;
 
-        // 2. Auto-create Expense Record
-        await supabase.from('expenses').insert([{
-            vendor_id: user.id,
-            title: `مشتريات متجر #${newOrder.id.slice(0,6)}`,
-            amount: total,
-            category: 'مشتريات',
-            notes: 'تم الخصم تلقائياً عند الطلب من المتجر',
-            expense_date: new Date().toISOString().split('T')[0]
-        }]);
-
-        // 3. Update stock (Optimistic or handled by trigger usually, here manual)
+        // 2. Deduct Stock
         for (const c of cart) {
-            await supabase.from('pos_items').update({ stock: c.item.stock - c.qty }).eq('id', c.item.id);
+            await supabase.from('pos_items')
+                .update({ stock: c.item.stock - c.qty })
+                .eq('id', c.item.id);
         }
-        
-        toast({ title: 'تم الطلب بنجاح', description: 'تم تسجيل الطلب وإضافته للمصروفات.', variant: 'success' });
+
+        toast({ title: 'تم الطلب', description: 'تم تقديم طلبك بنجاح', variant: 'success' });
         setCart([]);
         setIsCartOpen(false);
-        setActiveTab('orders'); 
+        
+        // Refresh data
+        const { data: adminItems } = await supabase.from('pos_items')
+          .select('*, vendor:vendor_id!inner(role)')
+          .eq('vendor.role', 'super_admin')
+          .gt('stock', 0);
+        setItems(adminItems as any[] || []);
+        
+        const { data: orders } = await supabase.from('store_orders')
+          .select('*')
+          .eq('vendor_id', user.id)
+          .order('created_at', { ascending: false });
+        setMyOrders(orders as any[] || []);
 
     } catch (err: any) {
         toast({ title: 'خطأ', description: err.message, variant: 'destructive' });
@@ -133,168 +144,304 @@ export const VendorMarketplace: React.FC<{ user: UserProfile }> = ({ user }) => 
     }
   };
 
-  const cartTotal = cart.reduce((sum, i) => sum + (i.item.price * i.qty), 0);
+  const StatCard = ({ title, value, icon: Icon, color }: any) => (
+    <div className="bg-white rounded-lg border border-gray-200 p-5">
+      <div className="flex justify-between items-start mb-3">
+        <div className={`p-2.5 rounded-lg ${color}`}>
+          <Icon className="w-5 h-5" />
+        </div>
+      </div>
+      <div>
+        <p className="text-xs font-semibold text-gray-500 uppercase mb-1">{title}</p>
+        <h3 className="text-2xl font-bold text-gray-900">{value}</h3>
+      </div>
+    </div>
+  );
+
+  const totalOrders = myOrders.length;
+  const pendingOrders = myOrders.filter(o => o.status === 'pending').length;
+  const completedOrders = myOrders.filter(o => o.status === 'completed').length;
+  const totalSpent = myOrders.reduce((sum, o) => sum + (Number(o.total_amount) || 0), 0);
+
+  const getDeliveryStatusBadge = (status: string) => {
+    switch(status) {
+      case 'pending': return <Badge variant="warning"><Clock className="w-3 h-3 ml-1" /> قيد المعالجة</Badge>;
+      case 'processing': return <Badge variant="default"><Truck className="w-3 h-3 ml-1" /> جاري التجهيز</Badge>;
+      case 'delivered': return <Badge variant="success"><CheckCircle2 className="w-3 h-3 ml-1" /> تم التوصيل</Badge>;
+      default: return <Badge>{status}</Badge>;
+    }
+  };
 
   return (
-    <div className="space-y-8 animate-in fade-in pb-20 font-tajawal text-right">
-       {/* Header */}
-       <div className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6">
-          <div>
-             <h2 className="text-3xl font-black text-primary flex items-center gap-2">
-                <Store className="w-8 h-8" /> متجر المنصة
-             </h2>
-             <p className="text-sm text-gray-400 font-bold mt-1">تجهيزات ومعدات بأفضل الأسعار لشركائنا.</p>
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">متجر المنصة</h2>
+          <p className="text-sm text-gray-500 mt-1">اطلب المنتجات والخدمات من المنصة</p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            onClick={() => setActiveTab('shop')}
+            className={`gap-2 ${activeTab === 'shop' ? 'bg-primary text-white' : 'bg-white text-gray-700 border border-gray-200'}`}
+          >
+            <ShoppingBag className="w-4 h-4" />
+            التسوق
+          </Button>
+          <Button
+            onClick={() => setActiveTab('orders')}
+            className={`gap-2 ${activeTab === 'orders' ? 'bg-primary text-white' : 'bg-white text-gray-700 border border-gray-200'}`}
+          >
+            <Clock className="w-4 h-4" />
+            طلباتي ({myOrders.length})
+          </Button>
+        </div>
+      </div>
+
+      {/* Stats - Only show on shop tab */}
+      {activeTab === 'shop' && (
+        <div className="grid gap-4 md:grid-cols-4">
+          <StatCard
+            title="المنتجات المتاحة"
+            value={items.length}
+            icon={Package}
+            color="bg-blue-50 text-blue-600"
+          />
+          <StatCard
+            title="إجمالي الطلبات"
+            value={totalOrders}
+            icon={ShoppingCart}
+            color="bg-purple-50 text-purple-600"
+          />
+          <StatCard
+            title="الطلبات المكتملة"
+            value={completedOrders}
+            icon={CheckCircle2}
+            color="bg-green-50 text-green-600"
+          />
+          <StatCard
+            title="إجمالي ما تم صرفه"
+            value={<PriceTag amount={totalSpent} className="text-xl font-bold" />}
+            icon={CreditCard}
+            color="bg-yellow-50 text-yellow-600"
+          />
+        </div>
+      )}
+
+      {activeTab === 'shop' && (
+        <>
+          {/* Filters */}
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="flex gap-4">
+              <div className="flex-1 relative">
+                <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Input
+                  placeholder="بحث عن منتج..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pr-10 h-10"
+                />
+              </div>
+              <select
+                className="h-10 px-4 border border-gray-200 rounded-lg text-sm font-bold bg-white outline-none"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+              >
+                {categories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+            </div>
           </div>
-          <div className="flex bg-gray-50 p-1 rounded-xl border border-gray-100">
-             <button onClick={() => setActiveTab('shop')} className={`px-6 py-2.5 rounded-lg text-xs font-bold transition-all ${activeTab === 'shop' ? 'bg-primary text-white' : 'text-gray-500 hover:text-gray-900'}`}>المنتجات</button>
-             <button onClick={() => setActiveTab('orders')} className={`px-6 py-2.5 rounded-lg text-xs font-bold transition-all ${activeTab === 'orders' ? 'bg-primary text-white' : 'text-gray-500 hover:text-gray-900'}`}>طلباتي ({myOrders.length})</button>
+
+          {/* Products Grid */}
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {loading ? (
+              [1, 2, 3, 4].map(i => (
+                <div key={i} className="h-64 bg-gray-100 animate-pulse rounded-2xl"></div>
+              ))
+            ) : filteredItems.length === 0 ? (
+              <div className="col-span-full bg-white rounded-lg border border-gray-200 p-10 text-center">
+                <ShoppingBag className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500 font-bold">لا توجد منتجات</p>
+              </div>
+            ) : (
+              filteredItems.map(item => (
+                <div key={item.id} className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-primary/50 hover:shadow-lg transition-all flex flex-col">
+                  <div className="aspect-[4/3] bg-gray-50 relative overflow-hidden">
+                    {item.image_url ? (
+                      <img src={item.image_url} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="flex h-full items-center justify-center opacity-10">
+                        <Package className="w-16 h-16" />
+                      </div>
+                    )}
+                    <div className="absolute top-3 right-3">
+                      <Badge variant="default">{item.category || 'عام'}</Badge>
+                    </div>
+                  </div>
+                  <div className="p-4 flex-1 flex flex-col gap-3">
+                    <h3 className="font-bold text-base text-gray-900">{item.name}</h3>
+                    <div className="flex items-center justify-between">
+                      <PriceTag amount={item.price} className="text-lg font-bold" />
+                      <span className="text-xs text-gray-500 font-bold">متبقي: {item.stock}</span>
+                    </div>
+                    <Button
+                      onClick={() => addToCart(item)}
+                      disabled={item.stock <= 0}
+                      className="w-full rounded-xl text-sm font-bold"
+                    >
+                      <ShoppingCart className="w-4 h-4 ml-2" />
+                      {item.stock > 0 ? 'أضف للسلة' : 'نفذت الكمية'}
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
-       </div>
+        </>
+      )}
 
-       {activeTab === 'shop' ? (
-           <div className="relative">
-               {/* Search & Filter */}
-               <div className="flex flex-col md:flex-row gap-4 mb-6">
-                   <div className="relative flex-1">
-                       <input 
-                           className="w-full h-12 bg-white border border-gray-100 rounded-2xl px-4 pl-10 text-sm font-bold outline-none focus:border-primary transition-all"
-                           placeholder="بحث عن منتج..."
-                           value={searchQuery}
-                           onChange={e => setSearchQuery(e.target.value)}
-                       />
-                       <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                   </div>
-                   <div className="flex gap-2 overflow-x-auto no-scrollbar">
-                       {categories.map(cat => (
-                           <button 
-                               key={cat} 
-                               onClick={() => setSelectedCategory(cat)}
-                               className={`h-12 px-6 rounded-2xl text-xs font-bold whitespace-nowrap transition-all border ${selectedCategory === cat ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-500 border-gray-100 hover:border-gray-200'}`}
-                           >
-                               {cat}
-                           </button>
-                       ))}
-                   </div>
-               </div>
+      {activeTab === 'orders' && (
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <table className="w-full text-right">
+            <thead className="bg-gray-50 text-gray-500 text-xs font-bold uppercase">
+              <tr>
+                <th className="p-4">رقم الطلب</th>
+                <th className="p-4">التاريخ</th>
+                <th className="p-4">المنتجات</th>
+                <th className="p-4">الإجمالي</th>
+                <th className="p-4">حالة الطلب</th>
+                <th className="p-4">التوصيل</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="p-10 text-center">
+                    <Loader2 className="w-6 h-6 animate-spin mx-auto text-gray-400" />
+                  </td>
+                </tr>
+              ) : myOrders.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="p-10 text-center text-gray-400 font-bold">
+                    لا توجد طلبات
+                  </td>
+                </tr>
+              ) : (
+                myOrders.map((order) => (
+                  <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="p-4">
+                      <code className="text-sm font-black text-gray-700">#{order.id.substring(0, 8)}</code>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Clock className="w-3 h-3 text-gray-400" />
+                        {format(new Date(order.created_at), 'yyyy/MM/dd')}
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <div className="text-sm text-gray-700">
+                        {order.items?.length || 0} منتجات
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <PriceTag amount={order.total_amount} className="text-sm font-bold" />
+                    </td>
+                    <td className="p-4">
+                      <Badge variant={
+                        order.status === 'completed' ? 'success' :
+                        order.status === 'cancelled' ? 'destructive' : 'warning'
+                      }>
+                        {order.status === 'completed' ? 'مكتمل' :
+                         order.status === 'cancelled' ? 'ملغي' : 'قيد المعالجة'}
+                      </Badge>
+                    </td>
+                    <td className="p-4">
+                      {getDeliveryStatusBadge(order.delivery_status || 'pending')}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-               <button onClick={() => setIsCartOpen(true)} className="fixed bottom-8 left-8 z-30 bg-gray-900 text-white h-14 px-6 rounded-2xl shadow-xl flex items-center gap-3 font-black hover:scale-105 transition-transform">
-                   <ShoppingCart className="w-5 h-5" />
-                   <span>{cartTotal} ر.س</span>
-               </button>
+      {/* Cart Modal */}
+      <Modal
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        title="سلة التسوق"
+      >
+        <div className="space-y-4">
+          {cart.length === 0 ? (
+            <div className="text-center py-10 text-gray-400 font-bold">
+              <ShoppingCart className="w-16 h-16 mx-auto mb-4 opacity-20" />
+              السلة فارغة
+            </div>
+          ) : (
+            <>
+              <div className="space-y-3">
+                {cart.map(item => (
+                  <div key={item.item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                    <div className="flex-1">
+                      <h4 className="font-bold text-gray-900">{item.item.name}</h4>
+                      <div className="text-xs text-gray-500">
+                        <PriceTag amount={item.item.price} className="text-xs" /> × {item.qty}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => updateQty(item.item.id, -1)}
+                        className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-100"
+                      >
+                        <Minus className="w-3 h-3" />
+                      </button>
+                      <span className="w-8 text-center font-bold text-sm">{item.qty}</span>
+                      <button
+                        onClick={() => updateQty(item.item.id, 1)}
+                        className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-100"
+                      >
+                        <Plus className="w-3 h-3" />
+                      </button>
+                      <button
+                        onClick={() => removeFromCart(item.item.id)}
+                        className="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
 
-               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {loading ? Array.from({length: 4}).map((_, i) => <div key={i} className="aspect-[4/3] bg-gray-100 rounded-[2rem] animate-pulse"></div>) : filteredItems.map(item => (
-                        <div key={item.id} className="bg-white border border-gray-100 rounded-[2rem] p-6 hover:shadow-xl hover:border-primary/20 transition-all group relative overflow-hidden flex flex-col">
-                           <div className="aspect-square bg-gray-50 rounded-2xl flex items-center justify-center mb-4 text-gray-300 group-hover:bg-primary/5 group-hover:text-primary transition-colors relative overflow-hidden">
-                              {item.image_url ? (
-                                  <img src={item.image_url} className="w-full h-full object-cover rounded-2xl transition-transform duration-500 group-hover:scale-110" />
-                              ) : (
-                                  <Package className="w-12 h-12" />
-                              )}
-                           </div>
-                           <h3 className="font-black text-gray-900 mb-1 truncate text-lg">{item.name}</h3>
-                           <p className="text-xs text-gray-400 font-bold mb-3">{item.category}</p>
-                           <div className="flex justify-between items-end mb-4 mt-auto">
-                              <PriceTag amount={item.price} className="text-xl font-black text-primary" />
-                              <span className="text-[10px] font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-lg border border-gray-100">{item.stock} متوفر</span>
-                           </div>
-                           <Button onClick={() => addToCart(item)} className="w-full h-12 rounded-xl font-bold shadow-none bg-gray-900 text-white hover:bg-black">إضافة للسلة</Button>
-                        </div>
-                  ))}
-               </div>
-               {filteredItems.length === 0 && !loading && (
-                   <div className="text-center py-20 text-gray-400 font-bold">لا توجد منتجات مطابقة للبحث.</div>
-               )}
-           </div>
-       ) : (
-           <div className="space-y-6">
-               {myOrders.length === 0 ? <p className="text-center py-20 text-gray-400 font-bold">لا توجد طلبات سابقة.</p> : myOrders.map(order => (
-                   <div key={order.id} className="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm">
-                       <div className="flex justify-between items-start mb-6 border-b border-gray-100 pb-4">
-                           <div>
-                               <h3 className="text-lg font-black text-gray-900">طلب #{order.id.slice(0, 6)}</h3>
-                               <p className="text-xs font-bold text-gray-400 mt-1">{format(new Date(order.created_at), 'dd MMM yyyy')}</p>
-                           </div>
-                           <PriceTag amount={order.total_amount} className="text-xl font-black text-primary" />
-                       </div>
-                       
-                       {/* Tracking Steps */}
-                       <div className="grid grid-cols-4 gap-2 mb-6">
-                           {['pending', 'processing', 'shipped', 'delivered'].map((s, idx) => {
-                               const currentIdx = ['pending', 'processing', 'shipped', 'delivered'].indexOf(order.delivery_status || 'pending');
-                               const isActive = idx <= currentIdx;
-                               const labels = ['قيد المراجعة', 'تم التجهيز', 'جاري الشحن', 'تم الاستلام'];
-                               const icons = [Clock, Package, Truck, CheckCircle2];
-                               const Icon = icons[idx];
-                               
-                               return (
-                                   <div key={s} className={`flex flex-col items-center gap-2 ${isActive ? 'text-primary' : 'text-gray-300'}`}>
-                                       <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${isActive ? 'border-primary bg-primary text-white' : 'border-gray-200 bg-white'}`}>
-                                           <Icon className="w-4 h-4" />
-                                       </div>
-                                       <span className="text-[10px] font-bold">{labels[idx]}</span>
-                                   </div>
-                               );
-                           })}
-                       </div>
-
-                       <div className="bg-gray-50 p-4 rounded-xl space-y-2">
-                           {order.items.map((it: any, i: number) => (
-                               <div key={i} className="flex justify-between text-xs font-bold text-gray-600">
-                                   <span>{it.name} <span className="text-gray-400">x{it.qty}</span></span>
-                                   <span>{it.price * it.qty} ر.س</span>
-                               </div>
-                           ))}
-                       </div>
-                   </div>
-               ))}
-           </div>
-       )}
-
-       {/* Cart Slide-over */}
-       {isCartOpen && (
-           <div className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm flex justify-end">
-               <div className="w-full max-w-md bg-white h-full shadow-2xl p-6 flex flex-col animate-in slide-in-from-left">
-                   <div className="flex justify-between items-center mb-6">
-                       <h3 className="text-2xl font-black flex items-center gap-2"><ShoppingBag className="w-6 h-6" /> السلة</h3>
-                       <button onClick={() => setIsCartOpen(false)}><X className="w-6 h-6" /></button>
-                   </div>
-                   <div className="flex-1 overflow-y-auto space-y-4 custom-scrollbar">
-                       {cart.length === 0 ? (
-                           <div className="h-full flex flex-col items-center justify-center text-gray-400 font-bold opacity-60">
-                               <ShoppingBag className="w-16 h-16 mb-4" />
-                               <p>السلة فارغة</p>
-                           </div>
-                       ) : cart.map(c => (
-                           <div key={c.item.id} className="flex gap-4 items-center bg-gray-50 p-3 rounded-2xl border border-gray-100">
-                               <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center border shrink-0">
-                                   {c.item.image_url ? <img src={c.item.image_url} className="w-full h-full object-cover rounded-xl" /> : <Package className="w-6 h-6 text-gray-300" />}
-                               </div>
-                               <div className="flex-1">
-                                   <p className="font-bold text-sm text-gray-900">{c.item.name}</p>
-                                   <PriceTag amount={c.item.price} className="text-xs font-black text-gray-500" />
-                                </div>
-                                <div className="flex items-center gap-2">
-                                   <button onClick={() => updateQty(c.item.id, -1)} className="w-6 h-6 bg-white rounded-lg flex items-center justify-center border text-xs font-bold hover:bg-gray-100">-</button>
-                                   <span className="font-bold text-sm w-4 text-center">{c.qty}</span>
-                                   <button onClick={() => updateQty(c.item.id, 1)} className="w-6 h-6 bg-white rounded-lg flex items-center justify-center border text-xs font-bold hover:bg-gray-100">+</button>
-                               </div>
-                               <button onClick={() => removeFromCart(c.item.id)} className="text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-colors"><X className="w-4 h-4" /></button>
-                           </div>
-                       ))}
-                   </div>
-                   <div className="pt-6 border-t border-gray-100">
-                       <div className="flex justify-between text-xl font-black mb-4">
-                           <span>الإجمالي</span>
-                           <span>{cartTotal} ر.س</span>
-                       </div>
-                       <Button onClick={submitOrder} disabled={submitting || cart.length === 0} className="w-full h-14 rounded-2xl font-black text-lg bg-primary text-white shadow-lg shadow-primary/20">
-                           {submitting ? <Loader2 className="animate-spin" /> : 'تأكيد الطلب'}
-                       </Button>
-                   </div>
-               </div>
-           </div>
-       )}
+              <div className="border-t border-gray-200 pt-4">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm font-bold text-gray-600">الإجمالي</span>
+                  <PriceTag amount={cart.reduce((sum, i) => sum + (i.item.price * i.qty), 0)} className="text-xl font-black text-primary" />
+                </div>
+                <div className="flex gap-3">
+                  <Button
+                    onClick={submitOrder}
+                    disabled={submitting || cart.length === 0}
+                    className="flex-1 h-12"
+                  >
+                    {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'تأكيد الطلب'}
+                  </Button>
+                  <Button
+                    onClick={() => setIsCartOpen(false)}
+                    variant="outline"
+                    className="flex-1 h-12"
+                  >
+                    إغلاق
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 };

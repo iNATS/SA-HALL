@@ -44,6 +44,7 @@ import { VendorSubscription } from './pages/VendorSubscription';
 import { VendorChooseType } from './pages/VendorChooseType';
 import { VendorBookings } from './pages/VendorBookings';
 import { VendorAddAssetPayment } from './pages/VendorAddAssetPayment';
+import { AdminHomePageSections } from './pages/AdminHomePageSections';
 import { PopupAnnouncements } from './components/PopupAnnouncements';
 import { Button } from './components/ui/Button';
 import { Input } from './components/ui/Input';
@@ -682,6 +683,7 @@ const App: React.FC = () => {
       case 'settings': return <SystemSettings />;
       case 'admin_cms': return <ContentCMS />;
       case 'admin_store': return <AdminStore />;
+      case 'admin_home_sections': return <AdminHomePageSections />;
       case 'coupons': return userProfile ? <VendorCoupons user={userProfile} /> : null;
       case 'calendar': return userProfile ? <CalendarBoard user={userProfile} /> : null;
       case 'vendor_services': return userProfile ? <VendorServices user={userProfile} /> : null;
