@@ -81,7 +81,8 @@ const App: React.FC = () => {
   const updateActiveTab = (tab: string) => {
     setActiveTab(tab);
     if (typeof window !== 'undefined') {
-      window.location.hash = tab;
+      // Use proper hash format with /
+      window.location.hash = `#/${tab}`;
     }
   };
   
@@ -178,17 +179,31 @@ const App: React.FC = () => {
     // Handle hash changes to preserve page on reload
     const handleHashChange = () => {
       const hash = window.location.hash.slice(1);
-      if (hash && hash !== activeTab) {
-        setActiveTab(hash);
+      if (hash) {
+        // Remove leading / if present
+        const page = hash.startsWith('/') ? hash.slice(1) : hash;
+        if (page && page !== activeTab) {
+          setActiveTab(page);
+        }
       }
     };
 
     window.addEventListener('hashchange', handleHashChange);
 
+    // Handle browser back/forward buttons
+    const handlePopState = (event: PopStateEvent) => {
+      if (event.state?.tab) {
+        setActiveTab(event.state.tab);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
     return () => {
       subscription.unsubscribe();
       window.removeEventListener('navigate', handleNavigate);
       window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('popstate', handlePopState);
     };
   }, []);
 
@@ -240,7 +255,7 @@ const App: React.FC = () => {
 
           // NO assets? Redirect to vendor_choose_type (full screen, forced)
           if (!hasAssets) {
-              setActiveTab('vendor_choose_type');
+              updateActiveTab('vendor_choose_type');
               return;
           }
 
@@ -252,20 +267,20 @@ const App: React.FC = () => {
 
           // No subscription but has assets - go to subscription page
           if (!hasSubscription) {
-              setActiveTab('vendor_subscription');
+              updateActiveTab('vendor_subscription');
               return;
           }
 
           // Has assets AND subscription - check approval status
           if (profile.status === 'approved') {
-              setActiveTab('dashboard');
+              updateActiveTab('dashboard');
           } else {
-              setActiveTab('request_pending');
+              updateActiveTab('request_pending');
           }
       } else if (profile.role === 'super_admin') {
-          setActiveTab('admin_dashboard');
+          updateActiveTab('admin_dashboard');
       } else {
-          setActiveTab('home');
+          updateActiveTab('home');
       }
   };
 
@@ -401,9 +416,10 @@ const App: React.FC = () => {
 
           setIsPaymentModalOpen(false);
           await fetchProfile(currentUser.id);
-          
-          // Redirect to "Request Pending" page instead of Dashboard immediately
-          setActiveTab('request_pending');
+
+          // ✅ FIX: Redirect to vendor_choose_type page immediately after registration
+          // This ensures the vendor goes to "مرحبا ألف" page to choose hall or service
+          updateActiveTab('vendor_choose_type');
 
       } catch (err: any) {
           console.error(err);

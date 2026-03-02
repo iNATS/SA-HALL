@@ -7,7 +7,7 @@ import { Badge } from '../components/ui/Badge';
 import { PriceTag } from '../components/ui/PriceTag';
 import {
   Users, Search, Loader2, Star, StarOff, CheckCircle2, XCircle,
-  Building2, Mail, Phone, Edit3, Shield, UserCheck, UserX, Tag
+  Building2, Mail, Phone, Edit3, Shield, UserCheck, UserX, Tag, MapPin
 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 
@@ -196,12 +196,18 @@ export const SubscribersManagement: React.FC = () => {
   };
 
   const fetchSubscriberHalls = async (userId: string) => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('halls')
-      .select('id, name, city, is_active')
+      .select('id, name, city, is_active, vendor_id')
       .eq('vendor_id', userId)
       .order('name');
 
+    if (error) {
+      console.error('Error fetching halls:', error);
+      toast({ title: 'خطأ', description: 'فشل تحميل القاعات', variant: 'destructive' });
+    }
+    
+    console.log('Fetched halls for user', userId, ':', data);
     setSubscriberHalls(data || []);
   };
 
@@ -676,6 +682,57 @@ export const SubscribersManagement: React.FC = () => {
             </div>
           </div>
         )}
+      </Modal>
+
+      {/* Halls Modal */}
+      <Modal
+        isOpen={isHallsModalOpen}
+        onClose={() => setIsHallsModalOpen(false)}
+        title="قاعات المشترك"
+        className="max-w-2xl"
+      >
+        <div className="space-y-4">
+          {subscriberHalls.length === 0 ? (
+            <div className="p-8 text-center text-gray-500 font-bold">
+              <Building2 className="w-12 h-12 mx-auto mb-4 opacity-20" />
+              <p>لا توجد قاعات مضافة</p>
+            </div>
+          ) : (
+            <div className="space-y-2 max-h-96 overflow-y-auto">
+              {subscriberHalls.map(hall => (
+                <div
+                  key={hall.id}
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-xl"
+                >
+                  <div className="flex-1">
+                    <p className="font-bold text-sm text-gray-900">{hall.name}</p>
+                    <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                      <MapPin className="w-3 h-3" />
+                      {hall.city}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant={hall.is_active ? 'success' : 'default'}>
+                      {hall.is_active ? 'نشط' : 'غير نشط'}
+                    </Badge>
+                    <button
+                      onClick={() => handleToggleHallActive(hall.id, hall.is_active)}
+                      disabled={saving}
+                      className="p-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-100 transition-colors"
+                      title={hall.is_active ? 'تعطيل' : 'تفعيل'}
+                    >
+                      {hall.is_active ? (
+                        <CheckCircle2 className="w-4 h-4 text-green-600" />
+                      ) : (
+                        <XCircle className="w-4 h-4 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </Modal>
 
       {/* Services Modal */}
