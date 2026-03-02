@@ -297,7 +297,7 @@ export const GuestLogin: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             <div className="flex items-start gap-3">
               <MessageCircle className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
               <div>
-                <p className="text-xs font-bold text-blue-800">🧪 وضع الاختبار مفعّل</p>
+                <p className="text-xs font-bold text-blue-800">وضع الاختبار مفعّل</p>
                 <p className="text-[10px] text-blue-600 mt-1">
                   استخدم الرمز <b className="font-black text-lg">222222</b> لجميع الأرقام
                 </p>
@@ -400,7 +400,7 @@ export const GuestLogin: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                   dir="ltr"
                 />
                 <p className="text-[10px] text-gray-400 font-bold">
-                  {sendMethod === 'sms' && '💡 استخدم الرمز 222222 في وضع الاختبار'}
+                  {sendMethod === 'sms' && 'استخدم الرمز 222222 في وضع الاختبار'}
                 </p>
               </div>
 

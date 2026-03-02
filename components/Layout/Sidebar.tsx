@@ -102,13 +102,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, activeTab, setActiveTab,
         ${isOpen ? 'translate-x-0' : 'translate-x-[110%] lg:translate-x-0'}
       `}>
         {/* Header */}
-        <div className="h-24 flex items-center px-6 border-b border-gray-100">
+        <div className="h-28 flex items-center px-6 border-b border-gray-100">
           <div className="flex items-center gap-4 w-full">
-            <div className="w-12 h-12 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center p-2 overflow-hidden group">
+            <div className="w-16 h-16 rounded-2xl bg-gray-50 border border-gray-200 flex items-center justify-center p-3 overflow-hidden group shadow-sm">
                 <img src={platformLogo || "https://dash.hall.sa/logo.svg"} alt="Logo" className="w-full h-full object-contain group-hover:scale-110 transition-transform" />
             </div>
             <div className="flex flex-col">
-              <h1 className="text-xl font-ruqaa text-primary leading-none mt-1">القاعة</h1>
+              <h1 className="text-2xl font-ruqaa text-primary leading-none mt-1">القاعة</h1>
               <span className="text-[10px] font-bold text-gray-400 mt-1">
                 {user.role === 'super_admin' ? 'الإدارة العليا' : user.role === 'vendor' ? 'شريك أعمال' : ''}
               </span>

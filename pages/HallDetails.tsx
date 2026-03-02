@@ -269,14 +269,14 @@ export const HallDetails: React.FC<HallDetailsProps> = ({ item, user, onBack, on
               hall_id: item.id,
               vendor_id: item.vendor_id,
               booking_date: format(bookingDate, 'yyyy-MM-dd'),
-              total_amount: priceDetails.grandTotal, // Saved as Grand Total
+              total_amount: priceDetails.grandTotal,
               vat_amount: priceDetails.vatAmount,
               paid_amount: 0,
               discount_amount: priceDetails.discountAmount,
               applied_coupon: appliedCoupon?.code,
               booking_option: paymentOption,
               package_details: bookingType === 'package' ? selectedPackage : selectedNightPackage,
-              booking_type: bookingType,
+              booking_type: bookingType || 'booking',
               guest_name: guestData.name,
               guest_phone: normalizedPhone,
               guest_email: guestData.email,
@@ -292,7 +292,10 @@ export const HallDetails: React.FC<HallDetailsProps> = ({ item, user, onBack, on
               ]
           }]).select().single();
 
-          if (error) throw error;
+          if (error) {
+              console.error('Booking error:', error);
+              throw new Error(error.message || 'فشل إنشاء الحجز');
+          }
 
           // Store booking ID for later reference
           setCreatedBookingId(data.id);
@@ -316,7 +319,8 @@ export const HallDetails: React.FC<HallDetailsProps> = ({ item, user, onBack, on
           }
 
       } catch (err: any) {
-          toast({ title: 'خطأ', description: err.message, variant: 'destructive' });
+          console.error('Payment error:', err);
+          toast({ title: 'خطأ', description: err.message || 'حدث خطأ أثناء معالجة الدفع', variant: 'destructive' });
           setIsProcessing(false);
       }
   };
