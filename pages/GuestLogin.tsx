@@ -292,19 +292,6 @@ export const GuestLogin: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             </div>
           </div>
 
-          {/* Testing Mode Banner */}
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-2xl p-4 mb-6">
-            <div className="flex items-start gap-3">
-              <MessageCircle className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-              <div>
-                <p className="text-xs font-bold text-blue-800">وضع الاختبار مفعّل</p>
-                <p className="text-[10px] text-blue-600 mt-1">
-                  استخدم الرمز <b className="font-black text-lg">222222</b> لجميع الأرقام
-                </p>
-              </div>
-            </div>
-          </div>
-
           {step === 1 && (
             <>
               {/* Method Selection */}
