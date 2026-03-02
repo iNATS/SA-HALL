@@ -1,9 +1,18 @@
 /**
  * Supabase OTP Service
  * Send and verify OTP using Supabase Auth
+ * 
+ * TESTING MODE: Uses static OTP "222222" for all phone numbers
  */
 
 import { supabase } from '../supabaseClient';
+
+// Testing mode flag - set to true to use static OTP
+const TESTING_MODE = true;
+const STATIC_OTP = '222222';
+
+// In-memory store for testing OTPs
+const otpStore = new Map<string, { otp: string; expiry: number; phone: string }>();
 
 export interface SendOTPResponse {
   success: boolean;
@@ -17,6 +26,21 @@ export interface SendOTPResponse {
  */
 export const sendSMSOTP = async (phone: string): Promise<SendOTPResponse> => {
   try {
+    // TESTING MODE: Use static OTP
+    if (TESTING_MODE) {
+      console.log('🧪 [TESTING MODE] Sending static OTP to:', phone);
+      
+      // Store OTP with 5 minute expiry
+      const expiry = Date.now() + (5 * 60 * 1000);
+      otpStore.set(phone, { otp: STATIC_OTP, expiry, phone });
+      
+      console.log('✅ [TESTING MODE] OTP stored successfully');
+      return {
+        success: true
+      };
+    }
+
+    // PRODUCTION MODE: Use Supabase OTP
     // Format phone number (remove leading 0, add country code)
     let formattedPhone = phone;
     if (phone.startsWith('0')) {
@@ -67,6 +91,46 @@ export const sendSMSOTP = async (phone: string): Promise<SendOTPResponse> => {
  */
 export const verifySMSOTP = async (phone: string, otp: string): Promise<{ success: boolean; error?: string }> => {
   try {
+    // TESTING MODE: Use static OTP
+    if (TESTING_MODE) {
+      console.log('🧪 [TESTING MODE] Verifying OTP for:', phone);
+      
+      const stored = otpStore.get(phone);
+      
+      if (!stored) {
+        return {
+          success: false,
+          error: 'لم يتم إرسال رمز التحقق لهذا الرقم'
+        };
+      }
+
+      // Check if expired
+      if (Date.now() > stored.expiry) {
+        otpStore.delete(phone);
+        return {
+          success: false,
+          error: 'انتهت صلاحية الرمز'
+        };
+      }
+
+      // Verify OTP
+      if (stored.otp !== otp) {
+        return {
+          success: false,
+          error: 'الرمز غير صحيح'
+        };
+      }
+
+      // Clear OTP after successful verification
+      otpStore.delete(phone);
+      
+      console.log('✅ [TESTING MODE] OTP verified successfully');
+      return {
+        success: true
+      };
+    }
+
+    // PRODUCTION MODE: Use Supabase verification
     let formattedPhone = phone;
     if (phone.startsWith('0')) {
       formattedPhone = '966' + phone.substring(1);

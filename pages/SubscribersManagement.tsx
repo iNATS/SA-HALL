@@ -23,6 +23,10 @@ interface Subscriber {
   hall_limit?: number;
   service_limit?: number;
   subscription_plan?: string;
+  subscription_status?: 'none' | 'hall' | 'service' | 'both';
+  subscription_paid_at?: string;
+  subscription_amount?: number;
+  has_active_subscription?: boolean;
   created_at: string;
 }
 
@@ -39,6 +43,19 @@ interface Service {
   category: string;
   price: number;
   is_active: boolean;
+}
+
+interface VendorSubscription {
+  id: string;
+  vendor_id: string;
+  subscription_type: 'hall' | 'service' | 'both';
+  amount: number;
+  payment_status: string;
+  is_lifetime: boolean;
+  start_date?: string;
+  end_date?: string;
+  subscription_period?: string;
+  created_at: string;
 }
 
 export const SubscribersManagement: React.FC = () => {
@@ -60,6 +77,7 @@ export const SubscribersManagement: React.FC = () => {
   const [isServicesModalOpen, setIsServicesModalOpen] = useState(false);
   const [subscriberHalls, setSubscriberHalls] = useState<Hall[]>([]);
   const [subscriberServices, setSubscriberServices] = useState<Service[]>([]);
+  const [vendorSubscription, setVendorSubscription] = useState<VendorSubscription | null>(null);
 
   useEffect(() => {
     fetchSubscribers();
@@ -109,6 +127,7 @@ export const SubscribersManagement: React.FC = () => {
 
   const handleOpenDetails = (subscriber: Subscriber) => {
     setSelectedSubscriber(subscriber);
+    fetchVendorSubscription(subscriber.id);
     setIsDetailsModalOpen(true);
   };
 
@@ -196,6 +215,33 @@ export const SubscribersManagement: React.FC = () => {
     setSubscriberServices(data || []);
   };
 
+  const fetchVendorSubscription = async (userId: string) => {
+    // First try vendor_subscriptions table
+    let { data: subData } = await supabase
+      .from('vendor_subscriptions')
+      .select('*')
+      .eq('vendor_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    // If not found, try subscriptions table (legacy)
+    if (!subData) {
+      const { data: legacyData } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('vendor_id', userId)
+        .eq('payment_status', 'completed')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      
+      subData = legacyData;
+    }
+
+    setVendorSubscription(subData);
+  };
+
   const handleToggleHallActive = async (hallId: string, isActive: boolean) => {
     setSaving(true);
     try {
@@ -268,6 +314,7 @@ export const SubscribersManagement: React.FC = () => {
               <tr>
                 <th className="text-right p-4 text-xs font-semibold text-gray-500 uppercase">المشترك</th>
                 <th className="text-right p-4 text-xs font-semibold text-gray-500 uppercase">الدور</th>
+                <th className="text-right p-4 text-xs font-semibold text-gray-500 uppercase">الاشتراك</th>
                 <th className="text-right p-4 text-xs font-semibold text-gray-500 uppercase">الحالة</th>
                 <th className="text-right p-4 text-xs font-semibold text-gray-500 uppercase">التفعيل</th>
                 <th className="text-right p-4 text-xs font-semibold text-gray-500 uppercase">القاعات</th>
@@ -317,6 +364,31 @@ export const SubscribersManagement: React.FC = () => {
                       <Badge variant={sub.role === 'vendor' ? 'warning' : 'default'}>
                         {sub.role === 'vendor' ? 'شريك' : 'مستخدم'}
                       </Badge>
+                    </td>
+                    <td className="p-4">
+                      {sub.role === 'vendor' ? (
+                        <div className="flex flex-col gap-1">
+                          <Badge
+                            variant={
+                              sub.has_active_subscription || sub.subscription_status !== 'none'
+                                ? 'success'
+                                : 'default'
+                            }
+                          >
+                            {sub.subscription_status === 'hall' ? 'قاعات' :
+                             sub.subscription_status === 'service' ? 'خدمات' :
+                             sub.subscription_status === 'both' ? 'الكل' :
+                             sub.has_active_subscription ? 'نشط' : 'غير مشترك'}
+                          </Badge>
+                          {sub.subscription_amount && (
+                            <span className="text-[10px] text-gray-500 font-bold">
+                              <PriceTag amount={sub.subscription_amount} className="text-[10px]" />
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-400">-</span>
+                      )}
                     </td>
                     <td className="p-4">
                       <Badge
@@ -431,6 +503,111 @@ export const SubscribersManagement: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* Subscription Info */}
+            {selectedSubscriber.role === 'vendor' && (
+              <div className="bg-gradient-to-br from-primary/5 to-purple-50 p-5 rounded-2xl border border-primary/10">
+                <h4 className="text-sm font-black text-gray-900 mb-4 flex items-center gap-2">
+                  <Tag className="w-4 h-4 text-primary" />
+                  معلومات الاشتراك
+                </h4>
+                
+                {vendorSubscription ? (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-[10px] font-bold text-gray-500 block mb-1">نوع الاشتراك</label>
+                      <Badge
+                        variant={
+                          vendorSubscription.subscription_type === 'hall' ? 'default' :
+                          vendorSubscription.subscription_type === 'service' ? 'success' : 'warning'
+                        }
+                      >
+                        {vendorSubscription.subscription_type === 'hall' ? 'قاعات' :
+                         vendorSubscription.subscription_type === 'service' ? 'خدمات' : 'الكل'}
+                      </Badge>
+                    </div>
+                    
+                    <div>
+                      <label className="text-[10px] font-bold text-gray-500 block mb-1">حالة الدفع</label>
+                      <Badge variant={vendorSubscription.payment_status === 'completed' ? 'success' : 'default'}>
+                        {vendorSubscription.payment_status === 'completed' ? 'مدفوع' : vendorSubscription.payment_status}
+                      </Badge>
+                    </div>
+                    
+                    <div>
+                      <label className="text-[10px] font-bold text-gray-500 block mb-1">المبلغ</label>
+                      <div className="flex items-center gap-1">
+                        <PriceTag amount={vendorSubscription.amount} className="text-sm font-black" />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="text-[10px] font-bold text-gray-500 block mb-1">نوع الباقة</label>
+                      <span className="text-sm font-bold text-gray-700">
+                        {vendorSubscription.is_lifetime ? 'مدى الحياة' : 
+                         vendorSubscription.subscription_period === 'yearly' ? 'سنوي' :
+                         vendorSubscription.subscription_period === 'monthly' ? 'شهري' : 'غير محدد'}
+                      </span>
+                    </div>
+                    
+                    {vendorSubscription.start_date && (
+                      <div>
+                        <label className="text-[10px] font-bold text-gray-500 block mb-1">تاريخ البداية</label>
+                        <span className="text-sm font-bold text-gray-700">
+                          {new Date(vendorSubscription.start_date).toLocaleDateString('ar-SA', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {vendorSubscription.end_date && (
+                      <div>
+                        <label className="text-[10px] font-bold text-gray-500 block mb-1">تاريخ النهاية</label>
+                        <span className={`text-sm font-bold ${
+                          new Date(vendorSubscription.end_date) < new Date()
+                            ? 'text-red-600'
+                            : 'text-green-600'
+                        }`}>
+                          {new Date(vendorSubscription.end_date).toLocaleDateString('ar-SA', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </span>
+                        {new Date(vendorSubscription.end_date) < new Date() && (
+                          <span className="text-[10px] text-red-600 block mt-1">⚠️ منتهي</span>
+                        )}
+                        {new Date(vendorSubscription.end_date) > new Date() && (
+                          <span className="text-[10px] text-green-600 block mt-1">✓ نشط</span>
+                        )}
+                      </div>
+                    )}
+                    
+                    {!vendorSubscription.is_lifetime && vendorSubscription.end_date && (
+                      <div className="col-span-2">
+                        <label className="text-[10px] font-bold text-gray-500 block mb-1">الأيام المتبقية</label>
+                        <div className={`text-sm font-black ${
+                          new Date(vendorSubscription.end_date) < new Date()
+                            ? 'text-red-600'
+                            : 'text-primary'
+                        }`}>
+                          {Math.max(0, Math.ceil(
+                            (new Date(vendorSubscription.end_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+                          ))} يوم
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-4 text-gray-500 text-sm font-bold">
+                    لا يوجد اشتراك نشط
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               <div>

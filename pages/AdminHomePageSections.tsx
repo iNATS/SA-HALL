@@ -103,33 +103,46 @@ export const AdminHomePageSections: React.FC = () => {
 
     setSaving(true);
     try {
-      const payload = {
+      const payload: any = {
         title_ar: currentSection.title_ar,
-        title_en: currentSection.title_en,
+        title_en: currentSection.title_en || null,
         section_type: currentSection.section_type,
-        display_order: currentSection.display_order,
-        is_active: currentSection.is_active,
+        display_order: currentSection.display_order || 0,
+        is_active: currentSection.is_active !== false,
         max_items: currentSection.max_items || 8,
-        assigned_halls: currentSection.assigned_halls || [],
-        assigned_services: currentSection.assigned_services || [],
         updated_at: new Date().toISOString()
       };
 
-      let error;
-      if (currentSection.id) {
-        const result = await supabase
-          .from('home_page_sections')
-          .update(payload)
-          .eq('id', currentSection.id);
-        error = result.error;
+      // Handle arrays properly for PostgreSQL
+      if (currentSection.assigned_halls && currentSection.assigned_halls.length > 0) {
+        payload.assigned_halls = currentSection.assigned_halls;
       } else {
-        const result = await supabase
-          .from('home_page_sections')
-          .insert([payload]);
-        error = result.error;
+        payload.assigned_halls = [];
       }
 
-      if (error) throw error;
+      if (currentSection.assigned_services && currentSection.assigned_services.length > 0) {
+        payload.assigned_services = currentSection.assigned_services;
+      } else {
+        payload.assigned_services = [];
+      }
+
+      let result;
+      if (currentSection.id) {
+        result = await supabase
+          .from('home_page_sections')
+          .update(payload)
+          .eq('id', currentSection.id)
+          .select()
+          .single();
+      } else {
+        result = await supabase
+          .from('home_page_sections')
+          .insert([payload])
+          .select()
+          .single();
+      }
+
+      if (result.error) throw result.error;
 
       toast({
         title: 'تم الحفظ',
@@ -139,7 +152,12 @@ export const AdminHomePageSections: React.FC = () => {
       setIsModalOpen(false);
       fetchData();
     } catch (err: any) {
-      toast({ title: 'خطأ', description: err.message, variant: 'destructive' });
+      console.error('Save error:', err);
+      toast({ 
+        title: 'خطأ', 
+        description: `حدث خطأ أثناء الحفظ: ${err.message}`, 
+        variant: 'destructive' 
+      });
     } finally {
       setSaving(false);
     }
