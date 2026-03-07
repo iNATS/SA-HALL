@@ -662,10 +662,10 @@ const App: React.FC = () => {
         } else {
             return (
                 <VendorAuth
-                    onRegister={() => { setRegStep(3); setActiveTab('vendor_choose_type'); }}
+                    onRegister={() => updateActiveTab('vendor_choose_type')}
                     onLogin={handleLoginSuccess}
                     onDataChange={setRegData}
-                    onBack={() => setActiveTab('home')}
+                    onBack={() => updateActiveTab('home')}
                 />
             );
         }

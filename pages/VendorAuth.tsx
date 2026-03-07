@@ -192,7 +192,7 @@ export const VendorAuth: React.FC<VendorAuthProps> = ({ isLogin = false, onRegis
 
   const handleRegisterStep3 = async (e: React.FormEvent) => {
       e.preventDefault();
-      
+
       const allValid = passwordRequirements.every(r => r.valid);
       if (!allValid) {
           toast({ title: 'كلمة المرور غير قوية', description: 'يرجى تحقيق كافة شروط كلمة المرور.', variant: 'warning' });
@@ -205,7 +205,10 @@ export const VendorAuth: React.FC<VendorAuthProps> = ({ isLogin = false, onRegis
           if (error) throw error;
 
           toast({ title: 'تم إنشاء الحساب', description: 'جاري توجيهك لاختيار نوع النشاط...', variant: 'success' });
-          
+
+          // تأخير بسيط للتأكد من اكتمال التحديث
+          await new Promise(resolve => setTimeout(resolve, 500));
+
           if (onRegister) onRegister();
       } catch (err: any) {
           toast({ title: 'خطأ', description: err.message, variant: 'destructive' });
