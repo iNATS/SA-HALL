@@ -149,14 +149,13 @@ export const createInputHandlers = (options: InputHandlerOptions = {}) => {
         preventArabic: options.preventArabic || options.onlyEnglish,
         onlyNumbers: options.onlyNumbers
       });
-      
+
       // تحديث القيمة
       target.value = processedValue;
-      
-      // استدعاء onChange الأصلي إذا وجد
-      if (e.target.onChange) {
-        e.target.onChange(e);
-      }
+
+      // إنشاء وإطلاق حدث change مخصص
+      const changeEvent = new Event('change', { bubbles: true });
+      target.dispatchEvent(changeEvent);
     }
   };
 };
