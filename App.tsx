@@ -253,30 +253,30 @@ const App: React.FC = () => {
 
           const hasAssets = (halls.count || 0) > 0 || (services.count || 0) > 0;
 
+          // Check subscription status
+          const hasSubscription = profile.has_active_subscription ||
+                                 profile.subscription_status === 'hall' ||
+                                 profile.subscription_status === 'service' ||
+                                 profile.subscription_status === 'both';
+
           // NO assets? Redirect to vendor_choose_type (full screen, forced)
           if (!hasAssets) {
               updateActiveTab('vendor_choose_type');
               return;
           }
 
-          // Has assets - check subscription status
-          const hasSubscription = profile.has_active_subscription ||
-                                 profile.subscription_status === 'hall' ||
-                                 profile.subscription_status === 'service' ||
-                                 profile.subscription_status === 'both';
-
-          // No subscription but has assets - go to subscription page
-          if (!hasSubscription) {
-              updateActiveTab('vendor_subscription');
+          // Has assets AND subscription - check approval status
+          if (hasSubscription) {
+              if (profile.status === 'approved') {
+                  updateActiveTab('dashboard');
+              } else {
+                  updateActiveTab('request_pending');
+              }
               return;
           }
 
-          // Has assets AND subscription - check approval status
-          if (profile.status === 'approved') {
-              updateActiveTab('dashboard');
-          } else {
-              updateActiveTab('request_pending');
-          }
+          // Has assets but NO subscription - go to subscription page
+          updateActiveTab('vendor_subscription');
       } else if (profile.role === 'super_admin') {
           updateActiveTab('admin_dashboard');
       } else {
@@ -708,7 +708,20 @@ const App: React.FC = () => {
       case 'accounting': return userProfile ? <VendorAccounting user={userProfile} /> : null;
       case 'vendor_marketplace': return userProfile ? <VendorMarketplace user={userProfile} /> : null;
       case 'vendor_clients': return userProfile ? <VendorClients user={userProfile} /> : null;
-      case 'vendor_subscription': return userProfile ? <VendorSubscription user={userProfile} onComplete={() => { setRegStep(3); setActiveTab('vendor_register'); }} /> : null;
+      case 'vendor_subscription': {
+          // Only show subscription page for vendors who have assets but no subscription
+          if (!userProfile) return null;
+          const hasSubscription = userProfile.has_active_subscription ||
+                                 userProfile.subscription_status === 'hall' ||
+                                 userProfile.subscription_status === 'service' ||
+                                 userProfile.subscription_status === 'both';
+          // If already has subscription, redirect to dashboard
+          if (hasSubscription) {
+              updateActiveTab('dashboard');
+              return null;
+          }
+          return <VendorSubscription user={userProfile} onComplete={() => updateActiveTab('dashboard')} />;
+      }
       case 'vendor_choose_type': return userProfile ? <VendorChooseType user={userProfile} /> : null;
       case 'admin_requests': return <AdminRequests />;
       case 'payment-callback': return <PaymentCallback />;

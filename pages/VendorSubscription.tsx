@@ -45,11 +45,26 @@ export const VendorSubscription: React.FC<VendorSubscriptionProps> = ({ user, on
     const hasSubs = (subscriptions.count || 0) > 0;
 
     setHasAssets(hasHalls || hasServices);
-    setHasSubscription(hasSubs);
+    setHasSubscription(hasSubs || user.has_active_subscription || 
+                       user.subscription_status === 'hall' || 
+                       user.subscription_status === 'service' || 
+                       user.subscription_status === 'both');
 
-    // If vendor already has assets, redirect to dashboard
-    if (hasHalls || hasServices) {
+    // If vendor already has subscription, redirect to dashboard immediately
+    if (hasSubs || user.has_active_subscription || 
+        user.subscription_status === 'hall' || 
+        user.subscription_status === 'service' || 
+        user.subscription_status === 'both') {
+      console.log('Vendor already has subscription, redirecting to dashboard');
       if (onComplete) onComplete();
+      return;
+    }
+
+    // If vendor has no assets, redirect to vendor_choose_type
+    if (!hasHalls && !hasServices) {
+      console.log('Vendor has no assets, redirecting to vendor_choose_type');
+      window.location.href = '/#/vendor_choose_type';
+      return;
     }
   };
 
