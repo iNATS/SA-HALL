@@ -1,0 +1,15 @@
+.skip-link {
+  position: fixed;
+  inset-block-start: 8px;
+  inset-inline-start: 8px;
+  z-index: 1000;
+  transform: translateY(-160%);
+  border-radius: 12px;
+  background: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+  padding: 12px 16px;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}

@@ -32,6 +32,10 @@ dist-ssr
 # Build artifacts
 build/
 .cache/
+.angular/
+out-tsc/
+tmp/
+*.tsbuildinfo
 
 # Testing
 coverage/

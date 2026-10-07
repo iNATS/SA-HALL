@@ -1,0 +1,80 @@
+<header>
+  <mat-toolbar class="top-bar">
+    <a class="brand" href="/" aria-label="صالة، الصفحة الرئيسية">صالة</a>
+    <span class="spacer"></span>
+    <nav aria-label="التنقل الرئيسي">
+      <a mat-button href="#services">الخدمات</a>
+      <a mat-button href="#about">عن المنصة</a>
+    </nav>
+    <button mat-flat-button type="button" disabled aria-describedby="migration-note">
+      تسجيل الدخول
+    </button>
+  </mat-toolbar>
+</header>
+
+<main id="main-content" tabindex="-1">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero__copy">
+      <p class="eyebrow">قاعات وخدمات المناسبات</p>
+      <h1 id="hero-title">خطط لمناسبتك بوضوح وثقة</h1>
+      <p class="hero__description">
+        اكتشف القاعات والخدمات، قارن الخيارات، وأدر الحجز من مكان واحد.
+      </p>
+      <div class="hero__actions">
+        <button mat-flat-button type="button" disabled aria-describedby="migration-note">
+          استعرض القاعات
+        </button>
+        <a mat-button href="#about">تعرف على صالة</a>
+      </div>
+      <p id="migration-note" class="migration-note" role="status">
+        يجري الآن نقل الكتالوج بأمان من النظام الحالي. ستُفعّل الإجراءات بعد اكتمال اختبارات
+        التوافق.
+      </p>
+    </div>
+
+    <div class="hero__visual" aria-hidden="true">
+      <div class="venue-plan">
+        <span class="venue-plan__stage">المنصة</span>
+        <span class="venue-plan__aisle"></span>
+        @for (seat of [1, 2, 3, 4, 5, 6, 7, 8]; track seat) {
+          <span class="venue-plan__seat"></span>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section id="services" class="section" aria-labelledby="services-title">
+    <p class="eyebrow">رحلة واحدة متكاملة</p>
+    <h2 id="services-title">كل ما تحتاجه لمناسبتك</h2>
+    <div class="capabilities">
+      <article>
+        <h3>اكتشاف مناسب</h3>
+        <p>بحث واضح حسب المدينة والسعة والنوع، مع معلومات تساعد على المقارنة.</p>
+      </article>
+      <article>
+        <h3>حجز موثوق</h3>
+        <p>تسعير وتوفر يتحقق منهما الخادم قبل إنشاء أي حجز أو عملية دفع.</p>
+      </article>
+      <article>
+        <h3>إدارة عملية</h3>
+        <p>مساحات مخصصة للعملاء ومقدمي الخدمات والإدارة دون خلط الصلاحيات.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="about" class="section section--tonal" aria-labelledby="about-title">
+    <div>
+      <p class="eyebrow">تصميم عربي أولاً</p>
+      <h2 id="about-title">تجربة سريعة، متاحة، ومتجاوبة</h2>
+    </div>
+    <p>
+      الواجهة الجديدة مبنية باتجاه RTL أصيل، وبمكونات Material 3، ومسارات قابلة للمشاركة، وتحكم واضح
+      بالبيانات والصلاحيات.
+    </p>
+  </section>
+</main>
+
+<footer>
+  <span>© صالة</span>
+  <span>نسخة Angular قيد الترحيل المرحلي</span>
+</footer>

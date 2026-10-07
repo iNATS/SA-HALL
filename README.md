@@ -1,20 +1,90 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# SA Hall
 
-# Run and deploy your AI Studio app
+SA Hall is being migrated from a browser-only React/Supabase application to an Arabic-first Angular 22 + NestJS 12 + PostgreSQL architecture. The migration is intentionally non-destructive: the legacy application remains at the repository root until each feature reaches tested parity.
 
-This contains everything you need to run your app locally.
+## Current status
 
-View your app in AI Studio: https://ai.studio/apps/drive/1YMSUZ_jXk56WUKzpfRCg1eLv8kHElfGO
+- Legacy React application: builds and remains the behavior reference; not safe for production without the containment actions in the audit.
+- New Angular application: strict standalone foundation, Material 3 violet theme, RTL shell and lazy public route.
+- New NestJS API: Fastify, validated configuration, structured request logs, correlation IDs, consistent errors, PostgreSQL readiness and ordered checksum migrations.
+- Deployment: Compose services for the Angular web/proxy, API and private PostgreSQL database. Redis is not included because no measured need has been demonstrated.
 
-## Run Locally
+Read these first:
 
-**Prerequisites:**  Node.js
+- [Handover audit](docs/HANDOVER_AUDIT.md)
+- [Target architecture](docs/TARGET_ARCHITECTURE.md)
+- [Migration plan](docs/MIGRATION_PLAN.md)
+- [Capacity and scaling](docs/CAPACITY_AND_SCALING.md)
+- [Material 3 design system](design-system/MASTER.md)
 
+Historical implementation notes and the unordered legacy Supabase SQL patches have been moved to
+`docs/legacy/` and `database/legacy/`. They are retained only as migration evidence and must not be
+treated as an executable migration sequence.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Docker deployment
+
+Requirements: Docker Engine with Compose. No host Node.js or PostgreSQL installation is needed.
+
+1. Merge the Docker values from `.env.example` into a local `.env` and replace `POSTGRES_PASSWORD` with a long random secret. Never commit the resulting file.
+2. Start the stack:
+
+   ```bash
+   docker compose up -d
+   ```
+
+3. Check service state and health:
+
+   ```bash
+   docker compose ps
+   curl --fail http://localhost:8080/health/live
+   curl --fail http://localhost:8080/health/ready
+   ```
+
+The site listens on port `8080` by default. PostgreSQL has no host port and is reachable only on the internal Compose network. Database and upload data use named volumes.
+
+This foundation is not yet a production cutover. Public catalog, identity, booking, payment and administrative feature slices still need to be migrated and reconciled before the legacy runtime can be retired.
+
+## Local verification
+
+Angular 22.2 requires Node `22.22.3`, `24.15.0`, or newer compatible releases. The Docker images pin Node `24.15.0`. If the host Node is older, use Docker for authoritative builds.
+
+```bash
+# Existing behavior reference
+npm ci
+npm run build
+
+# Angular
+npm --prefix apps/web ci
+npm run web:test
+npm run web:build
+
+# API
+npm --prefix apps/api ci
+npm run api:test
+npm run api:build
+npm run api:test:e2e
+
+# Shared contracts
+npm --prefix packages/contracts install
+npm run contracts:typecheck
+```
+
+## Database migrations
+
+The API runs checksum-protected SQL migrations before startup. Applied files are recorded in `schema_migrations`, and changing an already-applied migration fails startup. Add new files under `apps/api/src/migrations` using the next four-digit prefix; never edit an applied migration.
+
+The current migration only establishes required extensions. Business tables are deliberately deferred until the live Supabase schema is exported and reconciled, preventing the new schema from guessing at production data.
+
+## Backup and restore baseline
+
+Until automated off-host backups are added, an operator can create a logical backup with:
+
+```bash
+docker compose exec -T postgres pg_dump -U sa_hall -d sa_hall -Fc > sa-hall.dump
+```
+
+Restore must be rehearsed into a separate empty database/Compose project, never over a live database. A production release requires encrypted off-host scheduling, retention, checksum verification and a timed restore test as described in the migration plan.
+
+## Security notice
+
+The legacy payment and static OTP flows contain critical findings. Do not expose the current React/Supabase implementation as a production-safe payment or authentication system. Rotate the payment credential and apply the audit containment actions before accepting real transactions.

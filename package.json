@@ -6,7 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "clean": "rm -rf dist coverage apps/web/dist apps/web/.angular apps/web/coverage apps/api/dist apps/api/coverage apps/api/tsconfig.build.tsbuildinfo packages/contracts/dist packages/contracts/tsconfig.tsbuildinfo",
+    "legacy:build": "npm run build",
+    "web:build": "npm --prefix apps/web run build",
+    "web:test": "npm --prefix apps/web run test",
+    "api:build": "npm --prefix apps/api run build",
+    "api:test": "npm --prefix apps/api run test",
+    "api:test:e2e": "npm --prefix apps/api run test:e2e",
+    "contracts:typecheck": "npm --prefix packages/contracts run typecheck"
   },
   "dependencies": {
     "react": "^18.2.0",
