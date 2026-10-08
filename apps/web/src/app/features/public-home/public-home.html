@@ -1,80 +1,228 @@
-<header>
+<header class="site-header">
   <mat-toolbar class="top-bar">
-    <a class="brand" href="/" aria-label="صالة، الصفحة الرئيسية">صالة</a>
+    <a class="brand" href="#top" aria-label="صالة، الصفحة الرئيسية">
+      <span class="brand__mark" aria-hidden="true">ص</span>
+      <span>صالة</span>
+    </a>
     <span class="spacer"></span>
     <nav aria-label="التنقل الرئيسي">
+      <a mat-button href="#venues">القاعات</a>
       <a mat-button href="#services">الخدمات</a>
-      <a mat-button href="#about">عن المنصة</a>
+      <a mat-button href="#how-it-works">كيف تعمل صالة؟</a>
     </nav>
-    <button mat-flat-button type="button" disabled aria-describedby="migration-note">
-      تسجيل الدخول
-    </button>
+    <a mat-stroked-button href="#venues">تسجيل الدخول</a>
   </mat-toolbar>
 </header>
 
 <main id="main-content" tabindex="-1">
-  <section class="hero" aria-labelledby="hero-title">
-    <div class="hero__copy">
-      <p class="eyebrow">قاعات وخدمات المناسبات</p>
-      <h1 id="hero-title">خطط لمناسبتك بوضوح وثقة</h1>
-      <p class="hero__description">
-        اكتشف القاعات والخدمات، قارن الخيارات، وأدر الحجز من مكان واحد.
-      </p>
-      <div class="hero__actions">
-        <button mat-flat-button type="button" disabled aria-describedby="migration-note">
-          استعرض القاعات
-        </button>
-        <a mat-button href="#about">تعرف على صالة</a>
+  <section id="top" class="hero" aria-labelledby="hero-title">
+    <img
+      class="hero__image"
+      src="/demo/venue-hero.jpg"
+      width="1600"
+      height="900"
+      alt="قاعة مناسبات عصرية مجهزة بإضاءة دافئة وطاولات أنيقة"
+      fetchpriority="high"
+    />
+    <div class="hero__veil" aria-hidden="true"></div>
+    <div class="hero__content">
+      <div class="hero__copy">
+        <p class="demo-label">بيانات تجريبية للمعاينة</p>
+        <p class="eyebrow eyebrow--light">المنصة الأولى لتجهيز مناسبتك</p>
+        <h1 id="hero-title">حيث تكتمل<br />لحظات الفرح</h1>
+        <p class="hero__description">
+          اكتشف القاعة المناسبة، اختر خدماتك، ورتّب يومك من مكان واحد بكل وضوح وثقة.
+        </p>
+        <div class="hero__stats" aria-label="إحصاءات المنصة التجريبية">
+          <span><strong>+120</strong> قاعة</span>
+          <span><strong>+80</strong> مقدم خدمة</span>
+          <span><strong>4.8</strong> متوسط التقييم</span>
+        </div>
       </div>
-      <p id="migration-note" class="migration-note" role="status">
-        يجري الآن نقل الكتالوج بأمان من النظام الحالي. ستُفعّل الإجراءات بعد اكتمال اختبارات
-        التوافق.
-      </p>
-    </div>
 
-    <div class="hero__visual" aria-hidden="true">
-      <div class="venue-plan">
-        <span class="venue-plan__stage">المنصة</span>
-        <span class="venue-plan__aisle"></span>
-        @for (seat of [1, 2, 3, 4, 5, 6, 7, 8]; track seat) {
-          <span class="venue-plan__seat"></span>
-        }
-      </div>
+      <form class="search-panel" (submit)="runDemoSearch(); $event.preventDefault()">
+        <div class="search-panel__tabs" role="group" aria-label="نوع البحث">
+          <button
+            type="button"
+            [class.is-active]="searchMode() === 'venues'"
+            [attr.aria-pressed]="searchMode() === 'venues'"
+            (click)="setSearchMode('venues')"
+          >
+            القاعات
+          </button>
+          <button
+            type="button"
+            [class.is-active]="searchMode() === 'services'"
+            [attr.aria-pressed]="searchMode() === 'services'"
+            (click)="setSearchMode('services')"
+          >
+            الخدمات
+          </button>
+        </div>
+        <h2>ابدأ البحث عن مناسبتك</h2>
+        <div class="field-grid">
+          <label>
+            <span>المدينة</span>
+            <select name="city">
+              <option>الرياض</option>
+              <option>جدة</option>
+              <option>الخبر</option>
+              <option>المدينة المنورة</option>
+            </select>
+          </label>
+          <label>
+            <span>تاريخ المناسبة</span>
+            <input name="event-date" type="date" />
+          </label>
+          <label class="field-grid__wide">
+            <span>عدد الضيوف</span>
+            <select name="guests">
+              <option>أقل من 150 ضيف</option>
+              <option>150–300 ضيف</option>
+              <option>300–500 ضيف</option>
+              <option>أكثر من 500 ضيف</option>
+            </select>
+          </label>
+        </div>
+        <button class="search-panel__submit" mat-flat-button type="submit">ابحث في الخيارات</button>
+        <p class="search-notice" aria-live="polite">{{ searchNotice() }}</p>
+      </form>
     </div>
   </section>
 
-  <section id="services" class="section" aria-labelledby="services-title">
-    <p class="eyebrow">رحلة واحدة متكاملة</p>
-    <h2 id="services-title">كل ما تحتاجه لمناسبتك</h2>
-    <div class="capabilities">
-      <article>
-        <h3>اكتشاف مناسب</h3>
-        <p>بحث واضح حسب المدينة والسعة والنوع، مع معلومات تساعد على المقارنة.</p>
-      </article>
-      <article>
-        <h3>حجز موثوق</h3>
-        <p>تسعير وتوفر يتحقق منهما الخادم قبل إنشاء أي حجز أو عملية دفع.</p>
-      </article>
-      <article>
-        <h3>إدارة عملية</h3>
-        <p>مساحات مخصصة للعملاء ومقدمي الخدمات والإدارة دون خلط الصلاحيات.</p>
-      </article>
+  <section id="venues" class="section" aria-labelledby="venues-title">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">اختيارات مميزة</p>
+        <h2 id="venues-title">قاعات تستحق يومك</h2>
+        <p>نماذج تجريبية توضّح تجربة التصفح قبل ربط الكتالوج الفعلي.</p>
+      </div>
+      <a mat-button href="#top">عرض كل القاعات</a>
+    </div>
+    <div class="venue-grid">
+      @for (venue of venues; track venue.name) {
+        <article class="venue-card">
+          <div class="venue-card__media">
+            <img
+              src="/demo/venue-hero.jpg"
+              width="448"
+              height="252"
+              [style.object-position]="venue.imagePosition"
+              [alt]="'صورة تجريبية لـ ' + venue.name"
+              loading="lazy"
+            />
+            <span class="venue-card__tag">{{ venue.tag }}</span>
+          </div>
+          <div class="venue-card__body">
+            <div class="venue-card__title">
+              <div>
+                <h3>{{ venue.name }}</h3>
+                <p>{{ venue.city }} · {{ venue.capacity }}</p>
+              </div>
+              <span class="rating" [attr.aria-label]="'التقييم ' + venue.rating + ' من 5'"
+                ><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z"
+                  /></svg
+                >{{ venue.rating }}</span
+              >
+            </div>
+            <div class="venue-card__footer">
+              <span
+                ><small>يبدأ من</small><strong>{{ venue.price }}</strong></span
+              ><button mat-button type="button" (click)="runDemoSearch()">التفاصيل</button>
+            </div>
+          </div>
+        </article>
+      }
     </div>
   </section>
 
-  <section id="about" class="section section--tonal" aria-labelledby="about-title">
+  <section id="services" class="section section--tonal" aria-labelledby="services-title">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">من الفكرة إلى الاحتفال</p>
+        <h2 id="services-title">كل الخدمات في مكان واحد</h2>
+        <p>اختر ما تحتاجه وأضفه إلى خطتك بسهولة.</p>
+      </div>
+    </div>
+    <div class="service-grid">
+      @for (service of services; track service.name) {
+        <article class="service-card">
+          <span class="service-card__icon" aria-hidden="true">
+            @switch (service.icon) {
+              @case ('camera') {
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M8.5 5.5 10 3h4l1.5 2.5H19a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7.5a2 2 0 0 1 2-2h3.5ZM12 9a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"
+                  />
+                </svg>
+              }
+              @case ('flower') {
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M12 10c-4-1-5.4-4.3-3.7-6 1.3-1.3 3.1-.5 3.7 1 .6-1.5 2.4-2.3 3.7-1 1.7 1.7.3 5-3.7 6Zm0 1c1-4 4.3-5.4 6-3.7 1.3 1.3.5 3.1-1 3.7 1.5.6 2.3 2.4 1 3.7-1.7 1.7-5 .3-6-3.7Zm-1 0c-1 4-4.3 5.4-6 3.7-1.3-1.3-.5-3.1 1-3.7-1.5-.6-2.3-2.4-1-3.7 1.7-1.7 5-.3 6 3.7Zm1 2c4 1 5.4 4.3 3.7 6-1.3 1.3-3.1.5-3.7-1-.6 1.5-2.4 2.3-3.7 1-1.7-1.7-.3-5 3.7-6Z"
+                  />
+                </svg>
+              }
+              @case ('coffee') {
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M5 5h12v10a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5V5Zm12 3h1a3 3 0 0 1 0 6h-1V8ZM8 2h2v2H8V2Zm4 0h2v2h-2V2Z"
+                  />
+                </svg>
+              }
+              @case ('music') {
+                <svg viewBox="0 0 24 24">
+                  <path d="M9 4v11.2A3.5 3.5 0 1 1 7 12V6l11-2v9.2a3.5 3.5 0 1 1-2-3.2V2L9 4Z" />
+                </svg>
+              }
+            }
+          </span>
+          <h3>{{ service.name }}</h3>
+          <p>{{ service.description }}</p>
+          <strong>{{ service.price }}</strong>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section id="how-it-works" class="section journey" aria-labelledby="journey-title">
     <div>
-      <p class="eyebrow">تصميم عربي أولاً</p>
-      <h2 id="about-title">تجربة سريعة، متاحة، ومتجاوبة</h2>
+      <p class="eyebrow">ثلاث خطوات بسيطة</p>
+      <h2 id="journey-title">مناسبتك تبدأ هنا</h2>
+      <p>نحافظ على بساطة التجربة من أول بحث حتى تأكيد الحجز.</p>
     </div>
-    <p>
-      الواجهة الجديدة مبنية باتجاه RTL أصيل، وبمكونات Material 3، ومسارات قابلة للمشاركة، وتحكم واضح
-      بالبيانات والصلاحيات.
-    </p>
+    <ol>
+      <li>
+        <span>01</span>
+        <div>
+          <strong>ابحث وقارن</strong>
+          <p>حدّد المدينة والتاريخ والسعة، ثم قارن الخيارات المناسبة.</p>
+        </div>
+      </li>
+      <li>
+        <span>02</span>
+        <div>
+          <strong>خصّص مناسبتك</strong>
+          <p>اختر القاعة وأضف خدمات التصوير والضيافة والتنسيق.</p>
+        </div>
+      </li>
+      <li>
+        <span>03</span>
+        <div>
+          <strong>أكّد بثقة</strong>
+          <p>راجع التفاصيل كاملة قبل إرسال طلب الحجز.</p>
+        </div>
+      </li>
+    </ol>
   </section>
 </main>
 
 <footer>
-  <span>© صالة</span>
-  <span>نسخة Angular قيد الترحيل المرحلي</span>
+  <a class="brand brand--footer" href="#top"
+    ><span class="brand__mark" aria-hidden="true">ص</span><span>صالة</span></a
+  >
+  <p>مكان واحد لكل تفاصيل مناسبتك.</p>
+  <span>© 2026 صالة · نسخة عرض ببيانات تجريبية</span>
 </footer>

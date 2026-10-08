@@ -1,0 +1,17 @@
+# Public home page override
+
+This page restores the stronger composition of the legacy SA Hall homepage without replacing the Material 3 system in `../MASTER.md`.
+
+## Preserved legacy characteristics
+
+- Full-width photographic venue hero with Arabic headline and a search panel.
+- Prominent venue discovery, featured venue cards, service categories, and a simple booking journey.
+- Warm, premium event-marketplace tone with restrained plum and gold cues.
+
+## Current-system constraints
+
+- Continue using the violet Material 3 semantic tokens and accessible focus treatment.
+- Use zero elevation; separate content with tone, whitespace, and outline roles instead of shadows.
+- Keep radii at the documented Material sizes and all interactive targets at least 48 px.
+- Demo records must be visibly identified as demo data until the production catalogue is connected.
+- Assets must be bundled locally. The generated hall image is decorative product-demo media and contains no remote dependency.
