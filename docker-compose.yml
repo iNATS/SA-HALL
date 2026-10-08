@@ -76,7 +76,8 @@ services:
     security_opt:
       - no-new-privileges:true
     tmpfs:
-      - /tmp:size=32m,noexec,nosuid
+      # nginx temp files plus the 16 MB API micro-cache (see apps/web/nginx.conf).
+      - /tmp:size=64m,noexec,nosuid
       - /var/cache/nginx:size=32m,noexec,nosuid
       - /var/run:size=8m,noexec,nosuid
     networks:
