@@ -46,6 +46,61 @@ This improves recoverability but is not high availability. Host, disk, provider 
 | Job backlog | tune DB-backed runner | external durable queue and worker autoscaling |
 | Distributed auth/rate limiting | retain DB sessions initially | Redis/managed coordination store |
 
+## Frontend delivery (measured 2026-10-08)
+
+The Angular build was measured with `gzip -9` over the production output (`ng build --stats-json`,
+closure of statically imported chunks per route):
+
+| Payload | Size (gzip) |
+| --- | --- |
+| App shell: framework, router, shell, CSS | 130 KB |
+| Full icon set (separate chunk, requested in parallel at startup) | 17 KB |
+| Home screen (search, featured halls, services) | +49 KB |
+| Hall details | +49 KB |
+| Halls catalog | +63 KB |
+| Checkout (Material date picker, stepper logic) | +106 KB |
+| Client bookings | +13 KB |
+| Owner shell / dashboard / bookings table | +55 / +49 / +107 KB |
+| Display font (Arabic subset, cached for a year) | 22 KB |
+| Hero photo on phones (portrait WebP 480w / 720w) | 51 / 83 KB |
+
+Controls that keep the origin cheap:
+
+- Every screen is a lazy chunk; the service worker precaches only the shell and caches other chunks
+  on first use, so a public visitor never downloads owner or admin code.
+- Fingerprinted bundles and fonts are `immutable` for a year; HTML, `ngsw.json` and the worker
+  revalidate. Repeat visits served by the service worker cost the origin roughly one small revalidation.
+- Text assets are gzip-compressed at image build time and served with `gzip_static`, so nginx spends no
+  CPU compressing static files.
+- nginx sends security and cache headers from one `map`, rate-limits `/api/`, keeps upstream connections
+  alive, and micro-caches public API reads (see below).
+
+### API micro-cache convention
+
+nginx stores an API response only when the API explicitly marks it cacheable, for example
+`Cache-Control: public, max-age=30` on public catalog and availability-summary reads. Requests with an
+`Authorization` header or any cookie bypass the cache, responses with `Set-Cookie`, `private` or
+`no-store` are never stored, concurrent misses are collapsed into one upstream request, and a stale copy
+is served while refreshing or during brief API errors. This turns a burst of identical public reads
+into one Node/PostgreSQL query per key per interval.
+
+### What a single VPS can and cannot do
+
+A rough model for 10,000,000 visits/day: if 30% are first visits at about 400 KB each (shell, first
+screen, font, photos) and the rest are service-worker repeat visits, static transfer alone is about
+1.2 TB/day, or 36 TB/month. That exceeds the monthly bandwidth of typical single VPS plans, and a single
+host has no redundancy. To approach that traffic:
+
+1. Put a CDN (for example Cloudflare) in front of the VPS so static files and cacheable API reads are
+   served from the edge; configure `set_real_ip_from`/`real_ip_header` in nginx so rate limits apply per
+   visitor, and terminate TLS with HSTS at that edge or a local proxy.
+2. Keep the VPS for the API and PostgreSQL, sized from the load tests described above.
+3. Follow the scale-out sequence in [Target architecture](TARGET_ARCHITECTURE.md) when measurements,
+   not estimates, show saturation.
+
+The figures above describe payload size, not served capacity. Requests per second, latency and
+headroom still need the k6 acceptance process in this document before any traffic commitment.
+
 ## Acceptance process
 
 1. Define an expected production traffic mix and peak factor from analytics/business evidence.

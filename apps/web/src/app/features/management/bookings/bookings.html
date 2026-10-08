@@ -1,0 +1,131 @@
+<div class="mp-page">
+  <div class="mp-toolbar">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mp-search">
+      <mat-label>رقم الحجز أو اسم العميل</mat-label>
+      <app-icon matIconPrefix name="search" />
+      <input
+        matInput
+        type="search"
+        [value]="query()"
+        (input)="query.set($any($event.target).value)"
+        (change)="setParam('q', query().trim())"
+      />
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="hall-filter">
+      <mat-label>القاعة</mat-label>
+      <mat-select [value]="hall() ?? ''" (selectionChange)="setParam('hall', $event.value)">
+        <mat-option value="">كل القاعات</mat-option>
+        @for (option of halls(); track option.slug) {
+          <mat-option [value]="option.slug">{{ option.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <mat-chip-listbox
+    class="sh-chip-scroll"
+    aria-label="حالة الحجز"
+    [value]="activeStatus()"
+    (change)="statusChange($event)"
+  >
+    @for (filter of filters; track filter) {
+      <mat-chip-option [value]="filter">
+        {{ labels[filter] }}
+        <span class="count sh-num">{{ counts()[filter] ?? 0 | num }}</span>
+      </mat-chip-option>
+    }
+  </mat-chip-listbox>
+
+  <section class="mp-panel table-panel" aria-label="قائمة الحجوزات">
+    @if (rows().length === 0) {
+      <app-empty-state
+        icon="event_note"
+        title="لا توجد حجوزات مطابقة"
+        message="غيّر الحالة أو القاعة أو عبارة البحث لعرض نتائج أخرى."
+      />
+    } @else if (compact()) {
+      <ul class="mp-list">
+        @for (row of rows(); track row.booking.id) {
+          <li>
+            <button type="button" class="mp-row" (click)="open(row.booking.id)">
+              <span class="mp-avatar" aria-hidden="true">{{ row.booking.customer.charAt(0) }}</span>
+              <div class="mp-row-main">
+                <strong>{{ row.booking.customer }}</strong>
+                <small>{{ row.hall }} · {{ row.booking.eventDate | arDate: 'short' }}</small>
+                <app-status [value]="row.status" />
+              </div>
+              <div class="mp-row-end">
+                <strong class="sh-num">{{ row.total | sar }}</strong>
+                <small
+                  ><bdi>{{ row.booking.id }}</bdi></small
+                >
+              </div>
+            </button>
+          </li>
+        }
+      </ul>
+    } @else {
+      <div class="sh-table-scroll">
+        <table
+          mat-table
+          class="mp-table"
+          [dataSource]="rows()"
+          matSort
+          [matSortActive]="sort().active"
+          [matSortDirection]="sort().direction"
+          (matSortChange)="sort.set($event)"
+        >
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef>رقم الحجز</th>
+            <td mat-cell *matCellDef="let row">
+              <bdi>{{ row.booking.id }}</bdi>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="customer">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>العميل</th>
+            <td mat-cell *matCellDef="let row">
+              <span class="mp-cell-stack">
+                <strong>{{ row.booking.customer }}</strong>
+                <small
+                  ><bdi dir="ltr">{{ row.booking.phone }}</bdi></small
+                >
+              </span>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="hall">
+            <th mat-header-cell *matHeaderCellDef>القاعة</th>
+            <td mat-cell *matCellDef="let row">{{ row.hall }}</td>
+          </ng-container>
+          <ng-container matColumnDef="eventDate">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>تاريخ المناسبة</th>
+            <td mat-cell *matCellDef="let row">{{ row.booking.eventDate | arDate }}</td>
+          </ng-container>
+          <ng-container matColumnDef="payment">
+            <th mat-header-cell *matHeaderCellDef>الدفع</th>
+            <td mat-cell *matCellDef="let row"><app-status [value]="row.payment" /></td>
+          </ng-container>
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>الحالة</th>
+            <td mat-cell *matCellDef="let row"><app-status [value]="row.status" /></td>
+          </ng-container>
+          <ng-container matColumnDef="total">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>الإجمالي</th>
+            <td mat-cell *matCellDef="let row">
+              <strong>{{ row.total | sar }}</strong>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="columns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: columns"
+            class="mp-clickable"
+            tabindex="0"
+            [attr.aria-label]="'فتح الحجز ' + row.booking.id"
+            (click)="open(row.booking.id)"
+            (keydown.enter)="open(row.booking.id)"
+          ></tr>
+        </table>
+      </div>
+    }
+  </section>
+</div>

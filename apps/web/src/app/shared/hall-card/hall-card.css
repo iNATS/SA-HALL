@@ -1,0 +1,165 @@
+:host {
+  display: block;
+}
+
+mat-card {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  --mat-card-outlined-container-color: var(--mat-sys-surface-container-lowest);
+  --mat-card-outlined-container-shape: var(--mat-sys-corner-large);
+  transition: border-color var(--sh-duration) var(--sh-ease);
+}
+
+mat-card:hover,
+mat-card:focus-within {
+  border-color: var(--mat-sys-outline);
+}
+
+.media {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background: var(--mat-sys-surface-container-high);
+}
+
+.media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 400ms var(--sh-ease);
+}
+
+mat-card:hover .media img {
+  transform: scale(1.04);
+}
+
+.tag {
+  position: absolute;
+  inset-block-start: 12px;
+  inset-inline-start: 12px;
+  border-radius: var(--mat-sys-corner-small);
+  background: var(--sh-hero-ink);
+  padding: 4px 10px;
+  color: var(--sh-hero-accent);
+  font: var(--mat-sys-label-medium);
+  font-weight: 700;
+}
+
+.favorite {
+  position: absolute;
+  z-index: 2;
+  inset-block-start: 4px;
+  inset-inline-end: 4px;
+  --mat-icon-button-icon-color: #fff;
+}
+
+.favorite::before {
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  background: rgb(20 10 40 / 45%);
+  content: '';
+}
+
+.favorite app-icon {
+  position: relative;
+}
+
+.favorite[aria-pressed='true'] {
+  --mat-icon-button-icon-color: #ffb4c4;
+}
+
+.body {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+}
+
+.title-row {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.name {
+  font: var(--mat-sys-title-large);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.stretched {
+  color: var(--mat-sys-on-surface);
+  text-decoration: none;
+}
+
+/* The whole card is one link target while the favorite button stays independent. */
+.stretched::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  content: '';
+}
+
+.stretched:focus-visible {
+  outline: none;
+}
+
+.stretched:focus-visible::after {
+  border-radius: inherit;
+  outline: 3px solid var(--mat-sys-primary);
+  outline-offset: -3px;
+}
+
+.rating {
+  --sh-icon-size: 18px;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  font: var(--mat-sys-label-large);
+  font-weight: 700;
+}
+
+.rating app-icon {
+  color: var(--sh-gold);
+}
+
+.meta {
+  --sh-icon-size: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-medium);
+}
+
+.instant {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--mat-sys-primary);
+  font-weight: 600;
+}
+
+.price {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-block-start: 6px;
+  border-block-start: 1px solid var(--mat-sys-outline-variant);
+  padding-block-start: 12px;
+}
+
+.price strong {
+  font: var(--mat-sys-title-large);
+  font-weight: 700;
+}
+
+.from,
+.per {
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}

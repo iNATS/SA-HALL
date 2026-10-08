@@ -1,0 +1,178 @@
+<section class="hero" aria-labelledby="hero-title">
+  <picture class="hero-media">
+    <source
+      media="(max-width: 839.98px)"
+      type="image/webp"
+      srcset="/images/hero-portrait-480.webp 480w, /images/hero-portrait-720.webp 720w"
+      sizes="100vw"
+    />
+    <img
+      src="/images/hero-1024.webp"
+      srcset="
+        /images/hero-640.webp   640w,
+        /images/hero-1024.webp 1024w,
+        /images/hero-1600.webp 1600w
+      "
+      sizes="100vw"
+      width="1600"
+      height="900"
+      alt=""
+      fetchpriority="high"
+      decoding="async"
+    />
+  </picture>
+
+  <div class="hero-grid sh-container">
+    <div class="hero-copy">
+      <p class="eyebrow"><app-icon name="diamond" filled />منصة القاعات الفاخرة في المملكة</p>
+      <h1 id="hero-title">حيث تكتمل<br />لحظات الفرح</h1>
+      <p class="lede">
+        قاعات مختارة بعناية، وخدمات ضيافة وتنسيق موثوقة، وحجز واضح من أول بحث حتى يوم المناسبة.
+      </p>
+      <ul class="trust" aria-label="لمحة عن المنصة">
+        <li><strong class="sh-num">+120</strong> قاعة مختارة</li>
+        <li><strong class="sh-num">+80</strong> مزوّد خدمة</li>
+        <li><strong class="sh-num">4.8</strong> متوسط التقييم</li>
+      </ul>
+    </div>
+
+    <form
+      class="search-card"
+      [formGroup]="search"
+      (ngSubmit)="submit()"
+      aria-labelledby="search-title"
+    >
+      <mat-button-toggle-group
+        formControlName="mode"
+        aria-label="نوع البحث"
+        class="mode"
+        hideSingleSelectionIndicator
+      >
+        <mat-button-toggle value="halls"><app-icon name="domain" />القاعات</mat-button-toggle>
+        <mat-button-toggle value="services"
+          ><app-icon name="room_service" />الخدمات</mat-button-toggle
+        >
+      </mat-button-toggle-group>
+      <h2 id="search-title">ابحث عن مناسبتك القادمة</h2>
+      <div class="fields">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>المدينة</mat-label>
+          <app-icon matIconPrefix name="location_on" />
+          <select matNativeControl formControlName="city">
+            <option value="">كل المدن</option>
+            @for (city of cities; track city) {
+              <option [value]="city">{{ city }}</option>
+            }
+          </select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>تاريخ المناسبة</mat-label>
+          <input matInput type="date" formControlName="date" [min]="minDate" />
+        </mat-form-field>
+        @if (search.controls.mode.value === 'halls') {
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="wide">
+            <mat-label>عدد الضيوف</mat-label>
+            <app-icon matIconPrefix name="groups" />
+            <select matNativeControl formControlName="guests">
+              <option [ngValue]="null">أي عدد</option>
+              @for (option of guestOptions; track option.value) {
+                <option [ngValue]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </mat-form-field>
+        }
+      </div>
+      <button mat-flat-button class="submit" type="submit">
+        <app-icon name="search" />
+        {{ search.controls.mode.value === 'halls' ? 'اعرض القاعات المتاحة' : 'اعرض الخدمات' }}
+      </button>
+    </form>
+  </div>
+</section>
+
+<section class="section sh-container" aria-labelledby="featured-title">
+  <div class="sh-section-head">
+    <div>
+      <p class="sh-eyebrow">مختارات صالة</p>
+      <h2 id="featured-title" class="section-title">قاعات تليق بيومك</h2>
+      <p>الأعلى تقييماً هذا الموسم، مع أسعار واضحة تشمل كل التفاصيل.</p>
+    </div>
+    <a mat-button routerLink="/halls">
+      عرض كل القاعات
+      <app-icon name="arrow_back" mirror iconPositionEnd />
+    </a>
+  </div>
+  <div class="rail" role="list">
+    @for (hall of featured(); track hall.slug; let index = $index) {
+      <app-hall-card role="listitem" [hall]="hall" [eager]="index < 2" />
+    }
+  </div>
+</section>
+
+<section class="services-band" aria-labelledby="services-title">
+  <div class="sh-container">
+    <div class="sh-section-head">
+      <div>
+        <p class="sh-eyebrow">من الفكرة إلى الاحتفال</p>
+        <h2 id="services-title" class="section-title">خدمات تكمل التفاصيل</h2>
+        <p>أضف التصوير والضيافة والتنسيق إلى حجزك في خطوة واحدة.</p>
+      </div>
+      <a mat-button routerLink="/services">
+        كل الخدمات
+        <app-icon name="arrow_back" mirror iconPositionEnd />
+      </a>
+    </div>
+    <ul class="service-grid">
+      @for (service of services; track service.slug) {
+        <li>
+          <a class="service-tile" routerLink="/services" [queryParams]="{ q: service.category }">
+            <span class="service-icon"><app-icon [name]="service.icon" /></span>
+            <strong>{{ service.category }}</strong>
+            <span class="sh-num"
+              >من {{ service.price | sar }}{{ service.unit === 'guest' ? ' للفرد' : '' }}</span
+            >
+          </a>
+        </li>
+      }
+    </ul>
+  </div>
+</section>
+
+<section class="section sh-container journey" aria-labelledby="journey-title">
+  <div class="journey-intro">
+    <p class="sh-eyebrow">تجربة بلا تعقيد</p>
+    <h2 id="journey-title" class="section-title">ثلاث خطوات إلى ليلتك</h2>
+    <p>
+      نعرض السعر الكامل شاملاً الضريبة قبل أي دفع، ونثبّت التاريخ فور تأكيد القاعة واستلام العربون.
+    </p>
+  </div>
+  <ol class="steps">
+    <li>
+      <span class="step-number" aria-hidden="true">01</span>
+      <h3>ابحث وقارن</h3>
+      <p>حدّد المدينة والتاريخ وعدد الضيوف، وقارن القاعات المتاحة فعلياً.</p>
+    </li>
+    <li>
+      <span class="step-number" aria-hidden="true">02</span>
+      <h3>صمّم مناسبتك</h3>
+      <p>اختر الباقة وأضف خدمات التصوير والضيافة والتنسيق بأسعار معلنة.</p>
+    </li>
+    <li>
+      <span class="step-number" aria-hidden="true">03</span>
+      <h3>أكّد بثقة</h3>
+      <p>راجع الملخص، ادفع العربون، وتابع كل التحديثات من حسابك.</p>
+    </li>
+  </ol>
+</section>
+
+<section class="owner-band sh-container" aria-labelledby="owner-title">
+  <div class="owner-copy">
+    <p class="eyebrow"><app-icon name="workspace_premium" filled />لملاك القاعات ومزوّدي الخدمات</p>
+    <h2 id="owner-title">أدر قاعتك كما تُدار الفنادق الفاخرة</h2>
+    <p>تقويم موحّد، وحجوزات ومدفوعات وفواتير وعملاء في لوحة واحدة تعمل على الجوال والحاسب.</p>
+  </div>
+  <div class="owner-actions">
+    <a mat-flat-button class="gold" routerLink="/owner">استعرض لوحة المالك</a>
+    <a mat-stroked-button class="light" routerLink="/admin">لوحة إدارة المنصة</a>
+  </div>
+</section>

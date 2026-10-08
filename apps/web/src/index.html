@@ -2,17 +2,61 @@
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="utf-8" />
+    <title>صالة | حجز القاعات الفاخرة</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta
       name="description"
-      content="منصة صالة لاكتشاف وإدارة قاعات وخدمات المناسبات في المملكة العربية السعودية"
+      content="صالة: اكتشف واحجز قاعات المناسبات الفاخرة وخدماتها في المملكة العربية السعودية، مع لوحات متكاملة لملاك القاعات وإدارة المنصة."
     />
-    <meta name="theme-color" content="#6750a4" />
-    <title>صالة</title>
-    <base href="/" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#fef7ff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#15121a" media="(prefers-color-scheme: dark)" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="صالة" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <style>
+      .boot {
+        display: grid;
+        min-height: 100dvh;
+        place-items: center;
+        background: #fef7ff;
+      }
+      .boot svg {
+        width: 72px;
+        height: 72px;
+      }
+      @media (prefers-color-scheme: dark) {
+        .boot {
+          background: #15121a;
+        }
+      }
+    </style>
   </head>
   <body>
-    <app-root></app-root>
+    <app-root>
+      <div class="boot" aria-hidden="true">
+        <svg viewBox="0 0 512 512">
+          <rect width="512" height="512" rx="120" fill="#3D0090" />
+          <path
+            d="M152 404V252c0-58 46-104 104-136 58 32 104 78 104 136v152"
+            fill="none"
+            stroke="#EAC256"
+            stroke-width="28"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path d="M208 404V276c0-30 21-55 48-72 27 17 48 42 48 72v128z" fill="#EAC256" />
+          <path d="M112 404h288" stroke="#EAC256" stroke-width="28" stroke-linecap="round" />
+        </svg>
+      </div>
+    </app-root>
+    <noscript>يتطلب تطبيق صالة تفعيل JavaScript في المتصفح.</noscript>
   </body>
 </html>

@@ -1,110 +1,154 @@
-export interface DemoHall {
-  readonly slug: string;
-  readonly name: string;
-  readonly city: string;
-  readonly district: string;
-  readonly capacity: string;
-  readonly price: number;
-  readonly rating: string;
-  readonly reviews: number;
-  readonly tag: string;
-  readonly position: string;
-}
+import {
+  Booking,
+  Coupon,
+  Hall,
+  HomeSection,
+  LedgerEntry,
+  PlatformRequest,
+  Product,
+  ServiceOffer,
+  StoreOrder,
+  Subscriber,
+} from '../domain/models';
 
-export interface DemoService {
-  readonly slug: string;
-  readonly name: string;
-  readonly category: string;
-  readonly city: string;
-  readonly price: number;
-  readonly rating: string;
-  readonly description: string;
-}
+/**
+ * Demonstration records used until the catalog, booking and finance APIs exist.
+ * Every figure is internally consistent: totals are derived from booking lines,
+ * and each panel (client, hall owner, administrator) reads the same records.
+ */
+export const DEMO_TODAY = '2026-10-08';
 
-export const DEMO_HALLS: readonly DemoHall[] = [
+export const DEMO_OWNER = {
+  vendorId: 'lilac',
+  organization: 'مؤسسة ليلك للمناسبات',
+  contact: 'owner@lilac.sa',
+} as const;
+
+export const DEMO_CLIENT = {
+  id: 'noura',
+  name: 'نورة العتيبي',
+  phone: '0501234567',
+  email: 'noura@example.com',
+  city: 'الرياض',
+} as const;
+
+export const DEMO_ADMIN = {
+  name: 'أحمد السالم',
+  email: 'admin@sa-hall.com',
+} as const;
+
+export const CITIES = ['الرياض', 'جدة', 'الخبر', 'الدمام', 'المدينة المنورة'] as const;
+
+export const DEMO_HALLS: readonly Hall[] = [
   {
     slug: 'lilac-royal',
     name: 'قاعة ليلك الملكية',
+    vendorId: 'lilac',
     city: 'الرياض',
     district: 'حي الياسمين',
-    capacity: '300–500',
+    capacityMin: 300,
+    capacityMax: 500,
     price: 18500,
-    rating: '4.9',
+    rating: 4.9,
     reviews: 126,
     tag: 'الأكثر طلباً',
-    position: '18% center',
+    photo: 'stage',
+    instantBooking: true,
+    visible: true,
   },
   {
     slug: 'aroma-palace',
     name: 'قصر أروما',
+    vendorId: 'lilac',
     city: 'جدة',
     district: 'حي الشاطئ',
-    capacity: '200–350',
+    capacityMin: 200,
+    capacityMax: 350,
     price: 14200,
-    rating: '4.8',
+    rating: 4.8,
     reviews: 94,
-    tag: 'عرض مميز',
-    position: '42% center',
+    tag: 'إطلالة بحرية',
+    photo: 'lounge',
+    instantBooking: false,
+    visible: true,
   },
   {
     slug: 'noura-hall',
     name: 'قاعة نورا',
+    vendorId: 'lilac',
     city: 'الخبر',
-    district: 'حي الحزام',
-    capacity: '150–250',
+    district: 'حي الحزام الذهبي',
+    capacityMin: 150,
+    capacityMax: 250,
     price: 11900,
-    rating: '4.7',
+    rating: 4.7,
     reviews: 78,
     tag: 'حجز فوري',
-    position: '68% center',
+    photo: 'table',
+    instantBooking: true,
+    visible: true,
   },
   {
     slug: 'dar-al-sahab',
     name: 'دار السحاب',
+    vendorId: 'sama',
     city: 'المدينة المنورة',
     district: 'حي الهجرة',
-    capacity: '350–600',
+    capacityMin: 350,
+    capacityMax: 600,
     price: 21000,
-    rating: '4.9',
+    rating: 4.9,
     reviews: 142,
     tag: 'موصى بها',
-    position: '84% center',
+    photo: 'arches',
+    instantBooking: false,
+    visible: true,
   },
   {
     slug: 'violet-garden',
     name: 'حديقة فيوليت',
+    vendorId: 'sama',
     city: 'الرياض',
     district: 'حي الرمال',
-    capacity: '180–300',
+    capacityMin: 180,
+    capacityMax: 300,
     price: 13500,
-    rating: '4.6',
+    rating: 4.6,
     reviews: 61,
     tag: 'مساحة خارجية',
-    position: '30% center',
+    photo: 'florals',
+    instantBooking: true,
+    visible: true,
   },
   {
     slug: 'al-masa',
     name: 'قاعة الماسة',
+    vendorId: 'almasa',
     city: 'جدة',
     district: 'حي النهضة',
-    capacity: '400–700',
+    capacityMin: 400,
+    capacityMax: 700,
     price: 24500,
-    rating: '4.9',
+    rating: 4.9,
     reviews: 175,
-    tag: 'فئة فاخرة',
-    position: '74% center',
+    tag: 'الفئة الماسية',
+    photo: 'chandelier',
+    instantBooking: false,
+    visible: true,
   },
 ];
 
-export const DEMO_SERVICES: readonly DemoService[] = [
+export const DEMO_SERVICES: readonly ServiceOffer[] = [
   {
     slug: 'lens-story',
     name: 'عدسة الحكاية',
     category: 'التصوير والتوثيق',
     city: 'الرياض',
     price: 2800,
-    rating: '4.9',
-    description: 'تصوير فوتوغرافي وفيديو مع فيلم قصير للمناسبة.',
+    unit: 'event',
+    rating: 4.9,
+    description: 'تصوير فوتوغرافي وفيديو سينمائي مع فيلم قصير للمناسبة.',
+    icon: 'photo_camera',
   },
   {
     slug: 'bloom',
@@ -112,8 +156,10 @@ export const DEMO_SERVICES: readonly DemoService[] = [
     category: 'التنسيق والديكور',
     city: 'جدة',
     price: 3500,
-    rating: '4.8',
-    description: 'هوية بصرية متكاملة للطاولات والمداخل والمنصة.',
+    unit: 'event',
+    rating: 4.8,
+    description: 'هوية زهرية متكاملة للمنصة والمداخل والطاولات.',
+    icon: 'local_florist',
   },
   {
     slug: 'diwaniya',
@@ -121,8 +167,10 @@ export const DEMO_SERVICES: readonly DemoService[] = [
     category: 'الضيافة والحلويات',
     city: 'الرياض',
     price: 95,
-    rating: '4.7',
-    description: 'قهوة سعودية وحلويات وطاقم ضيافة محترف.',
+    unit: 'guest',
+    rating: 4.7,
+    description: 'قهوة سعودية وحلويات فاخرة وطاقم ضيافة محترف.',
+    icon: 'local_cafe',
   },
   {
     slug: 'tone-light',
@@ -130,8 +178,10 @@ export const DEMO_SERVICES: readonly DemoService[] = [
     category: 'الصوت والإضاءة',
     city: 'الخبر',
     price: 1900,
-    rating: '4.8',
+    unit: 'event',
+    rating: 4.8,
     description: 'نظام صوت وإضاءة ذكية بإشراف فني طوال المناسبة.',
+    icon: 'speaker',
   },
   {
     slug: 'white-table',
@@ -139,55 +189,471 @@ export const DEMO_SERVICES: readonly DemoService[] = [
     category: 'التموين',
     city: 'جدة',
     price: 140,
-    rating: '4.6',
-    description: 'قوائم عشاء مرنة وخيارات نباتية وتجهيز كامل.',
+    unit: 'guest',
+    rating: 4.6,
+    description: 'قوائم عشاء راقية مع خيارات نباتية وتجهيز كامل.',
+    icon: 'restaurant',
   },
   {
     slug: 'invite-studio',
-    name: 'استديو الدعوة',
+    name: 'استوديو الدعوة',
     category: 'الدعوات الرقمية',
     city: 'عن بُعد',
     price: 650,
-    rating: '4.9',
-    description: 'دعوات رقمية، تأكيد حضور، ورسائل تذكير للضيوف.',
+    unit: 'event',
+    rating: 4.9,
+    description: 'دعوات رقمية وتأكيد حضور ورسائل تذكير للضيوف.',
+    icon: 'mail',
   },
 ];
 
-export const DEMO_BOOKINGS = [
+/** Optional add-ons offered during checkout; amounts are per event. */
+export const BOOKING_EXTRAS = [
+  { id: 'photo', label: 'تصوير المناسبة', detail: 'فوتوغرافي وفيديو · 6 ساعات', amount: 2800 },
+  { id: 'flowers', label: 'تنسيق الزهور', detail: 'المنصة والمدخل و20 طاولة', amount: 3500 },
+  { id: 'sound', label: 'صوت وإضاءة متقدمة', detail: 'مهندس تشغيل ومؤثرات', amount: 1900 },
+] as const;
+
+export const COMPLETE_PACKAGE_AMOUNT = 4200;
+
+export const DEMO_BOOKINGS: readonly Booking[] = [
+  {
+    id: 'SH-24095',
+    clientId: 'noura',
+    hallSlug: 'aroma-palace',
+    customer: 'نورة العتيبي',
+    phone: '0501234567',
+    eventDate: '2026-12-24',
+    guests: 250,
+    lines: [{ label: 'حجز القاعة', amount: 14200 }],
+    paid: 0,
+    status: 'pending',
+    createdAt: '2026-10-07T21:40:00+03:00',
+  },
+  {
+    id: 'SH-24088',
+    hallSlug: 'dar-al-sahab',
+    customer: 'عبدالله الزهراني',
+    phone: '0559012345',
+    eventDate: '2026-11-27',
+    guests: 520,
+    lines: [
+      { label: 'حجز القاعة', amount: 21000 },
+      { label: 'تنسيق الزهور', amount: 3500 },
+    ],
+    paid: 8453,
+    status: 'confirmed',
+    createdAt: '2026-10-06T18:05:00+03:00',
+  },
   {
     id: 'SH-24081',
-    hall: 'قاعة ليلك الملكية',
+    clientId: 'noura',
+    hallSlug: 'lilac-royal',
     customer: 'نورة العتيبي',
-    date: '18 نوفمبر 2026',
-    total: '21,275 ر.س',
-    status: 'مؤكد',
-    payment: 'مدفوع جزئياً',
+    phone: '0501234567',
+    eventDate: '2026-11-18',
+    guests: 300,
+    lines: [{ label: 'حجز القاعة', amount: 18500 }],
+    paid: 6383,
+    status: 'confirmed',
+    createdAt: '2026-10-07T22:30:00+03:00',
   },
   {
     id: 'SH-24074',
-    hall: 'قصر أروما',
+    hallSlug: 'aroma-palace',
     customer: 'سارة الحربي',
-    date: '24 نوفمبر 2026',
-    total: '16,330 ر.س',
-    status: 'بانتظار الموافقة',
-    payment: 'عربون مدفوع',
+    phone: '0558214102',
+    eventDate: '2026-11-24',
+    guests: 220,
+    lines: [{ label: 'حجز القاعة', amount: 14200 }],
+    paid: 0,
+    status: 'pending',
+    createdAt: '2026-10-07T12:10:00+03:00',
+  },
+  {
+    id: 'SH-24070',
+    hallSlug: 'al-masa',
+    customer: 'هيفاء القرشي',
+    phone: '0533340912',
+    eventDate: '2026-12-05',
+    guests: 640,
+    lines: [
+      { label: 'الباقة المتكاملة', amount: 28700 },
+      { label: 'تصوير المناسبة', amount: 2800 },
+    ],
+    paid: 36225,
+    status: 'confirmed',
+    createdAt: '2026-10-04T16:45:00+03:00',
   },
   {
     id: 'SH-24063',
-    hall: 'قاعة نورا',
+    hallSlug: 'noura-hall',
     customer: 'ريم القحطاني',
-    date: '02 ديسمبر 2026',
-    total: '13,685 ر.س',
-    status: 'مؤكد',
-    payment: 'مدفوع',
+    phone: '0534408871',
+    eventDate: '2026-12-02',
+    guests: 200,
+    lines: [{ label: 'حجز القاعة', amount: 11900 }],
+    paid: 13685,
+    status: 'confirmed',
+    createdAt: '2026-10-03T11:20:00+03:00',
   },
   {
     id: 'SH-24052',
-    hall: 'دار السحاب',
+    hallSlug: 'lilac-royal',
     customer: 'خالد السبيعي',
-    date: '12 ديسمبر 2026',
-    total: '24,150 ر.س',
-    status: 'قيد المراجعة',
-    payment: 'غير مدفوع',
+    phone: '0567712290',
+    eventDate: '2026-12-12',
+    guests: 450,
+    lines: [
+      { label: 'الباقة المتكاملة', amount: 22700 },
+      { label: 'تصوير المناسبة', amount: 2800 },
+    ],
+    paid: 8798,
+    status: 'confirmed',
+    createdAt: '2026-10-01T09:00:00+03:00',
   },
+  {
+    id: 'SH-24031',
+    hallSlug: 'noura-hall',
+    customer: 'منى الدوسري',
+    phone: '0541187730',
+    eventDate: '2026-10-02',
+    guests: 180,
+    lines: [
+      { label: 'حجز القاعة', amount: 11900 },
+      { label: 'صوت وإضاءة متقدمة', amount: 1900 },
+    ],
+    paid: 15870,
+    status: 'completed',
+    createdAt: '2026-09-02T19:30:00+03:00',
+  },
+  {
+    id: 'SH-24019',
+    hallSlug: 'aroma-palace',
+    customer: 'فهد الشهري',
+    phone: '0509981124',
+    eventDate: '2026-10-30',
+    guests: 260,
+    lines: [{ label: 'حجز القاعة', amount: 14200 }],
+    paid: 4899,
+    status: 'cancelled',
+    createdAt: '2026-08-21T14:00:00+03:00',
+  },
+];
+
+export const DEMO_REQUESTS: readonly PlatformRequest[] = [
+  {
+    id: 'REQ-311',
+    kind: 'registration',
+    title: 'مؤسسة مدى للتصوير',
+    applicant: 'مدى للتصوير',
+    city: 'الرياض',
+    submittedAt: '2026-10-08T08:15:00+03:00',
+    details: [
+      { label: 'السجل التجاري', value: 'موثّق' },
+      { label: 'النشاط', value: 'خدمات تصوير' },
+    ],
+    state: 'pending',
+  },
+  {
+    id: 'REQ-308',
+    kind: 'new-hall',
+    title: 'قاعة سحاب الشرق',
+    applicant: 'مؤسسة سما نجد',
+    city: 'الدمام',
+    submittedAt: '2026-10-07T17:40:00+03:00',
+    details: [
+      { label: 'السعة', value: '450 ضيفاً' },
+      { label: 'السعر المقترح', value: '17,500 ر.س' },
+    ],
+    state: 'pending',
+  },
+  {
+    id: 'REQ-305',
+    kind: 'upgrade',
+    title: 'ترقية إلى الباقة الماسية',
+    applicant: 'قاعة الماسة',
+    city: 'جدة',
+    submittedAt: '2026-10-06T10:05:00+03:00',
+    details: [
+      { label: 'الباقة الحالية', value: 'الذهبية' },
+      { label: 'الأصول', value: '4 من 5' },
+    ],
+    state: 'pending',
+  },
+  {
+    id: 'REQ-299',
+    kind: 'registration',
+    title: 'ضيافة السدرة',
+    applicant: 'السدرة للضيافة',
+    city: 'جدة',
+    submittedAt: '2026-10-05T13:30:00+03:00',
+    details: [
+      { label: 'السجل التجاري', value: 'بانتظار المستند' },
+      { label: 'النشاط', value: 'ضيافة وحلويات' },
+    ],
+    state: 'pending',
+  },
+];
+
+export const DEMO_SUBSCRIBERS: readonly Subscriber[] = [
+  {
+    id: 'lilac',
+    name: 'مؤسسة ليلك للمناسبات',
+    city: 'الرياض',
+    kind: 'قاعات',
+    plan: 'الذهبية',
+    assets: 3,
+    state: 'active',
+    renewsOn: '2027-01-12',
+  },
+  {
+    id: 'sama',
+    name: 'مؤسسة سما نجد',
+    city: 'الدمام',
+    kind: 'قاعات',
+    plan: 'الفضية',
+    assets: 2,
+    state: 'expiring',
+    renewsOn: '2026-10-29',
+  },
+  {
+    id: 'almasa',
+    name: 'قاعة الماسة',
+    city: 'جدة',
+    kind: 'قاعات وخدمات',
+    plan: 'الذهبية',
+    assets: 4,
+    state: 'active',
+    renewsOn: '2027-03-02',
+  },
+  {
+    id: 'lens-story',
+    name: 'عدسة الحكاية',
+    city: 'الرياض',
+    kind: 'خدمات',
+    plan: 'الأساسية',
+    assets: 1,
+    state: 'active',
+    renewsOn: '2026-12-20',
+  },
+  {
+    id: 'mada',
+    name: 'مدى للتصوير',
+    city: 'الرياض',
+    kind: 'خدمات',
+    plan: 'الأساسية',
+    assets: 0,
+    state: 'pending',
+    renewsOn: null,
+  },
+  {
+    id: 'nakheel',
+    name: 'استراحة النخيل',
+    city: 'الخبر',
+    kind: 'قاعات',
+    plan: 'الفضية',
+    assets: 1,
+    state: 'suspended',
+    renewsOn: null,
+  },
+];
+
+export const DEMO_COUPONS: readonly Coupon[] = [
+  {
+    code: 'FARAH20',
+    kind: 'percent',
+    value: 20,
+    scope: 'كل القاعات',
+    used: 42,
+    limit: 100,
+    expiresOn: '2026-12-31',
+    paused: false,
+  },
+  {
+    code: 'WELCOME500',
+    kind: 'fixed',
+    value: 500,
+    scope: 'الحجز الأول',
+    used: 31,
+    limit: 50,
+    expiresOn: '2026-11-30',
+    paused: false,
+  },
+  {
+    code: 'WINTER10',
+    kind: 'percent',
+    value: 10,
+    scope: 'قصر أروما',
+    used: 4,
+    limit: 40,
+    expiresOn: '2027-02-28',
+    paused: true,
+  },
+  {
+    code: 'SUMMER15',
+    kind: 'percent',
+    value: 15,
+    scope: 'قاعة ليلك الملكية',
+    used: 11,
+    limit: 25,
+    expiresOn: '2026-09-30',
+    paused: false,
+  },
+];
+
+/** Hall-owner ledger; amounts reconcile with the owner's bookings above. */
+export const DEMO_LEDGER: readonly LedgerEntry[] = [
+  {
+    reference: 'INV-8041',
+    description: 'عربون الحجز SH-24081',
+    date: '2026-10-07',
+    kind: 'collection',
+    amount: 6383,
+  },
+  {
+    reference: 'FEE-2240',
+    description: 'عمولة المنصة 5% · SH-24081',
+    date: '2026-10-07',
+    kind: 'fee',
+    amount: -319,
+  },
+  {
+    reference: 'INV-8032',
+    description: 'سداد كامل SH-24063',
+    date: '2026-10-03',
+    kind: 'collection',
+    amount: 13685,
+  },
+  {
+    reference: 'FEE-2231',
+    description: 'عمولة المنصة 5% · SH-24063',
+    date: '2026-10-03',
+    kind: 'fee',
+    amount: -684,
+  },
+  {
+    reference: 'INV-8019',
+    description: 'عربون الحجز SH-24052',
+    date: '2026-10-01',
+    kind: 'collection',
+    amount: 8798,
+  },
+  {
+    reference: 'FEE-2219',
+    description: 'عمولة المنصة 5% · SH-24052',
+    date: '2026-10-01',
+    kind: 'fee',
+    amount: -440,
+  },
+  {
+    reference: 'PAY-1938',
+    description: 'تحويل بنكي إلى المنشأة',
+    date: '2026-09-28',
+    kind: 'payout',
+    amount: -15000,
+  },
+  {
+    reference: 'RFD-0412',
+    description: 'استرداد عربون SH-24019 بعد الإلغاء',
+    date: '2026-09-25',
+    kind: 'refund',
+    amount: -4899,
+  },
+  {
+    reference: 'INV-7998',
+    description: 'سداد كامل SH-24031',
+    date: '2026-09-02',
+    kind: 'collection',
+    amount: 15870,
+  },
+  {
+    reference: 'FEE-2190',
+    description: 'عمولة المنصة 5% · SH-24031',
+    date: '2026-09-02',
+    kind: 'fee',
+    amount: -794,
+  },
+  {
+    reference: 'INV-7990',
+    description: 'عربون الحجز SH-24019',
+    date: '2026-08-21',
+    kind: 'collection',
+    amount: 4899,
+  },
+];
+
+export const DEMO_PRODUCTS: readonly Product[] = [
+  {
+    id: 'P-101',
+    name: 'بطاقات طاولات مخصصة',
+    category: 'طباعة وتجهيز',
+    price: 16,
+    unit: 'قطعة',
+    stock: 1200,
+    icon: 'print',
+  },
+  {
+    id: 'P-114',
+    name: 'صندوق ضيافة فاخر',
+    category: 'هدايا الضيوف',
+    price: 75,
+    unit: 'قطعة',
+    stock: 340,
+    icon: 'redeem',
+  },
+  {
+    id: 'P-120',
+    name: 'ستاند ترحيبي مضيء',
+    category: 'تجهيز القاعة',
+    price: 450,
+    unit: 'يوم',
+    stock: 6,
+    icon: 'light',
+  },
+  {
+    id: 'P-131',
+    name: 'مباخر وعود فاخر',
+    category: 'ضيافة',
+    price: 220,
+    unit: 'طقم',
+    stock: 0,
+    icon: 'local_fire_department',
+  },
+];
+
+export const DEMO_ORDERS: readonly StoreOrder[] = [
+  {
+    id: 'ORD-1024',
+    title: 'بطاقات طاولات مخصصة',
+    quantity: 30,
+    total: 480,
+    state: 'shipped',
+    eta: '2026-11-14',
+  },
+  {
+    id: 'ORD-1019',
+    title: 'صندوق ضيافة فاخر',
+    quantity: 20,
+    total: 1500,
+    state: 'processing',
+    eta: '2026-11-16',
+  },
+];
+
+export const DEMO_HOME_SECTIONS: readonly HomeSection[] = [
+  { id: 'featured', title: 'القاعات المميزة', summary: '4 قاعات مختارة', visible: true },
+  { id: 'services', title: 'خدمات المناسبات', summary: '6 فئات خدمات', visible: true },
+  { id: 'journey', title: 'كيف تعمل صالة؟', summary: 'ثلاث خطوات تعريفية', visible: true },
+  { id: 'offers', title: 'عروض الموسم', summary: 'مخفي حتى 1 نوفمبر', visible: false },
+];
+
+/** Six-month booking trend for dashboards (count of confirmed events per month). */
+export const DEMO_TREND = [
+  { month: 'مايو', owner: 9, platform: 212 },
+  { month: 'يونيو', owner: 12, platform: 264 },
+  { month: 'يوليو', owner: 11, platform: 241 },
+  { month: 'أغسطس', owner: 15, platform: 318 },
+  { month: 'سبتمبر', owner: 14, platform: 302 },
+  { month: 'أكتوبر', owner: 18, platform: 356 },
 ] as const;

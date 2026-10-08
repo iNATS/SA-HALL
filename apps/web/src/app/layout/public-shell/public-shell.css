@@ -1,0 +1,168 @@
+:host {
+  display: flex;
+  min-height: 100dvh;
+  flex-direction: column;
+}
+
+.app-bar {
+  position: sticky;
+  z-index: 30;
+  inset-block-start: 0;
+  border-block-end: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface);
+}
+
+mat-toolbar {
+  gap: 4px;
+  width: min(100%, var(--sh-content-max));
+  height: var(--sh-top-bar);
+  margin-inline: auto;
+  padding-inline: var(--sh-gutter);
+  --mat-toolbar-container-background-color: transparent;
+}
+
+.brand-link {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  margin-inline-end: 20px;
+  color: var(--mat-sys-on-surface);
+  text-decoration: none;
+}
+
+.inline-nav {
+  display: flex;
+  gap: 4px;
+}
+
+.inline-nav a {
+  --mat-button-text-label-text-color: var(--mat-sys-on-surface-variant);
+}
+
+.inline-nav a.active {
+  --mat-button-text-label-text-color: var(--mat-sys-on-secondary-container);
+  --mat-button-text-container-color: var(--mat-sys-secondary-container);
+  background: var(--mat-sys-secondary-container);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.demo-chip {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  margin-inline-end: 4px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--mat-sys-corner-small);
+  padding-inline: 10px;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-label-medium);
+  white-space: nowrap;
+}
+
+.owner-cta {
+  margin-inline-start: 8px;
+}
+
+main {
+  flex: 1;
+  outline: none;
+}
+
+.site-footer {
+  margin-block-start: 64px;
+  background: var(--sh-hero-ink);
+  color: var(--sh-on-hero-variant);
+}
+
+.footer-grid {
+  display: grid;
+  gap: 32px;
+  grid-template-columns: 1.4fr repeat(3, 1fr);
+  padding-block: 48px 32px;
+}
+
+.footer-brand {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  color: var(--sh-on-hero);
+}
+
+.footer-brand p {
+  max-width: 34ch;
+  color: var(--sh-on-hero-variant);
+}
+
+.footer-brand app-brand {
+  --sh-brand-size: 44px;
+}
+
+.site-footer nav {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+}
+
+.site-footer h2 {
+  margin-block-end: 8px;
+  color: var(--sh-hero-accent);
+  font: var(--mat-sys-title-small);
+  font-weight: 700;
+}
+
+.site-footer nav a {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  color: var(--sh-on-hero-variant);
+  text-decoration: none;
+}
+
+.site-footer nav a:hover {
+  color: var(--sh-on-hero);
+  text-decoration: underline;
+}
+
+.footer-base {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 24px;
+  border-block-start: 1px solid rgb(255 255 255 / 14%);
+  padding-block: 20px 28px;
+  font: var(--mat-sys-body-small);
+}
+
+@media (max-width: 1100px) {
+  .owner-cta {
+    display: none;
+  }
+}
+
+/* Compact windows behave like an installed app: bottom navigation, no site footer. */
+@media (max-width: 839.98px) {
+  mat-toolbar {
+    padding-inline: 16px 4px;
+  }
+
+  .inline-nav,
+  .site-footer {
+    display: none;
+  }
+
+  .app-bar.hide-compact {
+    display: none;
+  }
+
+  .demo-chip {
+    min-height: 24px;
+    padding-inline: 8px;
+  }
+
+  main.with-bottom-nav {
+    padding-block-end: calc(var(--sh-bottom-bar) + var(--sh-safe-bottom));
+  }
+}

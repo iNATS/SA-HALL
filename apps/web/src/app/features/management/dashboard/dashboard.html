@@ -1,0 +1,162 @@
+<div class="mp-page">
+  <div class="mp-intro">
+    <div>
+      <p class="sh-eyebrow">{{ role() === 'admin' ? 'إدارة صالة' : organization }}</p>
+      <p>
+        {{
+          role() === 'admin'
+            ? 'أداء المنصة والطلبات التي تنتظر قراراً اليوم.'
+            : 'ملخص الحجوزات والتحصيل والمناسبات القادمة لقاعاتك.'
+        }}
+      </p>
+    </div>
+    <a
+      mat-stroked-button
+      [routerLink]="role() === 'admin' ? '/admin/accounting' : '/owner/calendar'"
+    >
+      <app-icon [name]="role() === 'admin' ? 'account_balance_wallet' : 'calendar_month'" />
+      {{ role() === 'admin' ? 'التقارير المالية' : 'فتح التقويم' }}
+    </a>
+  </div>
+
+  <section class="mp-stats" aria-label="المؤشرات الرئيسية">
+    @for (stat of stats(); track stat.label) {
+      <app-stat-card
+        [label]="stat.label"
+        [value]="stat.value"
+        [hint]="stat.hint"
+        [icon]="stat.icon"
+        [featured]="!!$any(stat).featured"
+      />
+    }
+  </section>
+
+  <div class="grid">
+    <section class="mp-panel" aria-labelledby="trend-title">
+      <div class="mp-panel-head">
+        <div>
+          <h2 id="trend-title">
+            {{ role() === 'admin' ? 'نشاط الحجوزات في المنصة' : 'مناسبات مؤكدة' }}
+          </h2>
+          <p>عدد المناسبات المؤكدة خلال آخر ستة أشهر</p>
+        </div>
+      </div>
+      <app-trend-chart
+        [points]="trend()"
+        [label]="role() === 'admin' ? 'حجوزات المنصة الشهرية' : 'حجوزات قاعاتك الشهرية'"
+      />
+    </section>
+
+    @if (role() === 'admin') {
+      <section class="mp-panel" aria-labelledby="requests-title">
+        <div class="mp-panel-head">
+          <h2 id="requests-title">بانتظار قرارك</h2>
+          <a mat-button routerLink="/admin/requests">كل الطلبات</a>
+        </div>
+        <ul class="mp-list">
+          @for (request of requests(); track request.id) {
+            <li class="mp-row">
+              <span class="mp-avatar" aria-hidden="true">{{ request.title.charAt(0) }}</span>
+              <div class="mp-row-main">
+                <strong>{{ request.title }}</strong>
+                <small>{{ request.city }} · {{ request.submittedAt | arDateTime }}</small>
+              </div>
+              <div class="quick">
+                <button
+                  mat-icon-button
+                  type="button"
+                  [attr.aria-label]="'رفض ' + request.title"
+                  (click)="decide(request.id, request.title, 'rejected')"
+                >
+                  <app-icon name="close" />
+                </button>
+                <button
+                  mat-icon-button
+                  type="button"
+                  class="approve"
+                  [attr.aria-label]="'قبول ' + request.title"
+                  (click)="decide(request.id, request.title, 'approved')"
+                >
+                  <app-icon name="check" />
+                </button>
+              </div>
+            </li>
+          } @empty {
+            <app-empty-state
+              icon="task_alt"
+              title="لا توجد طلبات معلّقة"
+              message="تمت معالجة كل الطلبات."
+            />
+          }
+        </ul>
+      </section>
+    } @else {
+      <section class="mp-panel" aria-labelledby="pending-title">
+        <div class="mp-panel-head">
+          <h2 id="pending-title">بانتظار تأكيدك</h2>
+          <a mat-button routerLink="/owner/bookings" [queryParams]="{ status: 'pending' }">الكل</a>
+        </div>
+        <ul class="mp-list">
+          @for (item of pending(); track item.booking.id) {
+            <li class="mp-row">
+              <span class="mp-avatar" aria-hidden="true">{{
+                item.booking.customer.charAt(0)
+              }}</span>
+              <button type="button" class="mp-row-main link" (click)="open(item.booking.id)">
+                <strong>{{ item.booking.customer }}</strong>
+                <small>{{ item.hall }} · {{ item.booking.eventDate | arDate: 'short' }}</small>
+              </button>
+              <button mat-flat-button type="button" (click)="confirmBooking(item.booking.id)">
+                تأكيد
+              </button>
+            </li>
+          } @empty {
+            <app-empty-state
+              icon="task_alt"
+              title="لا طلبات جديدة"
+              message="ستظهر هنا طلبات الحجز التي تحتاج موافقتك."
+            />
+          }
+        </ul>
+      </section>
+    }
+  </div>
+
+  <section class="mp-panel" aria-labelledby="upcoming-title">
+    <div class="mp-panel-head">
+      <div>
+        <h2 id="upcoming-title">المناسبات القادمة</h2>
+        <p>أقرب الحجوزات المؤكدة وحالة السداد</p>
+      </div>
+      @if (role() === 'owner') {
+        <a mat-button routerLink="/owner/bookings">سجل الحجوزات</a>
+      }
+    </div>
+    <ul class="mp-list">
+      @for (item of upcoming(); track item.booking.id) {
+        <li>
+          <button type="button" class="mp-row" (click)="open(item.booking.id)">
+            <span class="date-badge" aria-hidden="true">
+              <strong class="sh-num">{{ item.booking.eventDate | arDate: 'day' }}</strong>
+              <small>{{ item.booking.eventDate | arDate: 'monthName' }}</small>
+            </span>
+            <div class="mp-row-main">
+              <strong>{{ item.booking.customer }} · {{ item.hall }}</strong>
+              <small>{{ item.booking.eventDate | arDate: 'weekday' }}</small>
+            </div>
+            <div class="mp-row-end">
+              <app-status [value]="item.payment" />
+              <span class="sh-num total">{{ item.total | sar }}</span>
+            </div>
+          </button>
+        </li>
+      } @empty {
+        <app-empty-state
+          icon="event_available"
+          title="لا توجد مناسبات قادمة"
+          message="ستظهر الحجوزات المؤكدة هنا حسب أقرب موعد."
+        />
+      }
+    </ul>
+  </section>
+</div>

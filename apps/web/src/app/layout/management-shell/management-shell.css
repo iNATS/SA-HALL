@@ -1,0 +1,198 @@
+:host {
+  display: block;
+}
+
+/* The document scrolls (not an inner pane) so mobile browser chrome and scroll
+   restoration behave natively; the drawer itself is fixed to the viewport. */
+mat-sidenav-container,
+mat-sidenav-content {
+  overflow: visible;
+}
+
+mat-sidenav-container {
+  min-height: 100dvh;
+  background: var(--mat-sys-surface);
+}
+
+.drawer {
+  width: 296px;
+  border-inline-end: 1px solid var(--mat-sys-outline-variant);
+  --mat-sidenav-container-background-color: var(--mat-sys-surface-container-low);
+  --mat-sidenav-container-shape: 0;
+  --mat-sidenav-container-divider-color: transparent;
+}
+
+.drawer-head {
+  padding: 16px 20px 8px;
+}
+
+.brand-link {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  color: var(--mat-sys-on-surface);
+  text-decoration: none;
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 12px 4px;
+  border-radius: var(--mat-sys-corner-large);
+  background: var(--sh-hero-ink);
+  padding: 12px;
+  color: var(--sh-on-hero);
+}
+
+.identity div {
+  display: grid;
+  min-width: 0;
+}
+
+.identity strong {
+  overflow: hidden;
+  font: var(--mat-sys-title-small);
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.identity small {
+  overflow: hidden;
+  color: var(--sh-on-hero-variant);
+  font: var(--mat-sys-body-small);
+  text-align: end;
+  text-overflow: ellipsis;
+}
+
+.avatar {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--sh-hero-accent);
+  color: #241a00;
+  font-weight: 700;
+}
+
+.avatar.small {
+  width: 32px;
+  height: 32px;
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+  font-size: 0.9rem;
+}
+
+mat-nav-list {
+  padding: 4px 12px 8px;
+  --mat-list-active-indicator-color: var(--mat-sys-secondary-container);
+  --mat-list-active-indicator-shape: var(--mat-sys-corner-full);
+  --mat-list-list-item-one-line-container-height: 52px;
+  --mat-list-list-item-leading-icon-color: var(--mat-sys-on-surface-variant);
+  --mat-list-list-item-label-text-color: var(--mat-sys-on-surface-variant);
+}
+
+mat-nav-list a {
+  border-radius: var(--mat-sys-corner-full);
+}
+
+mat-nav-list a[aria-current='page'] {
+  --mat-list-list-item-leading-icon-color: var(--mat-sys-on-secondary-container);
+  --mat-list-list-item-label-text-color: var(--mat-sys-on-secondary-container);
+  --mat-list-list-item-hover-label-text-color: var(--mat-sys-on-secondary-container);
+  font-weight: 700;
+}
+
+.group-title {
+  margin: 16px 16px 4px;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-title-small);
+  font-weight: 700;
+}
+
+.drawer-foot {
+  display: grid;
+  justify-items: start;
+  gap: 4px;
+  border-block-start: 1px solid var(--mat-sys-outline-variant);
+  margin: 8px 12px 0;
+  padding: 12px 0 24px;
+}
+
+.app-bar {
+  position: sticky;
+  z-index: 30;
+  inset-block-start: 0;
+  border-block-end: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface);
+}
+
+mat-toolbar {
+  gap: 4px;
+  height: var(--sh-top-bar);
+  padding-inline: var(--sh-gutter) 16px;
+  --mat-toolbar-container-background-color: transparent;
+}
+
+.mark {
+  display: inline-flex;
+  margin-inline-end: 8px;
+  --sh-brand-size: 32px;
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font: var(--mat-sys-title-large);
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.demo-chip {
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--mat-sys-corner-small);
+  padding: 2px 8px;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-label-medium);
+}
+
+main {
+  width: min(100%, 1360px);
+  padding: 24px var(--sh-gutter) 48px;
+  outline: none;
+}
+
+@media (max-width: 839.98px) {
+  mat-toolbar {
+    padding-inline: 16px 4px;
+  }
+
+  main {
+    padding: 16px 16px calc(var(--sh-bottom-bar) + var(--sh-safe-bottom) + 24px);
+  }
+}
+
+.badge-host {
+  display: inline-flex;
+}
+
+.menu-identity {
+  display: grid;
+  padding: 8px 16px 12px;
+}
+
+.menu-identity small,
+.menu-empty {
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.menu-empty {
+  margin: 0;
+  padding: 12px 16px;
+}

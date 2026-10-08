@@ -25,6 +25,15 @@ These screens restore the information architecture documented by the legacy Reac
 
 ## Responsive behavior
 
-- Desktop uses a right-side RTL navigation drawer and fluid work area.
-- Below 850 px, the drawer becomes a dismissible modal navigation surface.
+- At 840 px and wider, the owner and admin panels use a persistent right-side (RTL) navigation drawer.
+- Below 840 px, a bottom navigation bar shows four primary destinations plus "More", which opens the
+  drawer as a modal surface; it closes automatically after navigation.
+- Data tables (`mat-table`) render on wide windows; phones get purpose-built lists with the same data,
+  and booking details open as a full-screen dialog.
 - Tables may scroll inside their own bounded container; the page itself must not scroll horizontally.
+
+## Data consistency
+
+- Every panel reads the same records: a booking created at checkout appears in the client's bookings,
+  the owner's queue and calendar, and the admin totals. Totals, VAT, deposits, fees and balances are
+  derived from booking lines (`core/domain/pricing.ts`), never typed as display strings.

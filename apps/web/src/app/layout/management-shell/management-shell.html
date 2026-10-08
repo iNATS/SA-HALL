@@ -1,0 +1,123 @@
+<mat-sidenav-container>
+  <mat-sidenav
+    class="drawer"
+    fixedInViewport
+    [mode]="compact() ? 'over' : 'side'"
+    [opened]="!compact() || drawerOpen()"
+    [disableClose]="!compact()"
+    [attr.aria-label]="'قائمة ' + config.label"
+    (closedStart)="drawerOpen.set(false)"
+  >
+    <div class="drawer-head">
+      <a class="brand-link" routerLink="/" aria-label="صالة، الموقع العام">
+        <app-brand [caption]="config.label" />
+      </a>
+    </div>
+
+    <div class="identity">
+      <span class="avatar" aria-hidden="true">{{ identity.initial }}</span>
+      <div>
+        <strong>{{ identity.name }}</strong>
+        <small dir="ltr">{{ identity.detail }}</small>
+      </div>
+    </div>
+
+    <mat-nav-list [attr.aria-label]="config.label">
+      @for (group of config.groups; track group.title) {
+        <h2 class="group-title">{{ group.title }}</h2>
+        @for (item of group.items; track item.path) {
+          @let active = isActive(item);
+          <a
+            mat-list-item
+            [routerLink]="item.path"
+            [activated]="active"
+            [attr.aria-current]="active ? 'page' : null"
+          >
+            <app-icon matListItemIcon [name]="item.icon" [filled]="active" />
+            <span matListItemTitle>{{ item.label }}</span>
+          </a>
+        }
+      }
+    </mat-nav-list>
+
+    <div class="drawer-foot">
+      <a mat-button routerLink="/sign-in"><app-icon name="swap_horiz" />تبديل مساحة العمل</a>
+      <a mat-button routerLink="/"><app-icon name="home" />الموقع العام</a>
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <header class="app-bar">
+      <mat-toolbar>
+        @if (compact()) {
+          <a class="mark" routerLink="/" aria-label="صالة، الموقع العام"><app-brand markOnly /></a>
+        }
+        <h1 class="title">{{ title() }}</h1>
+        <span class="demo-chip">تجريبي</span>
+        <button
+          mat-icon-button
+          type="button"
+          [matMenuTriggerFor]="alertMenu"
+          [attr.aria-label]="'الإشعارات، ' + alerts().length + ' غير مقروءة'"
+        >
+          <span
+            class="badge-host"
+            [matBadge]="alerts().length"
+            [matBadgeHidden]="alerts().length === 0"
+            matBadgeSize="small"
+            aria-hidden="true"
+            ><app-icon name="notifications"
+          /></span>
+        </button>
+        <button
+          mat-icon-button
+          type="button"
+          class="account"
+          [matMenuTriggerFor]="accountMenu"
+          aria-label="الحساب"
+        >
+          <span class="avatar small" aria-hidden="true">{{ identity.initial }}</span>
+        </button>
+      </mat-toolbar>
+    </header>
+
+    <main id="main-content" tabindex="-1">
+      <router-outlet />
+    </main>
+
+    <app-bottom-nav
+      [items]="config.primary"
+      [label]="config.label"
+      moreLabel="المزيد"
+      [moreActive]="moreActive()"
+      (moreRequested)="drawerOpen.set(true)"
+    />
+  </mat-sidenav-content>
+</mat-sidenav-container>
+
+<mat-menu #alertMenu="matMenu" xPosition="before" class="sh-alert-menu">
+  @for (alert of alerts(); track alert.text) {
+    <a mat-menu-item [routerLink]="alert.link">
+      <app-icon name="notifications" /><span>{{ alert.text }}</span>
+    </a>
+  } @empty {
+    <p class="menu-empty">لا توجد إشعارات جديدة.</p>
+  }
+</mat-menu>
+
+<mat-menu #accountMenu="matMenu" xPosition="before">
+  <div class="menu-identity" aria-hidden="true">
+    <strong>{{ identity.name }}</strong>
+    <small>{{ identity.label }}</small>
+  </div>
+  <mat-divider />
+  <a mat-menu-item [routerLink]="config.role === 'admin' ? '/admin/settings' : '/owner/settings'">
+    <app-icon name="settings" /><span>الإعدادات</span>
+  </a>
+  <a mat-menu-item routerLink="/sign-in">
+    <app-icon name="swap_horiz" /><span>تبديل مساحة العمل</span>
+  </a>
+  <a mat-menu-item routerLink="/">
+    <app-icon name="logout" mirror /><span>الخروج إلى الموقع</span>
+  </a>
+</mat-menu>

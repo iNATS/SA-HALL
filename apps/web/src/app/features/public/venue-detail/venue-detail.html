@@ -1,0 +1,224 @@
+@if (hall(); as hall) {
+  <div class="page">
+    <section class="gallery" aria-label="صور القاعة">
+      <div class="floating-bar">
+        <a mat-icon-button routerLink="/halls" aria-label="رجوع إلى القاعات">
+          <app-icon name="arrow_back" mirror />
+        </a>
+        <span class="spacer"></span>
+        <button mat-icon-button type="button" aria-label="مشاركة القاعة" (click)="share()">
+          <app-icon name="share" />
+        </button>
+        <button
+          mat-icon-button
+          type="button"
+          [attr.aria-label]="saved() ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'"
+          [attr.aria-pressed]="saved()"
+          (click)="toggleFavorite()"
+        >
+          <app-icon name="favorite" [filled]="saved()" />
+        </button>
+      </div>
+      <div class="frames">
+        @for (photo of gallery(); track photo.src; let index = $index) {
+          <img
+            [src]="photo.src"
+            [srcset]="photo.srcset"
+            [sizes]="
+              index === 0 ? '(max-width: 839px) 100vw, 60vw' : '(max-width: 839px) 100vw, 30vw'
+            "
+            width="800"
+            height="533"
+            [alt]="hall.name + ' — صورة ' + (index + 1)"
+            [attr.loading]="index === 0 ? 'eager' : 'lazy'"
+            [attr.fetchpriority]="index === 0 ? 'high' : null"
+            decoding="async"
+          />
+        }
+      </div>
+      <span class="photo-count" aria-hidden="true">
+        <app-icon name="photo_camera" />{{ gallery().length }} صور
+      </span>
+    </section>
+
+    <div class="sheet sh-container">
+      <nav class="crumbs" aria-label="مسار الصفحة">
+        <a routerLink="/">الرئيسية</a>
+        <app-icon name="chevron_left" />
+        <a routerLink="/halls">القاعات</a>
+        <app-icon name="chevron_left" />
+        <span aria-current="page">{{ hall.name }}</span>
+      </nav>
+
+      <div class="layout">
+        <header class="title-block">
+          <span class="tag">{{ hall.tag }}</span>
+          <h1>{{ hall.name }}</h1>
+          <p class="location">
+            <app-icon name="location_on" />{{ hall.city }} · {{ hall.district }}
+          </p>
+          <div class="score">
+            <span class="rating"
+              ><app-icon name="star" filled /><strong class="sh-num">{{
+                hall.rating | num: true
+              }}</strong></span
+            >
+            <span class="sh-muted">{{ hall.reviews | num }} تقييماً موثقاً</span>
+            @if (hall.instantBooking) {
+              <span class="instant"><app-icon name="bolt" filled />حجز فوري</span>
+            }
+          </div>
+          <dl class="facts">
+            <div>
+              <dt>السعة</dt>
+              <dd class="sh-num">{{ hall.capacityMin | num }}–{{ hall.capacityMax | num }}</dd>
+            </div>
+            <div>
+              <dt>وقت المناسبة</dt>
+              <dd>حتى 2:00 ص</dd>
+            </div>
+            <div>
+              <dt>القاعات الداخلية</dt>
+              <dd>صالتان</dd>
+            </div>
+            <div>
+              <dt>العربون</dt>
+              <dd class="sh-num">{{ depositPercent }}%</dd>
+            </div>
+          </dl>
+        </header>
+
+        <aside class="booking-card" aria-labelledby="booking-card-title">
+          <h2 id="booking-card-title" class="sh-visually-hidden">احجز موعدك</h2>
+          <p class="price">
+            <strong class="sh-num">{{ hall.price | sar }}</strong>
+            <span>/ الليلة</span>
+          </p>
+          <form [formGroup]="form" (ngSubmit)="startBooking()">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>تاريخ المناسبة</mat-label>
+              <input
+                matInput
+                type="date"
+                formControlName="date"
+                [min]="minDate"
+                [errorStateMatcher]="showOnDirty"
+              />
+              @if (form.controls.date.hasError('booked')) {
+                <mat-error>هذا التاريخ محجوز؛ اختر من المواعيد المتاحة أدناه.</mat-error>
+              } @else if (form.controls.date.hasError('past')) {
+                <mat-error>يبدأ الحجز من الغد.</mat-error>
+              } @else {
+                <mat-hint>اختر تاريخاً أو أحد المواعيد المتاحة</mat-hint>
+              }
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>عدد الضيوف المتوقع</mat-label>
+              <input
+                matInput
+                type="number"
+                inputmode="numeric"
+                min="20"
+                [max]="hall.capacityMax"
+                formControlName="guests"
+              />
+              <mat-hint>الحد الأقصى {{ hall.capacityMax | num }} ضيف</mat-hint>
+              @if (form.controls.guests.hasError('min')) {
+                <mat-error>أدخل 20 ضيفاً على الأقل</mat-error>
+              }
+            </mat-form-field>
+            <div class="open-dates">
+              <span class="label">أقرب المواعيد المتاحة</span>
+              <mat-chip-set aria-label="أقرب المواعيد المتاحة">
+                @for (date of nextOpenDates(); track date) {
+                  <mat-chip (click)="pickDate(date)">{{ date | arDate: 'short' }}</mat-chip>
+                }
+              </mat-chip-set>
+            </div>
+            <button mat-flat-button class="cta" type="submit">متابعة الحجز</button>
+          </form>
+          <p class="safe"><app-icon name="lock" />لن يُخصم أي مبلغ في هذه الخطوة</p>
+          <dl class="sh-facts estimate">
+            <div>
+              <dt>سعر القاعة</dt>
+              <dd>{{ estimate().subtotal | sar }}</dd>
+            </div>
+            <div>
+              <dt>ضريبة القيمة المضافة 15%</dt>
+              <dd>{{ estimate().vat | sar }}</dd>
+            </div>
+            <div class="total">
+              <dt>الإجمالي التقديري</dt>
+              <dd>{{ estimate().total | sar }}</dd>
+            </div>
+          </dl>
+        </aside>
+
+        <div class="details">
+          <section aria-labelledby="about-title">
+            <h2 id="about-title">عن القاعة</h2>
+            <p>
+              قاعة تجمع بين العمارة العربية الهادئة والتجهيزات الحديثة: أقواس مضاءة بعناية، ومنصة
+              مزينة بالزهور، وثريات كريستالية. يشمل الحجز فريق تشغيل ومشرفة مناسبة ونظاماً متكاملاً
+              للصوت والإضاءة، مع إمكانية تخصيص كل تفاصيل الحفل.
+            </p>
+          </section>
+
+          <section aria-labelledby="amenities-title">
+            <h2 id="amenities-title">المزايا والتجهيزات</h2>
+            <ul class="amenities">
+              @for (item of amenities; track item.label) {
+                <li><app-icon [name]="item.icon" />{{ item.label }}</li>
+              }
+            </ul>
+          </section>
+
+          <section aria-labelledby="extras-title">
+            <h2 id="extras-title">خدمات يمكن إضافتها</h2>
+            <ul class="extras">
+              @for (extra of extras; track extra.id) {
+                <li>
+                  <div>
+                    <strong>{{ extra.label }}</strong>
+                    <span>{{ extra.detail }}</span>
+                  </div>
+                  <span class="sh-num">{{ extra.amount | sar }}</span>
+                </li>
+              }
+            </ul>
+          </section>
+
+          <section aria-labelledby="policy-title" class="policy">
+            <h2 id="policy-title">سياسة الحجز والإلغاء</h2>
+            <ul>
+              <li>
+                يُثبَّت التاريخ بعد موافقة القاعة ودفع عربون {{ depositPercent }}% من الإجمالي.
+              </li>
+              <li>يُسدَّد المبلغ المتبقي قبل المناسبة بـ 14 يوماً على الأقل.</li>
+              <li>الإلغاء قبل 30 يوماً يعيد العربون كاملاً، وبعدها وفق جدول الإلغاء المعلن.</li>
+              <li>تظهر كل الرسوم والضريبة في ملخص الطلب قبل أي دفع.</li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <span>
+        <strong class="sh-num">{{ hall.price | sar }}</strong>
+        <small>/ الليلة · قبل الضريبة</small>
+      </span>
+      <button mat-flat-button type="button" (click)="startBooking()">احجز الآن</button>
+    </div>
+  </div>
+} @else {
+  <div class="sh-container missing">
+    <app-empty-state
+      icon="domain"
+      title="القاعة غير متاحة"
+      message="ربما أُزيلت القاعة أو تغيّر رابطها. تصفّح القاعات المتاحة الآن."
+    >
+      <a mat-flat-button routerLink="/halls">تصفّح القاعات</a>
+    </app-empty-state>
+  </div>
+}

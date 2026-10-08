@@ -1,0 +1,196 @@
+.layout {
+  display: grid;
+  align-items: start;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1fr) 340px;
+}
+
+.month-head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-block-end: 16px;
+}
+
+.month-title {
+  display: grid;
+  flex: 1;
+  text-align: center;
+}
+
+.month-title h2 {
+  font: var(--mat-sys-title-large);
+  font-weight: 700;
+}
+
+.month-title small {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.weekdays,
+.month {
+  display: grid;
+  gap: 4px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.weekdays li {
+  padding-block: 8px;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-label-medium);
+  text-align: center;
+}
+
+.day {
+  display: grid;
+  width: 100%;
+  min-height: 92px;
+  align-content: start;
+  gap: 4px;
+  border: 1px solid transparent;
+  border-radius: var(--mat-sys-corner-medium);
+  background: var(--mat-sys-surface-container-low);
+  padding: 6px;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.day:hover {
+  border-color: var(--mat-sys-outline-variant);
+}
+
+.day.outside {
+  background: transparent;
+  color: var(--mat-sys-on-surface-variant);
+  opacity: 0.6;
+}
+
+.num {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 50%;
+  font: var(--mat-sys-label-large);
+}
+
+.today .num {
+  border: 2px solid var(--mat-sys-primary);
+  color: var(--mat-sys-primary);
+  font-weight: 700;
+}
+
+.day.selected {
+  border-color: var(--mat-sys-primary);
+  background: var(--mat-sys-secondary-container);
+}
+
+.events {
+  display: grid;
+  gap: 2px;
+}
+
+.event {
+  overflow: hidden;
+  border-radius: 6px;
+  padding: 2px 6px;
+  font: var(--mat-sys-label-small);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.event.confirmed,
+.swatch.confirmed {
+  background: var(--sh-success-container);
+  color: var(--sh-on-success-container);
+}
+
+.event.pending,
+.swatch.pending {
+  background: var(--mat-sys-tertiary-container);
+  color: var(--mat-sys-on-tertiary-container);
+}
+
+.event.completed,
+.swatch.completed {
+  background: var(--mat-sys-surface-container-highest);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 16px 0 0;
+  padding: 0;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+  list-style: none;
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.swatch {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 4px;
+}
+
+@media (max-width: 1099.98px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Compact: dots instead of labels, as in mobile calendar apps. */
+@media (max-width: 599.98px) {
+  .month-panel {
+    padding-inline: 8px;
+  }
+
+  .day {
+    min-height: 52px;
+    justify-items: center;
+    padding: 4px 2px;
+  }
+
+  .events {
+    display: flex;
+    gap: 3px;
+  }
+
+  .event {
+    width: 6px;
+    height: 6px;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 0;
+  }
+
+  .event.confirmed {
+    background: var(--sh-success);
+  }
+
+  .event.pending {
+    background: var(--sh-gold);
+  }
+
+  .event.completed {
+    background: var(--mat-sys-outline);
+  }
+
+  .weekdays li {
+    font-size: 0.7rem;
+  }
+}

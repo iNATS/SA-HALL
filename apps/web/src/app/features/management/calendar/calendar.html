@@ -1,0 +1,97 @@
+<div class="mp-page">
+  <mat-chip-listbox
+    class="sh-chip-scroll"
+    aria-label="تصفية حسب القاعة"
+    [value]="hallFilter()"
+    (change)="hallFilter.set($event.value ?? '')"
+  >
+    <mat-chip-option value="">كل القاعات</mat-chip-option>
+    @for (hall of halls(); track hall.slug) {
+      <mat-chip-option [value]="hall.slug">{{ hall.name }}</mat-chip-option>
+    }
+  </mat-chip-listbox>
+
+  <div class="layout">
+    <section class="mp-panel month-panel" aria-labelledby="month-title">
+      <div class="month-head">
+        <button mat-icon-button type="button" aria-label="الشهر السابق" (click)="shiftMonth(-1)">
+          <app-icon name="chevron_right" />
+        </button>
+        <div class="month-title">
+          <h2 id="month-title" aria-live="polite">{{ monthLabel() }}</h2>
+          <small
+            ><span class="sh-num">{{ monthCount() | num }}</span> مناسبات هذا الشهر</small
+          >
+        </div>
+        <button mat-icon-button type="button" aria-label="الشهر التالي" (click)="shiftMonth(1)">
+          <app-icon name="chevron_left" />
+        </button>
+        <button mat-button type="button" (click)="goToday()">اليوم</button>
+      </div>
+
+      <ol class="weekdays" aria-hidden="true">
+        @for (day of weekdays; track day) {
+          <li>{{ day }}</li>
+        }
+      </ol>
+      <ol class="month">
+        @for (cell of cells(); track cell.iso) {
+          <li>
+            <button
+              type="button"
+              class="day"
+              [class.outside]="!cell.inMonth"
+              [class.today]="cell.iso === today"
+              [class.selected]="cell.iso === selected()"
+              [class.busy]="cell.events.length > 0"
+              [attr.aria-pressed]="cell.iso === selected()"
+              [attr.aria-label]="dayLabel(cell)"
+              (click)="selected.set(cell.iso)"
+            >
+              <span class="num sh-num">{{ cell.day }}</span>
+              <span class="events" aria-hidden="true">
+                @for (event of cell.events; track event.id) {
+                  <span class="event" [class]="event.status">{{ hallName(event.hallSlug) }}</span>
+                }
+              </span>
+            </button>
+          </li>
+        }
+      </ol>
+      <ul class="legend" aria-label="دليل الألوان">
+        <li><span class="swatch confirmed"></span>{{ statuses.confirmed.label }}</li>
+        <li><span class="swatch pending"></span>{{ statuses.pending.label }}</li>
+        <li><span class="swatch completed"></span>{{ statuses.completed.label }}</li>
+      </ul>
+    </section>
+
+    <section class="mp-panel" aria-labelledby="day-title">
+      <div class="mp-panel-head">
+        <div>
+          <h2 id="day-title">{{ selected() | arDate: 'weekday' }}</h2>
+          <p>المناسبات المجدولة في هذا اليوم</p>
+        </div>
+      </div>
+      <ul class="mp-list">
+        @for (item of selectedEvents(); track item.booking.id) {
+          <li>
+            <button type="button" class="mp-row" (click)="open(item.booking.id)">
+              <span class="mp-avatar" aria-hidden="true"><app-icon name="celebration" /></span>
+              <div class="mp-row-main">
+                <strong>{{ item.hall }}</strong>
+                <small>{{ item.booking.customer }} · {{ item.booking.guests | num }} ضيف</small>
+              </div>
+              <app-status [value]="item.status" />
+            </button>
+          </li>
+        } @empty {
+          <app-empty-state
+            icon="event_available"
+            title="يوم متاح"
+            message="لا توجد مناسبات في هذا التاريخ؛ القاعات متاحة للحجز."
+          />
+        }
+      </ul>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,13 @@
+.table-panel {
+  padding-block-end: 8px;
+}
+
+.mp-row app-status {
+  flex: none;
+}
+
+@media (max-width: 599.98px) {
+  .mp-row app-status {
+    display: none;
+  }
+}

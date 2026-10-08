@@ -1,0 +1,140 @@
+<div class="mp-page">
+  <section class="mp-stats" aria-label="الملخص المالي">
+    @for (stat of stats(); track stat.label) {
+      <app-stat-card
+        [label]="stat.label"
+        [value]="stat.value"
+        [hint]="stat.hint"
+        [icon]="stat.icon"
+        [featured]="stat.featured"
+      />
+    }
+  </section>
+
+  <section class="mp-panel table-panel" aria-labelledby="records-title">
+    <div class="mp-panel-head">
+      <div>
+        <h2 id="records-title">{{ role() === 'admin' ? 'تسويات المنشآت' : 'سجل الحركات' }}</h2>
+        <p>
+          {{
+            role() === 'admin'
+              ? 'المحصّل لكل منشأة وعمولة المنصة وصافي التحويل.'
+              : 'التحصيلات والعمولات والتحويلات والاستردادات.'
+          }}
+        </p>
+      </div>
+      <button mat-stroked-button type="button" (click)="exportCsv()">
+        <app-icon name="download" />تصدير CSV
+      </button>
+    </div>
+
+    @if (role() === 'admin') {
+      @if (compact()) {
+        <ul class="mp-list">
+          @for (row of vendors(); track row.vendor) {
+            <li class="mp-row">
+              <span class="mp-avatar" aria-hidden="true">{{ row.vendor.charAt(0) }}</span>
+              <div class="mp-row-main">
+                <strong>{{ row.vendor }}</strong>
+                <small
+                  ><span class="sh-num">{{ row.bookings | num }}</span> حجوزات · عمولة
+                  {{ row.fee | sar }}</small
+                >
+              </div>
+              <div class="mp-row-end">
+                <strong class="sh-num">{{ row.net | sar }}</strong>
+                <small>صافي</small>
+              </div>
+            </li>
+          }
+        </ul>
+      } @else {
+        <div class="sh-table-scroll">
+          <table mat-table class="mp-table" [dataSource]="vendors()">
+            <ng-container matColumnDef="vendor">
+              <th mat-header-cell *matHeaderCellDef>المنشأة</th>
+              <td mat-cell *matCellDef="let row">
+                <strong>{{ row.vendor }}</strong>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="bookings">
+              <th mat-header-cell *matHeaderCellDef>الحجوزات</th>
+              <td mat-cell *matCellDef="let row">{{ row.bookings | num }}</td>
+            </ng-container>
+            <ng-container matColumnDef="collected">
+              <th mat-header-cell *matHeaderCellDef>المحصّل</th>
+              <td mat-cell *matCellDef="let row">{{ row.collected | sar }}</td>
+            </ng-container>
+            <ng-container matColumnDef="fee">
+              <th mat-header-cell *matHeaderCellDef>العمولة</th>
+              <td mat-cell *matCellDef="let row">{{ row.fee | sar }}</td>
+            </ng-container>
+            <ng-container matColumnDef="net">
+              <th mat-header-cell *matHeaderCellDef>الصافي</th>
+              <td mat-cell *matCellDef="let row">
+                <strong>{{ row.net | sar }}</strong>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="vendorColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: vendorColumns"></tr>
+          </table>
+        </div>
+      }
+    } @else if (compact()) {
+      <ul class="mp-list">
+        @for (entry of ledger; track entry.reference) {
+          <li class="mp-row">
+            <app-status [value]="entry.view" />
+            <div class="mp-row-main">
+              <strong>{{ entry.description }}</strong>
+              <small
+                ><bdi>{{ entry.reference }}</bdi> · {{ entry.date | arDate: 'short' }}</small
+              >
+            </div>
+            <strong
+              class="sh-num"
+              [class.mp-amount-in]="entry.amount > 0"
+              [class.mp-amount-out]="entry.amount < 0"
+              >{{ entry.amount | sar }}</strong
+            >
+          </li>
+        }
+      </ul>
+    } @else {
+      <div class="sh-table-scroll">
+        <table mat-table class="mp-table" [dataSource]="ledger">
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef>التاريخ</th>
+            <td mat-cell *matCellDef="let entry">{{ entry.date | arDate }}</td>
+          </ng-container>
+          <ng-container matColumnDef="reference">
+            <th mat-header-cell *matHeaderCellDef>المرجع</th>
+            <td mat-cell *matCellDef="let entry">
+              <bdi>{{ entry.reference }}</bdi>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="description">
+            <th mat-header-cell *matHeaderCellDef>البيان</th>
+            <td mat-cell *matCellDef="let entry">{{ entry.description }}</td>
+          </ng-container>
+          <ng-container matColumnDef="kind">
+            <th mat-header-cell *matHeaderCellDef>النوع</th>
+            <td mat-cell *matCellDef="let entry"><app-status [value]="entry.view" /></td>
+          </ng-container>
+          <ng-container matColumnDef="amount">
+            <th mat-header-cell *matHeaderCellDef>المبلغ</th>
+            <td mat-cell *matCellDef="let entry">
+              <strong
+                [class.mp-amount-in]="entry.amount > 0"
+                [class.mp-amount-out]="entry.amount < 0"
+                >{{ entry.amount | sar }}</strong
+              >
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="ledgerColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: ledgerColumns"></tr>
+        </table>
+      </div>
+    }
+  </section>
+</div>

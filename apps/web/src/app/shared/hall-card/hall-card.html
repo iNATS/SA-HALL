@@ -1,0 +1,56 @@
+<mat-card appearance="outlined">
+  <div class="media">
+    <img
+      [src]="src()"
+      [srcset]="srcset()"
+      [sizes]="sizes()"
+      width="480"
+      height="320"
+      [alt]="hall().name"
+      [attr.loading]="eager() ? 'eager' : 'lazy'"
+      [attr.fetchpriority]="eager() ? 'high' : null"
+      decoding="async"
+    />
+    <span class="tag">{{ hall().tag }}</span>
+    <button
+      mat-icon-button
+      class="favorite"
+      type="button"
+      [attr.aria-label]="(saved() ? 'إزالة من المفضلة: ' : 'إضافة إلى المفضلة: ') + hall().name"
+      [attr.aria-pressed]="saved()"
+      (click)="toggleFavorite()"
+    >
+      <app-icon name="favorite" [filled]="saved()" />
+    </button>
+  </div>
+  <div class="body">
+    <div class="title-row">
+      @if (headingLevel() === 2) {
+        <h2 class="name">
+          <a class="stretched" [routerLink]="['/halls', hall().slug]">{{ hall().name }}</a>
+        </h2>
+      } @else {
+        <h3 class="name">
+          <a class="stretched" [routerLink]="['/halls', hall().slug]">{{ hall().name }}</a>
+        </h3>
+      }
+      <span class="rating" [attr.aria-label]="'التقييم ' + (hall().rating | num: true) + ' من 5'">
+        <app-icon name="star" filled />
+        <span class="sh-num" aria-hidden="true">{{ hall().rating | num: true }}</span>
+      </span>
+    </div>
+    <p class="meta"><app-icon name="location_on" />{{ hall().city }} · {{ hall().district }}</p>
+    <p class="meta">
+      <app-icon name="groups" />
+      <span class="sh-num">{{ hall().capacityMin | num }}–{{ hall().capacityMax | num }}</span> ضيف
+      @if (hall().instantBooking) {
+        <span class="instant"><app-icon name="bolt" filled />حجز فوري</span>
+      }
+    </p>
+    <p class="price">
+      <span class="from">يبدأ من</span>
+      <strong class="sh-num">{{ hall().price | sar }}</strong>
+      <span class="per">/ الليلة</span>
+    </p>
+  </div>
+</mat-card>

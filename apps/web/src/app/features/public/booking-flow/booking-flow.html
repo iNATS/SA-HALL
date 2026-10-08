@@ -1,0 +1,345 @@
+@if (hall(); as hall) {
+  <header class="flow-bar">
+    <mat-toolbar>
+      @if (created()) {
+        <a mat-icon-button routerLink="/" aria-label="إغلاق والعودة للرئيسية">
+          <app-icon name="close" />
+        </a>
+      } @else if (step() === 0) {
+        <a
+          mat-icon-button
+          [routerLink]="['/halls', hall.slug]"
+          aria-label="إلغاء والعودة إلى القاعة"
+        >
+          <app-icon name="close" />
+        </a>
+      } @else {
+        <button mat-icon-button type="button" aria-label="الخطوة السابقة" (click)="previous()">
+          <app-icon name="arrow_back" mirror />
+        </button>
+      }
+      <div class="bar-title">
+        <h1>{{ created() ? 'تم إرسال الطلب' : 'إتمام الحجز' }}</h1>
+        <span>{{ hall.name }}</span>
+      </div>
+      <span class="demo-chip">طلب تجريبي</span>
+    </mat-toolbar>
+    @if (!created()) {
+      <mat-progress-bar
+        mode="determinate"
+        [value]="progress()"
+        [attr.aria-label]="'التقدم في الحجز: الخطوة ' + (step() + 1) + ' من ' + steps.length"
+      />
+    }
+  </header>
+
+  <main id="main-content" tabindex="-1" class="flow">
+    @if (created(); as booking) {
+      <section class="success" aria-labelledby="success-title">
+        <span class="success-icon"><app-icon name="check_circle" filled /></span>
+        <p class="sh-eyebrow">تم استلام طلبك</p>
+        <h2 id="success-title">طلب الحجز بانتظار تأكيد القاعة</h2>
+        <p class="sh-muted">
+          رقم الطلب <bdi class="sh-num">{{ booking.id }}</bdi
+          >. ستصلك رسالة على <bdi dir="ltr">{{ booking.phone }}</bdi> فور التأكيد.
+        </p>
+        <dl class="sh-facts success-facts">
+          <div>
+            <dt>القاعة</dt>
+            <dd>{{ hall.name }}</dd>
+          </div>
+          <div>
+            <dt>التاريخ</dt>
+            <dd>{{ booking.eventDate | arDate }}</dd>
+          </div>
+          <div>
+            <dt>الضيوف</dt>
+            <dd>{{ booking.guests | num }}</dd>
+          </div>
+          <div>
+            <dt>الإجمالي شامل الضريبة</dt>
+            <dd>{{ quote().total | sar }}</dd>
+          </div>
+        </dl>
+        <ol class="next-steps">
+          <li>تراجع القاعة الطلب وتؤكد التوفر خلال 24 ساعة.</li>
+          <li>ادفع العربون {{ quote().deposit | sar }} من صفحة الحجز لتثبيت التاريخ.</li>
+          <li>سدّد المبلغ المتبقي قبل المناسبة بـ 14 يوماً.</li>
+        </ol>
+        <div class="success-actions">
+          <a mat-flat-button [routerLink]="['/client/bookings', booking.id]">متابعة حجزي</a>
+          <a mat-button routerLink="/">العودة للرئيسية</a>
+        </div>
+        <p class="demo-note">نسخة تجريبية: لم يُنشأ حجز أو دفع حقيقي.</p>
+      </section>
+    } @else {
+      <div class="flow-grid">
+        <section class="step-panel" [formGroup]="form" aria-labelledby="step-title">
+          <p class="step-count">الخطوة {{ step() + 1 }} من {{ steps.length }}</p>
+          <h2 id="step-title">{{ steps[step()] }}</h2>
+
+          @switch (step()) {
+            @case (0) {
+              <div formGroupName="schedule" class="step-body">
+                <div class="sh-form-grid">
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>تاريخ المناسبة</mat-label>
+                    <input
+                      matInput
+                      [matDatepicker]="picker"
+                      [matDatepickerFilter]="dateFilter"
+                      [min]="minDate"
+                      formControlName="date"
+                      required
+                    />
+                    <mat-datepicker-toggle matIconSuffix [for]="picker" />
+                    <mat-datepicker #picker [touchUi]="compact()" />
+                    @if (form.controls.schedule.controls.date.hasError('matDatepickerFilter')) {
+                      <mat-error>هذا التاريخ محجوز، اختر تاريخاً آخر.</mat-error>
+                    } @else if (form.controls.schedule.controls.date.hasError('matDatepickerMin')) {
+                      <mat-error>يبدأ الحجز من الغد.</mat-error>
+                    } @else if (
+                      form.controls.schedule.controls.date.hasError('matDatepickerParse')
+                    ) {
+                      <mat-error>أدخل تاريخاً صحيحاً.</mat-error>
+                    } @else {
+                      <mat-error>اختر تاريخ المناسبة.</mat-error>
+                    }
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>عدد الضيوف</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      inputmode="numeric"
+                      min="20"
+                      [max]="hall.capacityMax"
+                      formControlName="guests"
+                      required
+                    />
+                    <mat-hint>
+                      السعة {{ hall.capacityMin | num }}–{{ hall.capacityMax | num }} ضيف
+                    </mat-hint>
+                    @if (form.controls.schedule.controls.guests.hasError('max')) {
+                      <mat-error>السعة القصوى {{ hall.capacityMax | num }} ضيف.</mat-error>
+                    } @else if (form.controls.schedule.controls.guests.hasError('min')) {
+                      <mat-error>أدخل 20 ضيفاً على الأقل.</mat-error>
+                    } @else {
+                      <mat-error>أدخل عدد الضيوف المتوقع.</mat-error>
+                    }
+                  </mat-form-field>
+                </div>
+
+                <mat-radio-group formControlName="pkg" class="choices" aria-label="نوع الباقة">
+                  <mat-radio-button value="hall" class="choice">
+                    <span class="choice-text">
+                      <strong>حجز القاعة</strong>
+                      <small>القاعة، فريق التشغيل، الصوت والإضاءة الأساسية</small>
+                    </span>
+                    <b class="sh-num">{{ hall.price | sar }}</b>
+                  </mat-radio-button>
+                  <mat-radio-button value="complete" class="choice">
+                    <span class="choice-text">
+                      <strong>الباقة المتكاملة</strong>
+                      <small>تشمل تجهيز المنصة وضيافة الاستقبال</small>
+                    </span>
+                    <b class="sh-num">{{ hall.price + completeAmount | sar }}</b>
+                  </mat-radio-button>
+                </mat-radio-group>
+              </div>
+            }
+            @case (1) {
+              <div formGroupName="extras" class="step-body">
+                <p class="sh-muted">اختيارية، ويمكنك تعديلها حتى المراجعة.</p>
+                <div class="choices">
+                  @for (extra of extras; track extra.id) {
+                    <mat-checkbox [formControlName]="extra.id" class="choice">
+                      <span class="choice-text">
+                        <strong>{{ extra.label }}</strong>
+                        <small>{{ extra.detail }}</small>
+                      </span>
+                      <b class="sh-num">{{ extra.amount | sar }}</b>
+                    </mat-checkbox>
+                  }
+                </div>
+              </div>
+            }
+            @case (2) {
+              <div formGroupName="contact" class="step-body">
+                <p class="sh-muted">نستخدم هذه البيانات لتأكيد الطلب وإرسال التحديثات فقط.</p>
+                <div class="sh-form-grid">
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>الاسم الكامل</mat-label>
+                    <input matInput formControlName="name" autocomplete="name" required />
+                    <mat-error>أدخل الاسم الكامل (3 أحرف على الأقل).</mat-error>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>رقم الجوال</mat-label>
+                    <input
+                      matInput
+                      type="tel"
+                      inputmode="tel"
+                      dir="ltr"
+                      formControlName="phone"
+                      autocomplete="tel-national"
+                      required
+                    />
+                    <mat-hint>مثال: 0501234567</mat-hint>
+                    <mat-error>أدخل رقم جوال سعودياً يبدأ بـ 05 من 10 أرقام.</mat-error>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>البريد الإلكتروني (اختياري)</mat-label>
+                    <input
+                      matInput
+                      type="email"
+                      dir="ltr"
+                      formControlName="email"
+                      autocomplete="email"
+                    />
+                    <mat-error>أدخل بريداً إلكترونياً صحيحاً.</mat-error>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>طريقة التواصل المفضلة</mat-label>
+                    <mat-select formControlName="channel">
+                      <mat-option value="sms">رسالة نصية</mat-option>
+                      <mat-option value="email">البريد الإلكتروني</mat-option>
+                      <mat-option value="call">مكالمة هاتفية</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field
+                    appearance="outline"
+                    subscriptSizing="dynamic"
+                    class="sh-span-all"
+                  >
+                    <mat-label>ملاحظات للقاعة (اختياري)</mat-label>
+                    <textarea matInput rows="3" formControlName="notes" maxlength="500"></textarea>
+                    <mat-hint align="end"
+                      >{{ form.controls.contact.controls.notes.value.length }} / 500</mat-hint
+                    >
+                  </mat-form-field>
+                </div>
+              </div>
+            }
+            @case (3) {
+              <div formGroupName="review" class="step-body">
+                <dl class="sh-facts review-facts">
+                  <div>
+                    <dt>التاريخ</dt>
+                    <dd>{{ dateLabel() }}</dd>
+                  </div>
+                  <div>
+                    <dt>الضيوف</dt>
+                    <dd>{{ form.controls.schedule.controls.guests.value ?? 0 | num }}</dd>
+                  </div>
+                  <div>
+                    <dt>صاحب الحجز</dt>
+                    <dd>{{ form.controls.contact.controls.name.value }}</dd>
+                  </div>
+                  <div>
+                    <dt>الجوال</dt>
+                    <dd>
+                      <bdi dir="ltr">{{ form.controls.contact.controls.phone.value }}</bdi>
+                    </dd>
+                  </div>
+                </dl>
+
+                <h3 class="sub-title">طريقة الدفع</h3>
+                <mat-radio-group formControlName="payment" class="choices" aria-label="طريقة الدفع">
+                  <mat-radio-button value="deposit" class="choice">
+                    <span class="choice-text">
+                      <strong>عربون {{ depositPercent }}% الآن</strong>
+                      <small>يثبّت التاريخ، والباقي قبل المناسبة بـ 14 يوماً</small>
+                    </span>
+                    <b class="sh-num">{{ quote().deposit | sar }}</b>
+                  </mat-radio-button>
+                  <mat-radio-button value="full" class="choice">
+                    <span class="choice-text">
+                      <strong>المبلغ كاملاً</strong>
+                      <small>سداد واحد دون دفعات لاحقة</small>
+                    </span>
+                    <b class="sh-num">{{ quote().total | sar }}</b>
+                  </mat-radio-button>
+                </mat-radio-group>
+
+                <mat-checkbox formControlName="terms" class="terms">
+                  قرأت سياسة الحجز والإلغاء وأوافق عليها.
+                </mat-checkbox>
+                @if (
+                  form.controls.review.controls.terms.touched &&
+                  form.controls.review.controls.terms.invalid
+                ) {
+                  <p class="field-error" role="alert">يلزم الموافقة على السياسة لإرسال الطلب.</p>
+                }
+                <p class="secure">
+                  <app-icon name="lock" />يتم الدفع بعد موافقة القاعة عبر بوابة آمنة. لا يُنفَّذ أي
+                  دفع في النسخة التجريبية.
+                </p>
+              </div>
+            }
+          }
+
+          <div class="step-actions">
+            @if (step() > 0) {
+              <button mat-button type="button" (click)="previous()">السابق</button>
+            }
+            <span class="spacer"></span>
+            <button mat-flat-button type="button" (click)="next()">
+              {{ step() === steps.length - 1 ? 'إرسال طلب الحجز' : 'متابعة' }}
+            </button>
+          </div>
+        </section>
+
+        <aside class="summary" aria-labelledby="summary-title">
+          <div class="summary-hall">
+            <img [src]="photo()" width="480" height="320" alt="" decoding="async" />
+            <div>
+              <h2 id="summary-title">{{ hall.name }}</h2>
+              <p>{{ hall.city }} · {{ hall.district }}</p>
+              <p>{{ dateLabel() }}</p>
+            </div>
+          </div>
+          <dl class="sh-facts">
+            @for (line of lines(); track line.label) {
+              <div>
+                <dt>{{ line.label }}</dt>
+                <dd>{{ line.amount | sar }}</dd>
+              </div>
+            }
+            <div>
+              <dt>ضريبة القيمة المضافة 15%</dt>
+              <dd>{{ quote().vat | sar }}</dd>
+            </div>
+            <div class="total">
+              <dt>الإجمالي</dt>
+              <dd>{{ quote().total | sar }}</dd>
+            </div>
+            <div class="due">
+              <dt>المستحق عند التأكيد</dt>
+              <dd>{{ dueNow() | sar }}</dd>
+            </div>
+          </dl>
+        </aside>
+      </div>
+
+      <div class="mobile-bar">
+        <span>
+          <small>الإجمالي شامل الضريبة</small>
+          <strong class="sh-num">{{ quote().total | sar }}</strong>
+        </span>
+        <button mat-flat-button type="button" (click)="next()">
+          {{ step() === steps.length - 1 ? 'إرسال الطلب' : 'متابعة' }}
+        </button>
+      </div>
+    }
+  </main>
+} @else {
+  <main id="main-content" tabindex="-1" class="sh-container missing">
+    <app-empty-state
+      icon="domain"
+      title="لا يمكن بدء الحجز"
+      message="القاعة المطلوبة غير متاحة. اختر قاعة أخرى لمتابعة الحجز."
+    >
+      <a mat-flat-button routerLink="/halls">تصفّح القاعات</a>
+    </app-empty-state>
+  </main>
+}

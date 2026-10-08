@@ -1,0 +1,113 @@
+.hall-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hall {
+  overflow: hidden;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--mat-sys-corner-large);
+  background: var(--mat-sys-surface-container-lowest);
+}
+
+.hall img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  transition: filter var(--sh-duration) var(--sh-ease);
+}
+
+.hall.hidden img {
+  filter: grayscale(1);
+}
+
+.body {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+}
+
+.title {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.title h2 {
+  font: var(--mat-sys-title-large);
+  font-weight: 700;
+}
+
+.visibility {
+  --sh-icon-size: 16px;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  border-radius: var(--mat-sys-corner-small);
+  background: var(--sh-success-container);
+  padding: 2px 8px;
+  color: var(--sh-on-success-container);
+  font: var(--mat-sys-label-medium);
+  font-weight: 700;
+}
+
+.visibility.off {
+  background: var(--mat-sys-surface-container-highest);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.meta {
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.numbers {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-radius: var(--mat-sys-corner-medium);
+  background: var(--mat-sys-surface-container-low);
+  padding: 10px 12px;
+}
+
+.numbers dt {
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-label-small);
+}
+
+.numbers dd {
+  font: var(--mat-sys-title-small);
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-inline-start: -12px;
+}
+
+.price {
+  margin-inline-end: 8px;
+}
+
+.table-panel {
+  padding-block: 8px;
+}
+
+.rating {
+  --sh-icon-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rating app-icon {
+  color: var(--sh-gold);
+}

@@ -1,0 +1,167 @@
+<div class="mp-page layout">
+  @if (isAdmin()) {
+    <form
+      class="mp-panel"
+      [formGroup]="platform"
+      (ngSubmit)="save(platform)"
+      aria-labelledby="platform-title"
+    >
+      <div class="mp-panel-head">
+        <div>
+          <h2 id="platform-title">إعدادات المنصة</h2>
+          <p>تُطبَّق على كل الحجوزات الجديدة.</p>
+        </div>
+      </div>
+      <div class="sh-form-grid">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>بريد الدعم</mat-label>
+          <input matInput type="email" dir="ltr" formControlName="supportEmail" required />
+          <mat-error>أدخل بريداً صحيحاً.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>الرقم الموحد</mat-label>
+          <input matInput type="tel" dir="ltr" formControlName="supportPhone" required />
+          <mat-error>أدخل رقماً من 9 أو 10 أرقام.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>عمولة المنصة %</mat-label>
+          <input matInput type="number" inputmode="decimal" formControlName="commission" required />
+          <mat-error>بين 0% و30%.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>العربون الافتراضي %</mat-label>
+          <input matInput type="number" inputmode="decimal" formControlName="deposit" required />
+          <mat-error>بين 10% و100%.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>ضريبة القيمة المضافة</mat-label>
+          <input matInput [value]="vatPercent + '%'" readonly />
+          <mat-hint>تُحدَّث وفق هيئة الزكاة والضريبة والجمارك فقط</mat-hint>
+        </mat-form-field>
+      </div>
+      <button mat-flat-button type="submit" [disabled]="platform.pristine">حفظ الإعدادات</button>
+    </form>
+
+    <section class="mp-panel" aria-labelledby="ops-title">
+      <div class="mp-panel-head">
+        <h2 id="ops-title">التشغيل</h2>
+      </div>
+      <div class="toggle">
+        <div>
+          <strong>استقبال طلبات التسجيل</strong>
+          <small>السماح لملاك القاعات ومزوّدي الخدمات بالتسجيل.</small>
+        </div>
+        <mat-slide-toggle checked aria-label="استقبال طلبات التسجيل" />
+      </div>
+      <div class="toggle">
+        <div>
+          <strong>وضع الصيانة</strong>
+          <small>إيقاف الحجوزات الجديدة مؤقتاً مع إبقاء الحسابات متاحة.</small>
+        </div>
+        <mat-slide-toggle aria-label="وضع الصيانة" (change)="toggleMaintenance($event)" />
+      </div>
+      <div class="secure">
+        <app-icon name="lock" />
+        <p>
+          مفاتيح بوابة الدفع ومزوّد الرسائل تُدار في أسرار الخادم فقط، ولا تُعرض أو تُحفظ في
+          المتصفح. التغييرات الحساسة تتطلب إعادة المصادقة وتُسجَّل باسم
+          <bdi dir="ltr">{{ adminEmail }}</bdi
+          >.
+        </p>
+      </div>
+    </section>
+  } @else {
+    <form class="mp-panel" [formGroup]="owner" (ngSubmit)="save(owner)" aria-labelledby="org-title">
+      <div class="mp-panel-head">
+        <div>
+          <h2 id="org-title">بيانات المنشأة</h2>
+          <p>تظهر في الفواتير الضريبية وصفحات قاعاتك.</p>
+        </div>
+      </div>
+      <div class="sh-form-grid">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="sh-span-all">
+          <mat-label>اسم المنشأة</mat-label>
+          <input matInput formControlName="name" required />
+          <mat-error>أدخل اسم المنشأة.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>السجل التجاري</mat-label>
+          <input
+            matInput
+            dir="ltr"
+            inputmode="numeric"
+            formControlName="commercialRegister"
+            required
+          />
+          <mat-error>10 أرقام.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>الرقم الضريبي</mat-label>
+          <input matInput dir="ltr" inputmode="numeric" formControlName="vatNumber" required />
+          <mat-hint>15 رقماً يبدأ وينتهي بـ 3</mat-hint>
+          <mat-error>رقم ضريبي غير صالح.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>البريد الإلكتروني</mat-label>
+          <input matInput type="email" dir="ltr" formControlName="email" required />
+          <mat-error>أدخل بريداً صحيحاً.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>رقم التواصل</mat-label>
+          <input matInput type="tel" dir="ltr" formControlName="phone" required />
+          <mat-error>أدخل رقماً صحيحاً يبدأ بـ 0.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>المدينة</mat-label>
+          <mat-select formControlName="city">
+            @for (city of cities; track city) {
+              <mat-option [value]="city">{{ city }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <h3 class="sub">سياسة الحجز</h3>
+      <div class="sh-form-grid">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>نسبة العربون %</mat-label>
+          <input matInput type="number" inputmode="numeric" formControlName="deposit" required />
+          <mat-error>بين 10% و100%.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>أقل مدة قبل المناسبة (أيام)</mat-label>
+          <input matInput type="number" inputmode="numeric" formControlName="notice" required />
+          <mat-error>من يوم إلى 60 يوماً.</mat-error>
+        </mat-form-field>
+      </div>
+      <button mat-flat-button type="submit" [disabled]="owner.pristine">حفظ التغييرات</button>
+    </form>
+
+    <section class="mp-panel" aria-labelledby="notify-title">
+      <div class="mp-panel-head">
+        <h2 id="notify-title">الإشعارات</h2>
+      </div>
+      <div class="toggle">
+        <div>
+          <strong>طلب حجز جديد</strong>
+          <small>رسالة فورية عند وصول طلب يحتاج تأكيدك.</small>
+        </div>
+        <mat-slide-toggle checked aria-label="إشعار طلب حجز جديد" />
+      </div>
+      <div class="toggle">
+        <div>
+          <strong>استلام دفعة</strong>
+          <small>إشعار عند تأكيد البوابة لأي دفعة.</small>
+        </div>
+        <mat-slide-toggle checked aria-label="إشعار استلام دفعة" />
+      </div>
+      <div class="toggle">
+        <div>
+          <strong>ملخص أسبوعي</strong>
+          <small>تقرير بالبريد كل أحد بالحجوزات والتحصيل.</small>
+        </div>
+        <mat-slide-toggle aria-label="الملخص الأسبوعي" />
+      </div>
+    </section>
+  }
+</div>

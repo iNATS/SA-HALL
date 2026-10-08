@@ -5,7 +5,11 @@ SA Hall is being migrated from a browser-only React/Supabase application to an A
 ## Current status
 
 - Legacy React application: builds and remains the behavior reference; not safe for production without the containment actions in the audit.
-- New Angular application: strict standalone foundation, Material 3 violet theme, RTL shell and lazy public route.
+- New Angular application: Material 3 redesign (royal violet primary, champagne gold accents, zero
+  elevation) covering the public marketplace, client account, hall-owner panel and administration panel.
+  Phones get an installable, app-like experience (bottom navigation, full-screen flows, offline shell);
+  desktops get navigation drawers and data tables. All screens currently run on consistent demo data
+  (`apps/web/src/app/core/demo`) until the API feature slices exist.
 - New NestJS API: Fastify, validated configuration, structured request logs, correlation IDs, consistent errors, PostgreSQL readiness and ordered checksum migrations.
 - Deployment: Compose services for the Angular web/proxy, API and private PostgreSQL database. Redis is not included because no measured need has been demonstrated.
 
@@ -43,6 +47,24 @@ Requirements: Docker Engine with Compose. No host Node.js or PostgreSQL installa
 The site listens on port `8080` by default. PostgreSQL has no host port and is reachable only on the internal Compose network. Database and upload data use named volumes.
 
 This foundation is not yet a production cutover. Public catalog, identity, booking, payment and administrative feature slices still need to be migrated and reconciled before the legacy runtime can be retired.
+
+## Web app
+
+```bash
+npm --prefix apps/web ci
+npm --prefix apps/web start        # http://localhost:4200
+```
+
+| Area | Entry route |
+| --- | --- |
+| Public marketplace and checkout | `/`, `/halls`, `/halls/:slug`, `/booking/:slug` |
+| Client account | `/client/bookings`, `/client/favorites`, `/client/profile` |
+| Hall-owner panel | `/owner/dashboard` |
+| Administration panel | `/admin/dashboard` |
+| Workspace chooser | `/sign-in` |
+
+Design rules live in [design-system/MASTER.md](design-system/MASTER.md); payload measurements and the
+single-VPS assessment live in [docs/CAPACITY_AND_SCALING.md](docs/CAPACITY_AND_SCALING.md).
 
 ## Local verification
 

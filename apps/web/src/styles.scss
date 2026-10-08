@@ -1,0 +1,646 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+@use './styles/theme-colors' as palette;
+
+// Body text uses the platform UI font (SF Arabic, Segoe UI, Roboto/Noto) so the
+// default experience downloads zero font bytes. Display roles use the self-hosted
+// El Messiri variable face for the brand's premium character.
+$plain-family: (
+  system-ui,
+  -apple-system,
+  'Segoe UI',
+  'SF Arabic',
+  'Noto Sans Arabic',
+  Tahoma,
+  Roboto,
+  sans-serif
+);
+$brand-family: ('El Messiri Variable', 'El Messiri', $plain-family);
+
+// Material 3 tracking values are tuned for Latin; any letter-spacing breaks Arabic joining.
+$arabic-tracking: (
+  display-large-tracking: 0,
+  display-medium-tracking: 0,
+  display-small-tracking: 0,
+  headline-large-tracking: 0,
+  headline-medium-tracking: 0,
+  headline-small-tracking: 0,
+  title-large-tracking: 0,
+  title-medium-tracking: 0,
+  title-small-tracking: 0,
+  body-large-tracking: 0,
+  body-medium-tracking: 0,
+  body-small-tracking: 0,
+  label-large-tracking: 0,
+  label-medium-tracking: 0,
+  label-small-tracking: 0,
+);
+
+// Flat design: every Material elevation level renders without a shadow.
+$flat-elevation: (
+  level0: none,
+  level1: none,
+  level2: none,
+  level3: none,
+  level4: none,
+  level5: none,
+);
+
+$light-colors: (
+  primary: palette.$primary-palette,
+  tertiary: palette.$tertiary-palette,
+  theme-type: light,
+);
+$dark-colors: map.merge(
+  $light-colors,
+  (
+    theme-type: dark,
+  )
+);
+
+html {
+  color-scheme: light;
+
+  @include mat.theme(
+    (
+      color: $light-colors,
+      typography: (
+        plain-family: $plain-family,
+        brand-family: $brand-family,
+        bold-weight: 700,
+        medium-weight: 600,
+        regular-weight: 400,
+      ),
+      density: 0,
+    )
+  );
+  @include mat.theme-overrides(map.merge($arabic-tracking, $flat-elevation));
+
+  // Application roles Material 3 does not define. Values come from the same HCT
+  // tonal system as the generated palette and pass WCAG AA on their surfaces.
+  --sh-success: #196c40;
+  --sh-on-success: #ffffff;
+  --sh-success-container: #a4f4bc;
+  --sh-on-success-container: #00210f;
+  --sh-gold: #937303;
+  --sh-gold-text: #755b00;
+  --sh-hero-ink: #24005b;
+  --sh-on-hero: #ffffff;
+  --sh-on-hero-variant: #eaddff;
+  --sh-hero-accent: #eac256;
+
+  // Layout
+  --sh-content-max: 1240px;
+  --sh-gutter: clamp(16px, 4vw, 40px);
+  --sh-bottom-bar: 80px;
+  --sh-top-bar: 64px;
+  --sh-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --sh-ease: cubic-bezier(0.2, 0, 0, 1);
+  --sh-duration: 200ms;
+}
+
+// Explicit light/dark blocks instead of `light-dark()` keep the theme working on
+// older iOS Safari releases that are still common on Saudi mobile devices.
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+
+    @include mat.theme(
+      (
+        color: $dark-colors,
+      )
+    );
+    @include mat.theme-overrides($flat-elevation);
+
+    --sh-success: #88d7a1;
+    --sh-on-success: #00391d;
+    --sh-success-container: #00522c;
+    --sh-on-success-container: #a4f4bc;
+    --sh-gold: #eac256;
+    --sh-gold-text: #eac256;
+  }
+}
+
+@media (prefers-contrast: more) {
+  html {
+    @include palette.high-contrast-overrides(light);
+  }
+}
+
+@media (prefers-contrast: more) and (prefers-color-scheme: dark) {
+  html {
+    @include palette.high-contrast-overrides(dark);
+  }
+}
+
+// Component tokens whose defaults are hard-coded shadows rather than system levels.
+html {
+  --mat-menu-container-elevation-shadow: none;
+  --mat-select-container-elevation-shadow: none;
+  --mat-autocomplete-container-elevation-shadow: none;
+  --mat-datepicker-calendar-container-elevation-shadow: none;
+  --mat-datepicker-calendar-container-touch-elevation-shadow: none;
+  --mat-expansion-container-elevation-shadow: none;
+  --mat-timepicker-container-elevation-shadow: none;
+  --mat-slide-toggle-handle-elevation-shadow: none;
+  --mat-slide-toggle-disabled-handle-elevation-shadow: none;
+  --mat-slider-handle-elevation: none;
+  --mat-card-elevated-container-elevation: none;
+}
+
+.mat-mdc-snackbar-surface,
+.mat-bottom-sheet-container,
+.mat-button-toggle-group,
+.mat-button-toggle-standalone {
+  box-shadow: none !important;
+}
+
+// Without shadows, floating surfaces are separated by tone plus a hairline outline.
+.mat-mdc-menu-panel,
+.mat-mdc-select-panel,
+.mat-mdc-autocomplete-panel,
+.mat-datepicker-content:not(.mat-datepicker-content-touch) {
+  outline: 1px solid var(--mat-sys-outline-variant);
+  outline-offset: -1px;
+}
+
+// ---------------------------------------------------------------------------
+// Base
+// ---------------------------------------------------------------------------
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: var(--mat-sys-surface);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  margin: 0;
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-large);
+  line-height: 1.65;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+dl,
+dd {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--mat-sys-headline-large-font);
+  font-weight: 600;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+a {
+  color: var(--mat-sys-primary);
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+}
+
+:focus-visible {
+  outline: 3px solid var(--mat-sys-primary);
+  outline-offset: 2px;
+}
+
+bdi,
+[dir='ltr'] {
+  unicode-bidi: isolate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+// Route changes cross-fade like native screens (progressive enhancement).
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 180ms;
+  animation-timing-function: var(--sh-ease);
+}
+
+// ---------------------------------------------------------------------------
+// Shared utilities used by several feature templates
+// ---------------------------------------------------------------------------
+
+.sh-container {
+  width: min(100%, var(--sh-content-max));
+  margin-inline: auto;
+  padding-inline: var(--sh-gutter);
+}
+
+.sh-num {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.sh-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--sh-gold-text);
+  font: var(--mat-sys-label-large);
+  font-weight: 600;
+}
+
+.sh-display {
+  font: var(--mat-sys-display-small);
+  font-weight: 700;
+}
+
+.sh-headline {
+  font: var(--mat-sys-headline-small);
+  font-weight: 600;
+}
+
+.sh-title {
+  font: var(--mat-sys-title-medium);
+  font-weight: 600;
+}
+
+.sh-muted {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.sh-visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+}
+
+// Section heading row: title block plus an optional trailing action.
+.sh-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 8px 24px;
+  margin-block-end: 20px;
+}
+
+.sh-section-head p {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+// Flat surfaces separated by tone and an outline instead of shadow.
+.sh-surface {
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--mat-sys-corner-large);
+  background: var(--mat-sys-surface-container-lowest);
+}
+
+.sh-surface-tonal {
+  border-radius: var(--mat-sys-corner-large);
+  background: var(--mat-sys-surface-container-low);
+}
+
+// Description lists rendered as label/value rows.
+.sh-facts {
+  display: grid;
+  gap: 12px;
+}
+
+.sh-facts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.sh-facts dt {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.sh-facts dd {
+  font-weight: 600;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+// Material form fields stretch to their grid cell.
+.sh-form-grid {
+  display: grid;
+  align-items: start;
+  gap: 4px 16px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+}
+
+.sh-form-grid .mat-mdc-form-field {
+  width: 100%;
+}
+
+.sh-form-grid .sh-span-all {
+  grid-column: 1 / -1;
+}
+
+// Tables scroll inside their own container; the page never scrolls sideways.
+.sh-table-scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.sh-table-scroll .mat-mdc-table {
+  min-width: 720px;
+  background: transparent;
+}
+
+// Directional icons point the other way in right-to-left layouts.
+[dir='rtl'] .sh-mirror {
+  transform: scaleX(-1);
+}
+
+// Snack bars clear the bottom navigation bar on compact windows.
+@media (max-width: 839.98px) {
+  .mat-mdc-snack-bar-container.sh-snackbar {
+    margin-block-end: calc(var(--sh-bottom-bar) + var(--sh-safe-bottom) + 8px);
+  }
+}
+
+// Full-screen dialogs on compact windows follow the Material 3 mobile pattern.
+.sh-fullscreen-dialog .mat-mdc-dialog-surface {
+  border-radius: 0;
+}
+
+// Filter chip rows scroll horizontally on compact windows instead of wrapping.
+@media (max-width: 839.98px) {
+  .sh-chip-scroll {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .sh-chip-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sh-chip-scroll .mdc-evolution-chip-set__chips {
+    flex-wrap: nowrap;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Management panels (hall owner and administration)
+// ---------------------------------------------------------------------------
+
+.mp-page {
+  display: grid;
+  gap: 20px;
+}
+
+.mp-intro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+}
+
+.mp-intro p {
+  max-width: 64ch;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.mp-stats {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.mp-panel {
+  min-width: 0;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--mat-sys-corner-large);
+  background: var(--mat-sys-surface-container-lowest);
+  padding: 20px;
+}
+
+.mp-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-block-end: 16px;
+}
+
+.mp-panel-head h2 {
+  font: var(--mat-sys-title-large);
+  font-weight: 700;
+}
+
+.mp-panel-head p {
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.mp-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.mp-toolbar .mp-search {
+  flex: 1 1 260px;
+  max-width: 420px;
+}
+
+.mp-toolbar .mp-search app-icon {
+  margin-inline: 12px 4px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+// Data tables: flat, hairline rows, readable numerals.
+.mp-table {
+  width: 100%;
+  --mat-table-background-color: transparent;
+  --mat-table-row-item-outline-color: var(--mat-sys-outline-variant);
+  --mat-table-header-headline-color: var(--mat-sys-on-surface-variant);
+}
+
+.mp-table .mat-mdc-header-cell {
+  font-weight: 700;
+}
+
+.mp-table .mat-mdc-row:hover {
+  background: var(--mat-sys-surface-container-low);
+}
+
+.mp-table .mat-mdc-cell {
+  font-variant-numeric: tabular-nums;
+}
+
+.mp-table .mp-clickable {
+  cursor: pointer;
+}
+
+.mp-cell-stack {
+  display: grid;
+  padding-block: 8px;
+}
+
+.mp-cell-stack small {
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+// Compact lists replace tables on phones.
+.mp-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mp-list > li + li {
+  border-block-start: 1px solid var(--mat-sys-outline-variant);
+}
+
+.mp-row {
+  display: flex;
+  width: 100%;
+  min-height: 72px;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  background: none;
+  padding: 12px 4px;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  text-decoration: none;
+}
+
+button.mp-row {
+  cursor: pointer;
+}
+
+button.mp-row:hover {
+  background: var(--mat-sys-surface-container-low);
+}
+
+.mp-row-main {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mp-row-main strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mp-row-main small {
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.mp-row-end {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.mp-avatar {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+  font-weight: 700;
+}
+
+.mp-amount-in {
+  color: var(--sh-success);
+  font-weight: 700;
+}
+
+.mp-amount-out {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+// Extended FAB for the page's primary action on compact windows. The compound
+// selector outranks Material's own `position: relative` on FABs.
+.mat-mdc-fab-base.mp-fab {
+  position: fixed;
+  z-index: 35;
+  inset-block-end: calc(var(--sh-bottom-bar) + var(--sh-safe-bottom) + 16px);
+  inset-inline-end: 16px;
+}
+
+@media (max-width: 1199.98px) {
+  .mp-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 839.98px) {
+  .mp-page {
+    gap: 16px;
+  }
+
+  .mp-panel {
+    padding: 16px;
+  }
+
+  .mp-stats {
+    gap: 8px;
+  }
+}

@@ -1,0 +1,70 @@
+<header class="app-bar" [class.hide-compact]="detail()">
+  <mat-toolbar>
+    <a class="brand-link" routerLink="/" aria-label="صالة، الصفحة الرئيسية">
+      <app-brand />
+    </a>
+    <nav class="inline-nav" aria-label="التنقل الرئيسي">
+      @for (item of desktopNav; track item.path) {
+        @let active = isActive(item);
+        <a
+          mat-button
+          [routerLink]="item.path"
+          [class.active]="active"
+          [attr.aria-current]="active ? 'page' : null"
+          >{{ item.label }}</a
+        >
+      }
+    </nav>
+    <span class="spacer"></span>
+    <span class="demo-chip" title="البيانات المعروضة للمعاينة فقط">نسخة تجريبية</span>
+    <a mat-icon-button routerLink="/client/favorites" aria-label="المفضلة">
+      <app-icon name="favorite" />
+    </a>
+    <a mat-icon-button routerLink="/client/profile" aria-label="حسابي">
+      <app-icon name="account_circle" />
+    </a>
+    <a mat-flat-button class="owner-cta" routerLink="/owner">
+      <app-icon name="workspace_premium" />
+      لملاك القاعات
+    </a>
+  </mat-toolbar>
+</header>
+
+<main id="main-content" tabindex="-1" [class.with-bottom-nav]="!detail()">
+  <router-outlet />
+</main>
+
+<footer class="site-footer">
+  <div class="sh-container footer-grid">
+    <div class="footer-brand">
+      <app-brand caption="منصة القاعات الفاخرة" />
+      <p>مكان واحد لاكتشاف القاعات وتنسيق خدمات مناسبتك بثقة ووضوح.</p>
+    </div>
+    <nav aria-label="روابط اكتشف">
+      <h2>اكتشف</h2>
+      <a routerLink="/halls">القاعات</a>
+      <a routerLink="/services">الخدمات</a>
+      <a routerLink="/client/favorites">المفضلة</a>
+    </nav>
+    <nav aria-label="روابط حسابك">
+      <h2>حسابك</h2>
+      <a routerLink="/client/bookings">حجوزاتي</a>
+      <a routerLink="/client/orders">طلبات المتجر</a>
+      <a routerLink="/client/profile">الملف الشخصي</a>
+    </nav>
+    <nav aria-label="روابط الأعمال">
+      <h2>للأعمال</h2>
+      <a routerLink="/owner">لوحة مالك القاعة</a>
+      <a routerLink="/admin">إدارة المنصة</a>
+      <a routerLink="/sign-in">مساحات العمل</a>
+    </nav>
+  </div>
+  <div class="sh-container footer-base">
+    <span>© {{ year }} صالة. جميع الحقوق محفوظة.</span>
+    <span>نسخة عرض ببيانات تجريبية؛ لا تُنشأ حجوزات أو مدفوعات حقيقية.</span>
+  </div>
+</footer>
+
+@if (!detail()) {
+  <app-bottom-nav [items]="nav" />
+}

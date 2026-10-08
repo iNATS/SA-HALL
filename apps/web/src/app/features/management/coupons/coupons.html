@@ -1,0 +1,151 @@
+<div class="mp-page">
+  <div class="top">
+    <section class="stats" aria-label="ملخص الكوبونات">
+      @for (stat of stats(); track stat.label) {
+        <app-stat-card
+          [label]="stat.label"
+          [value]="stat.value"
+          [hint]="stat.hint"
+          [icon]="stat.icon"
+        />
+      }
+    </section>
+    @if (!creating() && !compact()) {
+      <button mat-flat-button type="button" (click)="creating.set(true)">
+        <app-icon name="add" />كوبون جديد
+      </button>
+    }
+  </div>
+
+  @if (creating()) {
+    <form class="mp-panel" [formGroup]="form" (ngSubmit)="create()" aria-labelledby="new-title">
+      <div class="mp-panel-head">
+        <h2 id="new-title">كوبون جديد</h2>
+        <button
+          mat-icon-button
+          type="button"
+          aria-label="إغلاق النموذج"
+          (click)="creating.set(false)"
+        >
+          <app-icon name="close" />
+        </button>
+      </div>
+      <div class="sh-form-grid">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>رمز الكوبون</mat-label>
+          <input
+            matInput
+            dir="ltr"
+            formControlName="code"
+            autocomplete="off"
+            maxlength="16"
+            (input)="normalizeCode($event)"
+            required
+          />
+          <mat-hint>حروف إنجليزية كبيرة وأرقام، من 4 إلى 16</mat-hint>
+          @if (form.controls.code.hasError('duplicate')) {
+            <mat-error>هذا الرمز مستخدم مسبقاً.</mat-error>
+          } @else {
+            <mat-error>أدخل رمزاً من 4 إلى 16 حرفاً أو رقماً.</mat-error>
+          }
+        </mat-form-field>
+        <div class="kind">
+          <span class="label">نوع الخصم</span>
+          <mat-button-toggle-group formControlName="kind" aria-label="نوع الخصم">
+            <mat-button-toggle value="percent">نسبة %</mat-button-toggle>
+            <mat-button-toggle value="fixed">مبلغ ثابت</mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{
+            form.controls.kind.value === 'percent' ? 'نسبة الخصم %' : 'مبلغ الخصم (ر.س)'
+          }}</mat-label>
+          <input matInput type="number" inputmode="numeric" formControlName="value" required />
+          <mat-error>أدخل قيمة الخصم.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>النطاق</mat-label>
+          <mat-select formControlName="scope">
+            @for (scope of scopes(); track scope) {
+              <mat-option [value]="scope">{{ scope }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>حد الاستخدام</mat-label>
+          <input matInput type="number" inputmode="numeric" formControlName="limit" required />
+          <mat-error>من 1 إلى 10,000 مرة.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>تاريخ الانتهاء</mat-label>
+          <input
+            matInput
+            [matDatepicker]="picker"
+            [min]="minDate"
+            formControlName="expiresOn"
+            required
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="picker" />
+          <mat-datepicker #picker [touchUi]="compact()" />
+          <mat-error>اختر تاريخاً لاحقاً لليوم.</mat-error>
+        </mat-form-field>
+      </div>
+      @if (form.hasError('valueRange') && form.controls.value.touched) {
+        <p class="form-error" role="alert">
+          {{
+            form.controls.kind.value === 'percent'
+              ? 'نسبة الخصم بين 1% و90%.'
+              : 'الخصم الثابت بين 50 و5,000 ر.س.'
+          }}
+        </p>
+      }
+      <div class="form-actions">
+        <button mat-button type="button" (click)="creating.set(false)">إلغاء</button>
+        <button mat-flat-button type="submit">إنشاء الكوبون</button>
+      </div>
+    </form>
+  }
+
+  <section class="mp-panel" aria-label="الكوبونات">
+    <ul class="mp-list">
+      @for (row of rows(); track row.coupon.code) {
+        <li class="coupon">
+          <div class="code-block">
+            <strong class="code"
+              ><bdi>{{ row.coupon.code }}</bdi></strong
+            >
+            <app-status [value]="row.state" />
+          </div>
+          <div class="info">
+            <span class="discount sh-num">{{ row.discount }}</span>
+            <small>{{ row.coupon.scope }} · ينتهي {{ row.coupon.expiresOn | arDate }}</small>
+          </div>
+          <div class="usage">
+            <small class="sh-num"
+              >{{ row.coupon.used | num }} / {{ row.coupon.limit | num }} استخدام</small
+            >
+            <mat-progress-bar
+              mode="determinate"
+              [value]="row.usage"
+              [attr.aria-label]="'نسبة الاستخدام ' + row.usage + '%'"
+            />
+          </div>
+          @if (row.live) {
+            <button mat-stroked-button type="button" (click)="toggle(row.coupon.code)">
+              <app-icon [name]="row.coupon.paused ? 'play_arrow' : 'pause'" />
+              {{ row.coupon.paused ? 'استئناف' : 'إيقاف مؤقت' }}
+            </button>
+          } @else {
+            <span class="ended">انتهت صلاحيته</span>
+          }
+        </li>
+      }
+    </ul>
+  </section>
+
+  @if (compact() && !creating()) {
+    <button mat-fab extended class="mp-fab" type="button" (click)="creating.set(true)">
+      <app-icon name="add" />كوبون جديد
+    </button>
+  }
+</div>

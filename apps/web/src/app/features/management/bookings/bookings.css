@@ -1,0 +1,28 @@
+.hall-filter {
+  width: 220px;
+}
+
+.count {
+  margin-inline-start: 6px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.table-panel {
+  padding-block: 8px;
+}
+
+.mp-row-main app-status {
+  justify-self: start;
+  margin-block-start: 4px;
+}
+
+@media (max-width: 839.98px) {
+  .hall-filter {
+    flex: 1 1 160px;
+    width: auto;
+  }
+
+  .table-panel {
+    padding: 4px 12px;
+  }
+}

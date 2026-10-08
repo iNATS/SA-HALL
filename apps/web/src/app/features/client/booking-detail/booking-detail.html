@@ -1,0 +1,125 @@
+<app-detail-bar class="compact-only" title="تفاصيل الحجز" back="/client/bookings" />
+
+@if (booking(); as booking) {
+  <div class="sh-container page">
+    <a mat-button class="back-link" routerLink="/client/bookings">
+      <app-icon name="arrow_back" mirror />حجوزاتي
+    </a>
+
+    <div class="layout">
+      <div class="main">
+        <section class="hero" aria-labelledby="booking-title">
+          @if (photo(); as photo) {
+            <img
+              [src]="photo.src"
+              [srcset]="photo.srcset"
+              sizes="(max-width: 839px) 100vw, 60vw"
+              width="800"
+              height="533"
+              alt=""
+              decoding="async"
+            />
+          }
+          <div class="hero-copy">
+            <p class="ref">
+              رقم الحجز <bdi class="sh-num">{{ booking.id }}</bdi>
+            </p>
+            <h1 id="booking-title">{{ hall()?.name }}</h1>
+            <p>{{ booking.eventDate | arDate: 'weekday' }} · {{ hall()?.city }}</p>
+          </div>
+        </section>
+
+        <div class="chips">
+          @if (status(); as status) {
+            <app-status [value]="status" />
+          }
+          @if (payment(); as payment) {
+            <app-status [value]="payment" />
+          }
+        </div>
+
+        <section class="card" aria-labelledby="timeline-title">
+          <h2 id="timeline-title">مراحل الحجز</h2>
+          <ol class="timeline">
+            @for (step of steps(); track step.title) {
+              <li [class]="step.state">
+                <span class="dot" aria-hidden="true">
+                  @switch (step.state) {
+                    @case ('done') {
+                      <app-icon name="check" />
+                    }
+                    @case ('stopped') {
+                      <app-icon name="close" />
+                    }
+                  }
+                </span>
+                <div>
+                  <strong>{{ step.title }}</strong>
+                  <span>{{ step.detail }}</span>
+                </div>
+                @if (step.state === 'current') {
+                  <span class="sh-visually-hidden">(الخطوة الحالية)</span>
+                }
+              </li>
+            }
+          </ol>
+        </section>
+
+        <section class="card" aria-labelledby="event-title">
+          <h2 id="event-title">تفاصيل المناسبة</h2>
+          <dl class="sh-facts">
+            <div>
+              <dt>صاحب الحجز</dt>
+              <dd>{{ booking.customer }}</dd>
+            </div>
+            <div>
+              <dt>الجوال</dt>
+              <dd>
+                <bdi dir="ltr">{{ booking.phone }}</bdi>
+              </dd>
+            </div>
+            <div>
+              <dt>التاريخ</dt>
+              <dd>{{ booking.eventDate | arDate }}</dd>
+            </div>
+            <div>
+              <dt>عدد الضيوف</dt>
+              <dd>{{ booking.guests | num }}</dd>
+            </div>
+          </dl>
+        </section>
+      </div>
+
+      <aside class="card payment" aria-labelledby="payment-title">
+        <h2 id="payment-title">الدفع</h2>
+        <app-booking-summary [booking]="booking" />
+        <div class="actions">
+          @if (booking.status === 'confirmed' && remaining() > 0) {
+            <button mat-flat-button type="button" (click)="payRemaining(booking)">
+              <app-icon name="credit_card" />سداد {{ remaining() | sar }}
+            </button>
+          }
+          @if (booking.status === 'pending') {
+            <p class="hint"><app-icon name="info" />يتاح الدفع بعد تأكيد القاعة للموعد.</p>
+            <button mat-stroked-button type="button" class="danger" (click)="cancel(booking)">
+              إلغاء الطلب
+            </button>
+          }
+          @if (hall(); as hall) {
+            <a mat-button [routerLink]="['/halls', hall.slug]">عرض صفحة القاعة</a>
+          }
+        </div>
+      </aside>
+    </div>
+  </div>
+} @else {
+  <div class="sh-container page">
+    <app-empty-state
+      icon="confirmation_number"
+      title="لم نجد هذا الحجز"
+      message="قد يكون الرقم غير صحيح أو أن الحجز لا يخص حسابك."
+    >
+      <a mat-flat-button routerLink="/client/bookings">عرض حجوزاتي</a>
+    </app-empty-state>
+  </div>
+}
