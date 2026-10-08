@@ -1,0 +1,233 @@
+<app-public-header />
+<main id="main-content" tabindex="-1">
+  @if (completed()) {
+    <section class="success" aria-labelledby="success-title">
+      <span class="success__icon" aria-hidden="true"
+        ><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6" /></svg
+      ></span>
+      <p class="eyebrow">تم استلام طلبك</p>
+      <h1 id="success-title">طلب الحجز قيد المراجعة</h1>
+      <p>
+        أرسلنا تفاصيل الطلب التجريبي رقم <bdi>SH-24102</bdi>. سيظهر تحديث الحالة والدفع في حساب
+        العميل.
+      </p>
+      <div class="success__details">
+        <span
+          >القاعة<strong>{{ hall.name }}</strong></span
+        ><span>التاريخ<strong>18 نوفمبر 2026</strong></span
+        ><span
+          >الإجمالي<strong>{{ total().toLocaleString() }} ر.س</strong></span
+        >
+      </div>
+      <div class="actions">
+        <a mat-flat-button routerLink="/client">متابعة حجزي</a
+        ><a mat-button routerLink="/">العودة للرئيسية</a>
+      </div>
+    </section>
+  } @else {
+    <header class="flow-header">
+      <a [routerLink]="['/halls', hall.slug]">العودة إلى {{ hall.name }}</a>
+      <div>
+        <p class="eyebrow">طلب حجز تجريبي</p>
+        <h1>إتمام الحجز</h1>
+      </div>
+    </header>
+    <ol class="steps" aria-label="خطوات الحجز">
+      @for (
+        item of ['التاريخ والباقة', 'الخدمات', 'بيانات التواصل', 'المراجعة والدفع'];
+        track item;
+        let index = $index
+      ) {
+        <li [class.active]="step() === index + 1" [class.done]="step() > index + 1">
+          <span>{{ index + 1 }}</span
+          ><strong>{{ item }}</strong>
+        </li>
+      }
+    </ol>
+    <div class="flow-layout">
+      <section class="form-card">
+        @if (step() === 1) {
+          <div class="section-title">
+            <p>الخطوة 1 من 4</p>
+            <h2>اختر التاريخ والباقة</h2>
+            <span>تأكد من التاريخ المناسب ثم اختر مستوى التجهيز.</span>
+          </div>
+          <div class="field-row">
+            <label><span>تاريخ المناسبة</span><input type="date" value="2026-11-18" /></label
+            ><label
+              ><span>عدد الضيوف</span
+              ><select>
+                <option>300 ضيف</option>
+                <option>400 ضيف</option>
+                <option>500 ضيف</option>
+              </select></label
+            >
+          </div>
+          <fieldset class="choices">
+            <legend>نوع الباقة</legend>
+            <button
+              type="button"
+              [class.selected]="selectedPackage() === 'basic'"
+              (click)="choosePackage('basic')"
+            >
+              <span
+                ><strong>حجز القاعة</strong
+                ><small>القاعة، التشغيل، الصوت والإضاءة الأساسية</small></span
+              ><b>{{ hall.price.toLocaleString() }} ر.س</b></button
+            ><button
+              type="button"
+              [class.selected]="selectedPackage() === 'complete'"
+              (click)="choosePackage('complete')"
+            >
+              <span
+                ><strong>الباقة المتكاملة</strong
+                ><small>تشمل تجهيز المنصة وضيافة الاستقبال</small></span
+              ><b>{{ (hall.price + 4200).toLocaleString() }} ر.س</b>
+            </button>
+          </fieldset>
+        } @else if (step() === 2) {
+          <div class="section-title">
+            <p>الخطوة 2 من 4</p>
+            <h2>أضف خدمات المناسبة</h2>
+            <span>يمكن تعديل هذه الاختيارات قبل الدفع.</span>
+          </div>
+          <div class="extras">
+            <label
+              ><input
+                type="checkbox"
+                checked
+                (change)="toggleExtra('تصوير المناسبة', $event)"
+              /><span><strong>تصوير المناسبة</strong><small>فوتوغرافي وفيديو · 6 ساعات</small></span
+              ><b>2,800 ر.س</b></label
+            ><label
+              ><input type="checkbox" (change)="toggleExtra('تنسيق الزهور', $event)" /><span
+                ><strong>تنسيق الزهور</strong><small>المنصة والمدخل و20 طاولة</small></span
+              ><b>3,500 ر.س</b></label
+            ><label
+              ><input type="checkbox" (change)="toggleExtra('صوت وإضاءة متقدمة', $event)" /><span
+                ><strong>صوت وإضاءة متقدمة</strong><small>مهندس تشغيل ومؤثرات إضافية</small></span
+              ><b>1,900 ر.س</b></label
+            >
+          </div>
+        } @else if (step() === 3) {
+          <div class="section-title">
+            <p>الخطوة 3 من 4</p>
+            <h2>بيانات صاحب الحجز</h2>
+            <span>سنستخدم هذه البيانات لتأكيد الطلب وإرسال التحديثات.</span>
+          </div>
+          <div class="field-row">
+            <label
+              ><span>الاسم الكامل *</span
+              ><input value="نورة عبدالله العتيبي" autocomplete="name" /></label
+            ><label
+              ><span>رقم الجوال *</span
+              ><input type="tel" value="050 123 4567" autocomplete="tel" dir="ltr" /></label
+            ><label
+              ><span>البريد الإلكتروني</span
+              ><input
+                type="email"
+                value="noura@example.com"
+                autocomplete="email"
+                dir="ltr" /></label
+            ><label
+              ><span>طريقة التواصل المفضلة</span
+              ><select>
+                <option>رسالة نصية</option>
+                <option>البريد الإلكتروني</option>
+                <option>مكالمة هاتفية</option>
+              </select></label
+            ><label class="wide"
+              ><span>ملاحظات للمشرف</span
+              ><textarea rows="4">نرغب في زيارة القاعة قبل تأكيد التجهيز النهائي.</textarea>
+            </label>
+          </div>
+        } @else {
+          <div class="section-title">
+            <p>الخطوة 4 من 4</p>
+            <h2>راجع الطلب واختر الدفع</h2>
+            <span>لن يُنشأ أي دفع حقيقي في النسخة التجريبية.</span>
+          </div>
+          <div class="review">
+            <article>
+              <h3>تفاصيل المناسبة</h3>
+              <dl>
+                <div>
+                  <dt>القاعة</dt>
+                  <dd>{{ hall.name }}</dd>
+                </div>
+                <div>
+                  <dt>التاريخ</dt>
+                  <dd>18 نوفمبر 2026</dd>
+                </div>
+                <div>
+                  <dt>الضيوف</dt>
+                  <dd>300 ضيف</dd>
+                </div>
+                <div>
+                  <dt>الباقة</dt>
+                  <dd>{{ selectedPackage() === 'basic' ? 'حجز القاعة' : 'الباقة المتكاملة' }}</dd>
+                </div>
+              </dl>
+            </article>
+            <article>
+              <h3>طريقة الدفع</h3>
+              <label class="payment selected"
+                ><input type="radio" name="payment" checked /><span
+                  ><strong>دفع العربون الآن</strong
+                  ><small>30% لتثبيت التاريخ، والباقي قبل المناسبة</small></span
+                ></label
+              ><label class="payment"
+                ><input type="radio" name="payment" /><span
+                  ><strong>دفع كامل المبلغ</strong><small>إتمام المبلغ في عملية واحدة</small></span
+                ></label
+              >
+            </article>
+            <label class="terms"
+              ><input type="checkbox" checked /> قرأت ووافقت على سياسة الحجز والإلغاء.</label
+            >
+          </div>
+        }
+        <div class="form-actions">
+          @if (step() > 1) {
+            <button mat-button type="button" (click)="previous()">السابق</button>
+          }
+          <span></span>
+          @if (step() < 4) {
+            <button mat-flat-button type="button" (click)="next()">متابعة</button>
+          } @else {
+            <button mat-flat-button type="button" (click)="confirm()">تأكيد الطلب التجريبي</button>
+          }
+        </div>
+      </section>
+      <aside class="summary">
+        <img src="/demo/venue-hero.jpg" width="320" height="180" [alt]="hall.name" />
+        <h2>{{ hall.name }}</h2>
+        <p>{{ hall.city }} · {{ hall.district }}</p>
+        <dl>
+          <div>
+            <dt>القاعة والباقة</dt>
+            <dd>
+              {{
+                (hall.price + (selectedPackage() === 'complete' ? 4200 : 0)).toLocaleString()
+              }}
+              ر.س
+            </dd>
+          </div>
+          <div>
+            <dt>الخدمات الإضافية</dt>
+            <dd>{{ extrasTotal().toLocaleString() }} ر.س</dd>
+          </div>
+          <div>
+            <dt>الضريبة 15%</dt>
+            <dd>{{ vat().toLocaleString() }} ر.س</dd>
+          </div>
+          <div class="total">
+            <dt>الإجمالي</dt>
+            <dd>{{ total().toLocaleString() }} ر.س</dd>
+          </div>
+        </dl>
+        <p class="secure">العملية التالية عرض تجريبي ولا تنشئ حجزاً أو دفعة حقيقية.</p>
+      </aside>
+    </div>
+  }
+</main>

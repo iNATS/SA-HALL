@@ -1,0 +1,55 @@
+<app-public-header />
+<main id="main-content" tabindex="-1">
+  <header>
+    <p>وصول تجريبي مباشر</p>
+    <h1>اختر مساحة العمل</h1>
+    <span>استعرض رحلة كل مستخدم كما كانت في التطبيق السابق، ضمن تصميم Angular الجديد.</span>
+  </header>
+  <div class="portals">
+    <article>
+      <span class="icon" aria-hidden="true"
+        ><svg viewBox="0 0 24 24">
+          <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 0 1 14 0" /></svg
+      ></span>
+      <p>للعميل</p>
+      <h2>حجوزاتي وطلباتي</h2>
+      <ul>
+        <li>متابعة حالة الحجز</li>
+        <li>الفواتير وسجل المدفوعات</li>
+        <li>الملف الشخصي والتواصل</li>
+      </ul>
+      <a mat-flat-button routerLink="/client">دخول حساب العميل</a>
+    </article>
+    <article>
+      <span class="icon" aria-hidden="true"
+        ><svg viewBox="0 0 24 24"><path d="M4 20V8l8-5 8 5v12M8 20v-6h8v6M3 20h18" /></svg
+      ></span>
+      <p>لمالك القاعة</p>
+      <h2>إدارة المنشأة</h2>
+      <ul>
+        <li>الحجوزات والتقويم</li>
+        <li>القاعات والخدمات والعملاء</li>
+        <li>الفواتير والحسابات</li>
+      </ul>
+      <a mat-flat-button routerLink="/owner/dashboard">دخول لوحة المالك</a>
+    </article>
+    <article>
+      <span class="icon" aria-hidden="true"
+        ><svg viewBox="0 0 24 24">
+          <path d="M12 3 4 7v5c0 5 3.4 8 8 9 4.6-1 8-4 8-9V7l-8-4Zm-3 9 2 2 4-5" /></svg
+      ></span>
+      <p>لإدارة صالة</p>
+      <h2>إدارة المنصة</h2>
+      <ul>
+        <li>الطلبات والموافقات</li>
+        <li>المشتركون والقاعات والخدمات</li>
+        <li>الحسابات والمحتوى والإعدادات</li>
+      </ul>
+      <a mat-flat-button routerLink="/admin/dashboard">دخول لوحة الإدارة</a>
+    </article>
+  </div>
+  <aside>
+    هذه بوابات عرض ببيانات تجريبية. المصادقة والصلاحيات الحقيقية ستُربط مع واجهة الخادم في مرحلة
+    التكامل.
+  </aside>
+</main>

@@ -1,9 +1,13 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { PublicHome } from './public-home';
 
 describe('PublicHome', () => {
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [PublicHome] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [PublicHome],
+      providers: [provideRouter([])],
+    }).compileComponents();
   });
 
   it('renders the legacy-inspired demo catalogue', () => {

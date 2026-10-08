@@ -399,6 +399,10 @@ footer {
   min-height: 48px;
 }
 
+.venue-card__footer a {
+  min-height: 48px;
+}
+
 .section--tonal {
   width: 100%;
   max-width: none;
@@ -509,7 +513,7 @@ footer {
   display: grid;
   align-items: center;
   gap: 8px 24px;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto auto;
   border-block-start: 1px solid var(--mat-sys-outline-variant);
   padding-block: 32px;
   color: var(--mat-sys-on-surface-variant);
@@ -522,6 +526,16 @@ footer p {
 
 .brand--footer {
   color: var(--mat-sys-on-surface);
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-links a {
+  color: var(--mat-sys-primary);
 }
 
 @media (max-width: 980px) {

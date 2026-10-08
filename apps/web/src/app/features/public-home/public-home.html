@@ -6,11 +6,11 @@
     </a>
     <span class="spacer"></span>
     <nav aria-label="التنقل الرئيسي">
-      <a mat-button href="#venues">القاعات</a>
-      <a mat-button href="#services">الخدمات</a>
+      <a mat-button routerLink="/halls">القاعات</a>
+      <a mat-button routerLink="/services">الخدمات</a>
       <a mat-button href="#how-it-works">كيف تعمل صالة؟</a>
     </nav>
-    <a mat-stroked-button href="#venues">تسجيل الدخول</a>
+    <a mat-stroked-button routerLink="/portals">دخول المنصة</a>
   </mat-toolbar>
 </header>
 
@@ -97,7 +97,7 @@
         <h2 id="venues-title">قاعات تستحق يومك</h2>
         <p>نماذج تجريبية توضّح تجربة التصفح قبل ربط الكتالوج الفعلي.</p>
       </div>
-      <a mat-button href="#top">عرض كل القاعات</a>
+      <a mat-button routerLink="/halls">عرض كل القاعات</a>
     </div>
     <div class="venue-grid">
       @for (venue of venues; track venue.name) {
@@ -130,7 +130,7 @@
             <div class="venue-card__footer">
               <span
                 ><small>يبدأ من</small><strong>{{ venue.price }}</strong></span
-              ><button mat-button type="button" (click)="runDemoSearch()">التفاصيل</button>
+              ><a mat-button [routerLink]="['/halls', venue.slug]">التفاصيل</a>
             </div>
           </div>
         </article>
@@ -220,9 +220,13 @@
 </main>
 
 <footer>
-  <a class="brand brand--footer" href="#top"
+  <a class="brand brand--footer" routerLink="/"
     ><span class="brand__mark" aria-hidden="true">ص</span><span>صالة</span></a
   >
   <p>مكان واحد لكل تفاصيل مناسبتك.</p>
+  <span class="footer-links"
+    ><a routerLink="/client">حساب العميل</a><a routerLink="/owner">لوحة المالك</a
+    ><a routerLink="/admin">الإدارة</a></span
+  >
   <span>© 2026 صالة · نسخة عرض ببيانات تجريبية</span>
 </footer>

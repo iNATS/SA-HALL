@@ -1,0 +1,808 @@
+<div class="portal-shell" [class.menu-open]="mobileMenuOpen()">
+  @if (mobileMenuOpen()) {
+    <button class="scrim" type="button" aria-label="إغلاق القائمة" (click)="closeMenu()"></button>
+  }
+  <aside class="sidebar">
+    <a class="brand" routerLink="/"
+      ><span aria-hidden="true">ص</span>
+      <div>
+        <strong>صالة</strong><small>{{ role === 'admin' ? 'الإدارة العليا' : 'شريك أعمال' }}</small>
+      </div></a
+    >
+    <div class="user">
+      <span aria-hidden="true">{{ role === 'admin' ? 'أ' : 'ل' }}</span>
+      <div>
+        <strong>{{ role === 'admin' ? 'أحمد · مدير المنصة' : 'مؤسسة ليلك للمناسبات' }}</strong
+        ><small>{{ role === 'admin' ? 'admin@sa-hall.com' : 'owner@lilac.sa' }}</small>
+      </div>
+    </div>
+    <nav aria-label="التنقل الجانبي">
+      @for (group of groups; track group.title) {
+        <section>
+          <h2>{{ group.title }}</h2>
+          @for (item of group.items; track item.path) {
+            <a [routerLink]="item.path" routerLinkActive="active" (click)="closeMenu()"
+              ><span class="nav-indicator" aria-hidden="true"></span>{{ item.label }}</a
+            >
+          }
+        </section>
+      }
+    </nav>
+    <a class="exit" routerLink="/portals">تبديل مساحة العمل</a>
+  </aside>
+
+  <main id="main-content" tabindex="-1">
+    <header class="topbar">
+      <button class="menu-button" type="button" aria-label="فتح القائمة" (click)="toggleMenu()">
+        <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+      </button>
+      <div>
+        <p>{{ role === 'admin' ? 'إدارة صالة' : 'لوحة مالك القاعة' }} / {{ copy.title }}</p>
+        <h1>{{ copy.title }}</h1>
+        <span>{{ copy.subtitle }}</span>
+      </div>
+      <div class="topbar__actions">
+        <span class="demo-chip">بيانات تجريبية</span
+        ><button type="button" aria-label="الإشعارات">
+          <svg viewBox="0 0 24 24">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg
+          ><span></span>
+        </button>
+      </div>
+    </header>
+    @if (notice()) {
+      <p class="notice" aria-live="polite">{{ notice() }}</p>
+    }
+
+    @switch (page) {
+      @case ('dashboard') {
+        <section class="stats" aria-label="المؤشرات الرئيسية">
+          @if (role === 'owner') {
+            <article>
+              <span>حجوزات هذا الشهر</span><strong>18</strong><small>+12% عن الشهر الماضي</small>
+            </article>
+            <article>
+              <span>الإيرادات المحصلة</span><strong>128,450 ر.س</strong
+              ><small>من 164,800 ر.س</small>
+            </article>
+            <article>
+              <span>نسبة الإشغال</span><strong>76%</strong><small>23 ليلة محجوزة</small>
+            </article>
+            <article>
+              <span>طلبات تحتاج إجراء</span><strong>3</strong><small>طلبان جديدان ودفعة</small>
+            </article>
+          } @else {
+            <article>
+              <span>إجمالي المشتركين</span><strong>248</strong><small>16 بانتظار الموافقة</small>
+            </article>
+            <article>
+              <span>القاعات النشطة</span><strong>186</strong><small>12 أضيفت هذا الشهر</small>
+            </article>
+            <article>
+              <span>حجم الحجوزات</span><strong>2.4 مليون</strong><small>ر.س خلال 30 يوماً</small>
+            </article>
+            <article>
+              <span>طلبات المراجعة</span><strong>9</strong><small>تحتاج قراراً اليوم</small>
+            </article>
+          }
+        </section>
+        <div class="dashboard-grid">
+          <section class="panel performance">
+            <div class="panel-heading">
+              <div>
+                <h2>{{ role === 'admin' ? 'نشاط المنصة' : 'أداء الحجوزات' }}</h2>
+                <p>آخر 6 أشهر</p>
+              </div>
+              <select aria-label="الفترة">
+                <option>6 أشهر</option>
+                <option>هذا العام</option>
+              </select>
+            </div>
+            <div class="bars" aria-label="ملخص مرئي للأداء">
+              <div style="--value: 48%"><span>مايو</span><i></i><b>48</b></div>
+              <div style="--value: 64%"><span>يونيو</span><i></i><b>64</b></div>
+              <div style="--value: 58%"><span>يوليو</span><i></i><b>58</b></div>
+              <div style="--value: 79%"><span>أغسطس</span><i></i><b>79</b></div>
+              <div style="--value: 72%"><span>سبتمبر</span><i></i><b>72</b></div>
+              <div style="--value: 88%"><span>أكتوبر</span><i></i><b>88</b></div>
+            </div>
+          </section>
+          <section class="panel tasks">
+            <div class="panel-heading">
+              <div>
+                <h2>مهام اليوم</h2>
+                <p>الأولوية حسب الموعد</p>
+              </div>
+            </div>
+            <ul>
+              <li>
+                <span>10:30</span>
+                <div>
+                  <strong>زيارة قاعة ليلك</strong><small>معاينة قبل مناسبة نورة العتيبي</small>
+                </div>
+              </li>
+              <li>
+                <span>12:00</span>
+                <div>
+                  <strong>مراجعة طلب جديد</strong
+                  ><small>{{ role === 'admin' ? 'تسجيل مزود خدمة تصوير' : 'حجز قصر أروما' }}</small>
+                </div>
+              </li>
+              <li>
+                <span>16:30</span>
+                <div><strong>متابعة دفعة</strong><small>الحجز SH-24052</small></div>
+              </li>
+            </ul>
+          </section>
+        </div>
+        <section class="panel table-panel">
+          <div class="panel-heading">
+            <div>
+              <h2>أحدث الحجوزات</h2>
+              <p>آخر نشاط مسجل في النسخة التجريبية</p>
+            </div>
+            <a [routerLink]="role === 'admin' ? '/admin/requests' : '/owner/bookings'">عرض الكل</a>
+          </div>
+          <ng-container *ngTemplateOutlet="bookingsTable"></ng-container>
+        </section>
+      }
+      @case ('bookings') {
+        <section class="panel table-panel">
+          <div class="toolbar">
+            <div class="search">
+              <svg viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="7" />
+                <path d="m20 20-4-4" /></svg
+              ><input aria-label="بحث في الحجوزات" placeholder="رقم الحجز أو اسم العميل" />
+            </div>
+            <select aria-label="حالة الحجز">
+              <option>كل الحالات</option>
+              <option>مؤكد</option>
+              <option>قيد المراجعة</option></select
+            ><button
+              mat-flat-button
+              type="button"
+              (click)="showNotice('تم فتح نموذج إضافة حجز تجريبي.')"
+            >
+              إضافة حجز
+            </button>
+          </div>
+          <ng-container *ngTemplateOutlet="bookingsTable"></ng-container>
+        </section>
+      }
+      @case ('requests') {
+        <section class="request-summary">
+          <button class="active" type="button">طلبات التسجيل <span>5</span></button
+          ><button type="button">إضافة قاعة <span>3</span></button
+          ><button type="button">طلبات الترقية <span>1</span></button>
+        </section>
+        <section class="panel requests">
+          <article>
+            <div class="request-icon">م</div>
+            <div>
+              <span class="status pending">طلب تسجيل جديد</span>
+              <h2>مؤسسة مدى للتصوير</h2>
+              <p>خدمات تصوير · الرياض · أُرسل منذ ساعتين</p>
+            </div>
+            <dl>
+              <div>
+                <dt>السجل التجاري</dt>
+                <dd>موثق</dd>
+              </div>
+              <div>
+                <dt>رقم التواصل</dt>
+                <dd><bdi>055 734 2210</bdi></dd>
+              </div>
+            </dl>
+            <div class="row-actions">
+              <button mat-flat-button type="button" (click)="showNotice('تم قبول الطلب التجريبي.')">
+                قبول</button
+              ><button mat-stroked-button type="button">عرض الملف</button>
+            </div>
+          </article>
+          <article>
+            <div class="request-icon">س</div>
+            <div>
+              <span class="status review">إضافة قاعة</span>
+              <h2>قاعة سحاب الشرق</h2>
+              <p>مؤسسة سما نجد · الدمام · أُرسل أمس</p>
+            </div>
+            <dl>
+              <div>
+                <dt>السعة</dt>
+                <dd>450 ضيف</dd>
+              </div>
+              <div>
+                <dt>السعر</dt>
+                <dd>17,500 ر.س</dd>
+              </div>
+            </dl>
+            <div class="row-actions">
+              <button
+                mat-flat-button
+                type="button"
+                (click)="showNotice('تم إرسال القاعة للمراجعة النهائية.')"
+              >
+                مراجعة</button
+              ><button mat-stroked-button type="button">التفاصيل</button>
+            </div>
+          </article>
+        </section>
+      }
+      @case ('halls') {
+        <section class="toolbar standalone">
+          <div class="search">
+            <svg viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="7" />
+              <path d="m20 20-4-4" /></svg
+            ><input aria-label="بحث القاعات" placeholder="ابحث بالاسم أو المدينة" />
+          </div>
+          <select aria-label="حالة القاعة">
+            <option>كل الحالات</option>
+            <option>نشطة</option>
+            <option>مخفية</option></select
+          ><button
+            mat-flat-button
+            type="button"
+            (click)="showNotice('تم فتح نموذج إضافة قاعة تجريبية.')"
+          >
+            إضافة قاعة
+          </button>
+        </section>
+        <section class="asset-grid">
+          @for (hall of halls; track hall.slug) {
+            <article>
+              <img
+                src="/demo/venue-hero.jpg"
+                width="400"
+                height="220"
+                [style.object-position]="hall.position"
+                [alt]="hall.name"
+              />
+              <div class="asset-body">
+                <div>
+                  <span class="status approved">نشطة</span>
+                  <h2>{{ hall.name }}</h2>
+                  <p>{{ hall.city }} · {{ hall.capacity }} ضيف</p>
+                </div>
+                <dl>
+                  <div>
+                    <dt>السعر</dt>
+                    <dd>{{ hall.price.toLocaleString() }} ر.س</dd>
+                  </div>
+                  <div>
+                    <dt>حجوزات الشهر</dt>
+                    <dd>{{ (hall.reviews % 12) + 4 }}</dd>
+                  </div>
+                </dl>
+                <div class="row-actions">
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    (click)="showNotice('تم فتح إعدادات ' + hall.name)"
+                  >
+                    إدارة</button
+                  ><a mat-button [routerLink]="['/halls', hall.slug]">معاينة</a>
+                </div>
+              </div>
+            </article>
+          }
+        </section>
+      }
+      @case ('services') {
+        <section class="toolbar standalone">
+          <div class="search">
+            <svg viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="7" />
+              <path d="m20 20-4-4" /></svg
+            ><input aria-label="بحث الخدمات" placeholder="اسم الخدمة أو التصنيف" />
+          </div>
+          <select aria-label="تصنيف الخدمة">
+            <option>كل التصنيفات</option>
+            <option>تصوير</option>
+            <option>ضيافة</option></select
+          ><button
+            mat-flat-button
+            type="button"
+            (click)="showNotice('تم فتح نموذج إضافة خدمة تجريبية.')"
+          >
+            إضافة خدمة
+          </button>
+        </section>
+        <section class="panel service-table">
+          <table>
+            <thead>
+              <tr>
+                <th>الخدمة</th>
+                <th>التصنيف</th>
+                <th>المدينة</th>
+                <th>السعر</th>
+                <th>الحالة</th>
+                <th>الإجراء</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (service of services; track service.slug) {
+                <tr>
+                  <td>
+                    <strong>{{ service.name }}</strong
+                    ><small>{{ service.description }}</small>
+                  </td>
+                  <td>{{ service.category }}</td>
+                  <td>{{ service.city }}</td>
+                  <td>{{ service.price.toLocaleString() }} ر.س</td>
+                  <td><span class="status approved">نشطة</span></td>
+                  <td>
+                    <button mat-button type="button" (click)="showNotice('تم فتح ' + service.name)">
+                      إدارة
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </section>
+      }
+      @case ('calendar') {
+        <section class="panel calendar">
+          <div class="calendar-head">
+            <button type="button" aria-label="الأسبوع السابق">→</button>
+            <div>
+              <h2>نوفمبر 2026</h2>
+              <p>الأسبوع 15–21 نوفمبر</p>
+            </div>
+            <button type="button" aria-label="الأسبوع التالي">←</button>
+          </div>
+          <div class="week">
+            @for (
+              day of [
+                { n: 'الأحد', d: '15' },
+                { n: 'الاثنين', d: '16' },
+                { n: 'الثلاثاء', d: '17' },
+                { n: 'الأربعاء', d: '18' },
+                { n: 'الخميس', d: '19' },
+                { n: 'الجمعة', d: '20' },
+                { n: 'السبت', d: '21' },
+              ];
+              track day.d
+            ) {
+              <div>
+                <header>
+                  <span>{{ day.n }}</span
+                  ><strong>{{ day.d }}</strong>
+                </header>
+                @if (day.d === '18') {
+                  <article>
+                    <b>قاعة ليلك</b><span>زفاف نورة</span><small>17:00–02:00</small>
+                  </article>
+                }
+                @if (day.d === '20') {
+                  <article class="visit">
+                    <b>زيارة معاينة</b><span>عائلة الحربي</span><small>16:30</small>
+                  </article>
+                }
+              </div>
+            }
+          </div>
+        </section>
+      }
+      @case ('accounting') {
+        <section class="stats">
+          <article>
+            <span>الرصيد المتاح</span><strong>82,450 ر.س</strong><small>جاهز للتحويل</small>
+          </article>
+          <article>
+            <span>مستحقات قادمة</span><strong>36,350 ر.س</strong><small>خلال 14 يوماً</small>
+          </article>
+          <article>
+            <span>عمولة المنصة</span><strong>8,240 ر.س</strong><small>هذا الشهر</small>
+          </article>
+          <article>
+            <span>فواتير غير مسددة</span><strong>4</strong><small>بقيمة 19,620 ر.س</small>
+          </article>
+        </section>
+        <section class="panel table-panel">
+          <div class="panel-heading">
+            <div>
+              <h2>أحدث المعاملات</h2>
+              <p>سجل الفواتير والمدفوعات</p>
+            </div>
+            <button mat-stroked-button type="button">تصدير CSV</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>المرجع</th>
+                <th>البيان</th>
+                <th>التاريخ</th>
+                <th>النوع</th>
+                <th>المبلغ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><bdi>INV-8041</bdi></td>
+                <td>عربون حجز قاعة ليلك</td>
+                <td>07 أكتوبر</td>
+                <td><span class="status approved">تحصيل</span></td>
+                <td>6,383 ر.س</td>
+              </tr>
+              <tr>
+                <td><bdi>FEE-2240</bdi></td>
+                <td>عمولة المنصة</td>
+                <td>07 أكتوبر</td>
+                <td><span class="status review">رسوم</span></td>
+                <td>-638 ر.س</td>
+              </tr>
+              <tr>
+                <td><bdi>PAY-1938</bdi></td>
+                <td>تحويل بنكي إلى المنشأة</td>
+                <td>05 أكتوبر</td>
+                <td>تحويل</td>
+                <td>-42,000 ر.س</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      }
+      @case ('clients') {
+        <section class="panel table-panel">
+          <div class="toolbar">
+            <div class="search">
+              <svg viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="7" />
+                <path d="m20 20-4-4" /></svg
+              ><input aria-label="بحث العملاء" placeholder="الاسم أو رقم الجوال" />
+            </div>
+            <button mat-flat-button type="button">إضافة عميل</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>العميل</th>
+                <th>التواصل</th>
+                <th>الحجوزات</th>
+                <th>إجمالي الإنفاق</th>
+                <th>آخر نشاط</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>نورة العتيبي</strong></td>
+                <td><bdi>050 123 4567</bdi></td>
+                <td>2</td>
+                <td>28,875 ر.س</td>
+                <td>اليوم</td>
+              </tr>
+              <tr>
+                <td><strong>سارة الحربي</strong></td>
+                <td><bdi>055 821 4102</bdi></td>
+                <td>1</td>
+                <td>16,330 ر.س</td>
+                <td>أمس</td>
+              </tr>
+              <tr>
+                <td><strong>ريم القحطاني</strong></td>
+                <td><bdi>053 440 8871</bdi></td>
+                <td>3</td>
+                <td>41,200 ر.س</td>
+                <td>منذ 4 أيام</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      }
+      @case ('subscribers') {
+        <section class="stats">
+          <article>
+            <span>مشتركون نشطون</span><strong>232</strong><small>93.5% من الحسابات</small>
+          </article>
+          <article>
+            <span>بانتظار الموافقة</span><strong>16</strong><small>5 طلبات اليوم</small>
+          </article>
+          <article>
+            <span>اشتراكات تنتهي قريباً</span><strong>12</strong><small>خلال 30 يوماً</small>
+          </article>
+          <article>
+            <span>إيراد الاشتراكات</span><strong>116,000 ر.س</strong><small>هذا الشهر</small>
+          </article>
+        </section>
+        <section class="panel table-panel">
+          <table>
+            <thead>
+              <tr>
+                <th>المشترك</th>
+                <th>النوع</th>
+                <th>الأصول</th>
+                <th>حالة الاشتراك</th>
+                <th>التجديد</th>
+                <th>الإجراء</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>مؤسسة ليلك</strong><small>الرياض</small></td>
+                <td>قاعات وخدمات</td>
+                <td>3</td>
+                <td><span class="status approved">نشط</span></td>
+                <td>12 يناير 2027</td>
+                <td><button mat-button type="button">إدارة</button></td>
+              </tr>
+              <tr>
+                <td><strong>مدى للتصوير</strong><small>الرياض</small></td>
+                <td>خدمات</td>
+                <td>1</td>
+                <td><span class="status pending">بانتظار الاعتماد</span></td>
+                <td>—</td>
+                <td><button mat-button type="button">مراجعة</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      }
+      @case ('content') {
+        <section class="content-grid">
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <h2>أقسام الصفحة الرئيسية</h2>
+                <p>ترتيب المحتوى العام</p>
+              </div>
+              <button mat-flat-button type="button">إضافة قسم</button>
+            </div>
+            <ol class="content-list">
+              <li>
+                <span>01</span>
+                <div><strong>القاعات المميزة</strong><small>4 قاعات · نشط</small></div>
+                <button type="button">تعديل</button>
+              </li>
+              <li>
+                <span>02</span>
+                <div><strong>خدمات المناسبات</strong><small>6 خدمات · نشط</small></div>
+                <button type="button">تعديل</button>
+              </li>
+              <li>
+                <span>03</span>
+                <div><strong>كيف تعمل صالة؟</strong><small>محتوى تعريفي · نشط</small></div>
+                <button type="button">تعديل</button>
+              </li>
+            </ol>
+          </article>
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <h2>الإعلانات</h2>
+                <p>رسائل تظهر للمستخدمين</p>
+              </div>
+              <button mat-stroked-button type="button">إعلان جديد</button>
+            </div>
+            <div class="announcement">
+              <span class="status approved">منشور</span>
+              <h3>عروض موسم الشتاء</h3>
+              <p>يظهر للعملاء حتى 31 ديسمبر 2026.</p>
+              <button mat-button type="button">إدارة الإعلان</button>
+            </div>
+          </article>
+        </section>
+      }
+      @case ('coupons') {
+        <section class="stats">
+          <article>
+            <span>كوبونات نشطة</span><strong>6</strong><small>3 عامة و3 مخصصة</small>
+          </article>
+          <article>
+            <span>مرات الاستخدام</span><strong>84</strong><small>خلال 30 يوماً</small>
+          </article>
+          <article>
+            <span>قيمة الخصومات</span><strong>18,420 ر.س</strong><small>إجمالي هذا الشهر</small>
+          </article>
+          <article>
+            <span>معدل التحويل</span><strong>22%</strong><small>من الزيارات المؤهلة</small>
+          </article>
+        </section>
+        <section class="panel table-panel">
+          <div class="panel-heading">
+            <div>
+              <h2>الكوبونات الحالية</h2>
+              <p>تحكم في الصلاحية والحدود.</p>
+            </div>
+            <button mat-flat-button type="button" (click)="showNotice('تم فتح نموذج كوبون جديد.')">
+              كوبون جديد
+            </button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>الرمز</th>
+                <th>الخصم</th>
+                <th>النطاق</th>
+                <th>الاستخدام</th>
+                <th>الصلاحية</th>
+                <th>الحالة</th>
+                <th>الإجراء</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <strong><bdi>FARAH20</bdi></strong>
+                </td>
+                <td>20%</td>
+                <td>كل القاعات</td>
+                <td>42 / 100</td>
+                <td>31 ديسمبر 2026</td>
+                <td><span class="status approved">نشط</span></td>
+                <td><button mat-button type="button">تعديل</button></td>
+              </tr>
+              <tr>
+                <td>
+                  <strong><bdi>WELCOME500</bdi></strong>
+                </td>
+                <td>500 ر.س</td>
+                <td>الحجز الأول</td>
+                <td>31 / 50</td>
+                <td>30 نوفمبر 2026</td>
+                <td><span class="status approved">نشط</span></td>
+                <td><button mat-button type="button">تعديل</button></td>
+              </tr>
+              <tr>
+                <td>
+                  <strong><bdi>SUMMER15</bdi></strong>
+                </td>
+                <td>15%</td>
+                <td>قاعة ليلك</td>
+                <td>11 / 25</td>
+                <td>منتهي</td>
+                <td><span class="status pending">متوقف</span></td>
+                <td><button mat-button type="button">نسخ</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      }
+      @case ('marketplace') {
+        <section class="toolbar standalone">
+          <div class="search">
+            <svg viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="7" />
+              <path d="m20 20-4-4" /></svg
+            ><input aria-label="بحث المتجر" placeholder="اسم المنتج أو التصنيف" />
+          </div>
+          <select aria-label="تصنيف المنتج">
+            <option>كل المنتجات</option>
+            <option>طباعة وتجهيز</option>
+            <option>ضيافة</option></select
+          ><button mat-flat-button type="button" (click)="showNotice('تم فتح نموذج منتج جديد.')">
+            {{ role === 'admin' ? 'إضافة منتج' : 'إضافة إلى نقاط البيع' }}
+          </button>
+        </section>
+        <section class="market-grid">
+          <article>
+            <span class="product-art" aria-hidden="true"
+              ><svg viewBox="0 0 24 24"><path d="M5 7h14v13H5zM8 7V5a4 4 0 0 1 8 0v2" /></svg
+            ></span>
+            <div>
+              <p>طباعة وتجهيز</p>
+              <h2>بطاقات طاولات مخصصة</h2>
+              <span>متاح · تنفيذ خلال 3 أيام</span>
+            </div>
+            <strong>16 ر.س / قطعة</strong
+            ><button mat-stroked-button type="button">إدارة المنتج</button>
+          </article>
+          <article>
+            <span class="product-art" aria-hidden="true"
+              ><svg viewBox="0 0 24 24"><path d="M4 9h16v11H4zM7 9V6h10v3M9 13h6" /></svg
+            ></span>
+            <div>
+              <p>هدايا الضيوف</p>
+              <h2>صندوق ضيافة فاخر</h2>
+              <span>متاح · حد أدنى 20 قطعة</span>
+            </div>
+            <strong>75 ر.س / قطعة</strong
+            ><button mat-stroked-button type="button">إدارة المنتج</button>
+          </article>
+          <article>
+            <span class="product-art" aria-hidden="true"
+              ><svg viewBox="0 0 24 24"><path d="M6 20V8h12v12M9 8V4h6v4M4 20h16" /></svg
+            ></span>
+            <div>
+              <p>تجهيز القاعة</p>
+              <h2>ستاند ترحيبي مضيء</h2>
+              <span>تأجير ليوم المناسبة</span>
+            </div>
+            <strong>450 ر.س</strong><button mat-stroked-button type="button">إدارة المنتج</button>
+          </article>
+        </section>
+      }
+      @default {
+        <section class="panel settings">
+          <div class="section-heading">
+            <div>
+              <h2>{{ role === 'admin' ? 'بيانات المنصة' : 'بيانات المنشأة' }}</h2>
+              <p>التغييرات هنا للمعاينة فقط.</p>
+            </div>
+          </div>
+          <div class="settings-grid">
+            <label
+              ><span>الاسم</span
+              ><input [value]="role === 'admin' ? 'منصة صالة' : 'مؤسسة ليلك للمناسبات'" /></label
+            ><label
+              ><span>البريد الإلكتروني</span
+              ><input
+                dir="ltr"
+                [value]="role === 'admin' ? 'support@sa-hall.com' : 'owner@lilac.sa'" /></label
+            ><label><span>رقم التواصل</span><input dir="ltr" value="9200 12345" /></label
+            ><label
+              ><span>المدينة الافتراضية</span
+              ><select>
+                <option>الرياض</option>
+                <option>جدة</option>
+              </select></label
+            ><label class="wide"
+              ><span>الوصف</span
+              ><textarea rows="4">تجربة متكاملة لإدارة القاعات والمناسبات والخدمات.</textarea>
+            </label>
+          </div>
+          <div class="setting-toggle">
+            <div>
+              <strong>الإشعارات الفورية</strong
+              ><small>إرسال إشعار عند إنشاء حجز أو دفعة جديدة.</small>
+            </div>
+            <input type="checkbox" checked aria-label="الإشعارات الفورية" />
+          </div>
+          <button mat-flat-button type="button" (click)="showNotice('تم حفظ الإعدادات التجريبية.')">
+            حفظ التغييرات
+          </button>
+        </section>
+      }
+    }
+  </main>
+</div>
+
+<ng-template #bookingsTable
+  ><div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>رقم الحجز</th>
+          <th>العميل</th>
+          <th>القاعة</th>
+          <th>التاريخ</th>
+          <th>الدفع</th>
+          <th>الحالة</th>
+          <th>الإجمالي</th>
+          <th>الإجراء</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (booking of bookings; track booking.id) {
+          <tr>
+            <td>
+              <bdi>{{ booking.id }}</bdi>
+            </td>
+            <td>
+              <strong>{{ booking.customer }}</strong>
+            </td>
+            <td>{{ booking.hall }}</td>
+            <td>{{ booking.date }}</td>
+            <td>{{ booking.payment }}</td>
+            <td>
+              <span
+                class="status"
+                [class.approved]="booking.status === 'مؤكد'"
+                [class.pending]="booking.status !== 'مؤكد'"
+                >{{ booking.status }}</span
+              >
+            </td>
+            <td>{{ booking.total }}</td>
+            <td>
+              <button mat-button type="button" (click)="showNotice('تم فتح الحجز ' + booking.id)">
+                التفاصيل
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div></ng-template
+>

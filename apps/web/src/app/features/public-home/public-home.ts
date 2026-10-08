@@ -1,10 +1,12 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { RouterLink } from '@angular/router';
 
 type SearchMode = 'venues' | 'services';
 
 interface DemoVenue {
+  readonly slug: string;
   readonly name: string;
   readonly city: string;
   readonly capacity: string;
@@ -23,7 +25,7 @@ interface DemoService {
 
 @Component({
   selector: 'app-public-home',
-  imports: [MatButtonModule, MatToolbarModule],
+  imports: [MatButtonModule, MatToolbarModule, RouterLink],
   templateUrl: './public-home.html',
   styleUrl: './public-home.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,6 +36,7 @@ export class PublicHome {
 
   readonly venues: readonly DemoVenue[] = [
     {
+      slug: 'lilac-royal',
       name: 'قاعة ليلك الملكية',
       city: 'الرياض',
       capacity: '300–500 ضيف',
@@ -43,6 +46,7 @@ export class PublicHome {
       imagePosition: '18% center',
     },
     {
+      slug: 'aroma-palace',
       name: 'قصر أروما',
       city: 'جدة',
       capacity: '200–350 ضيف',
@@ -52,6 +56,7 @@ export class PublicHome {
       imagePosition: '42% center',
     },
     {
+      slug: 'noura-hall',
       name: 'قاعة نورا',
       city: 'الخبر',
       capacity: '150–250 ضيف',
@@ -61,6 +66,7 @@ export class PublicHome {
       imagePosition: '68% center',
     },
     {
+      slug: 'dar-al-sahab',
       name: 'دار السحاب',
       city: 'المدينة المنورة',
       capacity: '350–600 ضيف',

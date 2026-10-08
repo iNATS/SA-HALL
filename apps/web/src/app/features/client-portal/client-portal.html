@@ -1,0 +1,191 @@
+<app-public-header />
+<main id="main-content" tabindex="-1">
+  <header class="welcome">
+    <div class="avatar" aria-hidden="true">ن</div>
+    <div>
+      <p>مرحباً بعودتك</p>
+      <h1>نورة العتيبي</h1>
+      <span>تابعي مناسبتك وكل طلباتك من مكان واحد.</span>
+    </div>
+    <a mat-stroked-button routerLink="/halls">حجز جديد</a>
+  </header>
+  <nav class="tabs" aria-label="أقسام حساب العميل">
+    <button
+      type="button"
+      [class.active]="activeTab() === 'bookings'"
+      (click)="selectTab('bookings')"
+    >
+      الحجوزات <span>2</span></button
+    ><button type="button" [class.active]="activeTab() === 'orders'" (click)="selectTab('orders')">
+      طلبات المتجر <span>1</span></button
+    ><button
+      type="button"
+      [class.active]="activeTab() === 'profile'"
+      (click)="selectTab('profile')"
+    >
+      الملف الشخصي
+    </button>
+  </nav>
+
+  @if (activeTab() === 'bookings') {
+    <section class="overview">
+      <article><span>الحجوزات النشطة</span><strong>2</strong><small>مناسبة قادمة</small></article>
+      <article>
+        <span>إجمالي المدفوع</span><strong>13,765 ر.س</strong><small>من أصل 28,875 ر.س</small>
+      </article>
+      <article>
+        <span>أقرب مناسبة</span><strong>41 يوماً</strong><small>18 نوفمبر 2026</small>
+      </article>
+    </section>
+    <section class="booking-list" aria-labelledby="bookings-title">
+      <div class="section-heading">
+        <div>
+          <h2 id="bookings-title">حجوزاتي</h2>
+          <p>الحالة والدفع والخدمات المرتبطة بكل مناسبة.</p>
+        </div>
+        <select aria-label="تصفية الحجوزات">
+          <option>كل الحجوزات</option>
+          <option>النشطة</option>
+          <option>المكتملة</option>
+        </select>
+      </div>
+      <article class="booking">
+        <img src="/demo/venue-hero.jpg" width="220" height="150" alt="قاعة ليلك الملكية" />
+        <div class="booking__main">
+          <div>
+            <span class="badge confirmed">مؤكد</span>
+            <h3>قاعة ليلك الملكية</h3>
+            <p>18 نوفمبر 2026 · الرياض · 300 ضيف</p>
+          </div>
+          <div class="progress">
+            <div><span>حالة الدفع</span><strong>تم دفع العربون 30%</strong></div>
+            <meter min="0" max="100" value="30">30%</meter
+            ><small>المتبقي 14,892 ر.س قبل 04 نوفمبر</small>
+          </div>
+        </div>
+        <div class="booking__actions">
+          <strong>21,275 ر.س</strong
+          ><button mat-flat-button type="button" (click)="openBooking('SH-24081')">
+            عرض التفاصيل
+          </button>
+        </div>
+      </article>
+      <article class="booking">
+        <img src="/demo/venue-hero.jpg" width="220" height="150" alt="قصر أروما" />
+        <div class="booking__main">
+          <div>
+            <span class="badge pending">بانتظار الموافقة</span>
+            <h3>قصر أروما</h3>
+            <p>24 ديسمبر 2026 · جدة · 250 ضيف</p>
+          </div>
+          <div class="progress">
+            <div><span>الخطوة التالية</span><strong>مراجعة مالك القاعة للطلب</strong></div>
+            <meter min="0" max="100" value="10">10%</meter
+            ><small>ستصلك رسالة عند قبول الطلب.</small>
+          </div>
+        </div>
+        <div class="booking__actions">
+          <strong>16,330 ر.س</strong
+          ><button mat-stroked-button type="button" (click)="openBooking('SH-24074')">
+            عرض التفاصيل
+          </button>
+        </div>
+      </article>
+    </section>
+  } @else if (activeTab() === 'orders') {
+    <section class="single-panel">
+      <div class="section-heading">
+        <div>
+          <h2>طلبات المتجر</h2>
+          <p>المنتجات والتجهيزات المطلوبة من متجر المنصة.</p>
+        </div>
+      </div>
+      <article class="order">
+        <div>
+          <span class="badge confirmed">تم الشحن</span>
+          <h3>بطاقات طاولات مخصصة · 30 قطعة</h3>
+          <p>الطلب <bdi>#ORD-1024</bdi> · الوصول المتوقع 14 نوفمبر</p>
+        </div>
+        <strong>480 ر.س</strong>
+      </article>
+    </section>
+  } @else {
+    <section class="single-panel profile">
+      <div class="section-heading">
+        <div>
+          <h2>الملف الشخصي</h2>
+          <p>تُستخدم هذه المعلومات في حجوزاتك وفواتيرك.</p>
+        </div>
+      </div>
+      <div class="profile-grid">
+        <label><span>الاسم الكامل</span><input value="نورة عبدالله العتيبي" /></label
+        ><label><span>رقم الجوال</span><input dir="ltr" value="050 123 4567" /></label
+        ><label><span>البريد الإلكتروني</span><input dir="ltr" value="noura@example.com" /></label
+        ><label
+          ><span>المدينة</span
+          ><select>
+            <option>الرياض</option>
+            <option>جدة</option>
+          </select></label
+        >
+      </div>
+      <button mat-flat-button type="button">حفظ التغييرات التجريبية</button>
+    </section>
+  }
+
+  @if (selectedBooking()) {
+    <div class="dialog-backdrop" (click)="closeBooking()">
+      <section
+        class="dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="booking-dialog-title"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="dialog__header">
+          <div>
+            <p>
+              رقم الحجز <bdi>#{{ selectedBooking() }}</bdi>
+            </p>
+            <h2 id="booking-dialog-title">تفاصيل الحجز</h2>
+          </div>
+          <button type="button" aria-label="إغلاق" (click)="closeBooking()">×</button>
+        </div>
+        <div class="timeline">
+          <div class="done">
+            <span></span><strong>تم إرسال الطلب</strong><small>07 أكتوبر، 10:30 م</small>
+          </div>
+          <div class="done">
+            <span></span><strong>تم تأكيد القاعة</strong><small>07 أكتوبر، 11:15 م</small>
+          </div>
+          <div class="active">
+            <span></span><strong>العربون مدفوع</strong><small>بانتظار الدفعة النهائية</small>
+          </div>
+          <div><span></span><strong>اكتمال الحجز</strong><small>بعد سداد الرصيد</small></div>
+        </div>
+        <dl>
+          <div>
+            <dt>القاعة</dt>
+            <dd>قاعة ليلك الملكية</dd>
+          </div>
+          <div>
+            <dt>التاريخ</dt>
+            <dd>18 نوفمبر 2026</dd>
+          </div>
+          <div>
+            <dt>الإجمالي</dt>
+            <dd>21,275 ر.س</dd>
+          </div>
+          <div>
+            <dt>المتبقي</dt>
+            <dd>14,892 ر.س</dd>
+          </div>
+        </dl>
+        <div class="dialog__actions">
+          <button mat-flat-button type="button">دفع الرصيد التجريبي</button
+          ><button mat-button type="button" (click)="closeBooking()">إغلاق</button>
+        </div>
+      </section>
+    </div>
+  }
+</main>
