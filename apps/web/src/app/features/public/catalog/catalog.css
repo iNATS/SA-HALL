@@ -7,51 +7,108 @@
 }
 
 .intro h1 {
-  margin-block: 6px 4px;
+  margin-block: 6px 0;
   font: var(--mat-sys-headline-large);
   font-size: clamp(1.7rem, 3.4vw, 2.4rem);
   font-weight: 700;
 }
 
-.summary {
-  color: var(--mat-sys-on-surface-variant);
-}
-
-.summary strong {
-  color: var(--mat-sys-on-surface);
-}
-
-.filters {
+.browse {
   display: grid;
-  gap: 12px;
-  margin-block: 24px 8px;
+  align-items: start;
+  gap: 32px;
+  grid-template-columns: 300px minmax(0, 1fr);
+  margin-block-start: 28px;
 }
 
-.search {
-  width: min(100%, 560px);
+/* ---------- Floating sidebar (wide windows) ---------- */
+
+.filter-rail {
+  position: sticky;
+  inset-block-start: calc(var(--sh-top-bar) + 16px);
+  max-height: calc(100dvh - var(--sh-top-bar) - 32px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: var(--mat-sys-corner-extra-large);
+  background: var(--mat-sys-surface-container-low);
+  padding: 20px;
+  scrollbar-width: thin;
 }
 
-.search app-icon {
-  margin-inline: 12px 4px;
-  color: var(--mat-sys-on-surface-variant);
+.panel-head {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-block-end: 12px;
+}
+
+.panel-head h2 {
+  font: var(--mat-sys-title-large);
+  font-weight: 700;
+}
+
+/* ---------- Results ---------- */
+
+.results {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
 }
 
 .results-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-block: 8px 16px;
+  gap: 12px;
+}
+
+.count {
+  flex: 1;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-large);
+}
+
+.count strong {
+  color: var(--mat-sys-on-surface);
+  font-weight: 700;
 }
 
 .sort {
   width: 220px;
 }
 
+.filter-trigger {
+  height: 48px;
+}
+
+.badge {
+  display: inline-grid;
+  min-width: 22px;
+  height: 22px;
+  place-items: center;
+  margin-inline-start: 4px;
+  border-radius: 11px;
+  background: var(--mat-sys-primary);
+  padding-inline: 6px;
+  color: var(--mat-sys-on-primary);
+  font: var(--mat-sys-label-small);
+  font-weight: 700;
+}
+
+.active {
+  --mat-chip-elevated-container-color: var(--mat-sys-secondary-container);
+  --mat-chip-label-text-color: var(--mat-sys-on-secondary-container);
+}
+
+.active app-icon {
+  --sh-icon-size: 18px;
+}
+
 .grid {
   display: grid;
   gap: 20px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr));
 }
 
 .span-all {
@@ -63,7 +120,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-block-end: 16px;
   border-radius: var(--mat-sys-corner-medium);
   background: var(--mat-sys-surface-container-low);
   padding: 12px 16px;
@@ -71,13 +127,14 @@
   font: var(--mat-sys-body-medium);
 }
 
+/* ---------- Service cards ---------- */
+
 .service {
   display: grid;
   align-content: start;
   gap: 12px;
   padding: 20px;
-  --mat-card-outlined-container-color: var(--mat-sys-surface-container-lowest);
-  --mat-card-outlined-container-shape: var(--mat-sys-corner-large);
+  --mat-card-filled-container-shape: var(--mat-sys-corner-large);
 }
 
 .service-head {
@@ -103,7 +160,7 @@
   font-weight: 700;
 }
 
-.service h2 {
+.service h3 {
   font: var(--mat-sys-title-large);
   font-weight: 700;
 }
@@ -135,14 +192,13 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  border-block-start: 1px solid var(--mat-sys-outline-variant);
-  padding-block-start: 14px;
+  padding-block-start: 8px;
 }
 
 .service-foot span {
   display: flex;
-  align-items: baseline;
   flex-wrap: wrap;
+  align-items: baseline;
   gap: 6px;
 }
 
@@ -155,38 +211,129 @@
   color: var(--mat-sys-on-surface-variant);
 }
 
-@media (max-width: 1199.98px) {
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+/* ---------- Side sheet (phones) ---------- */
+
+.sheet-scrim {
+  position: fixed;
+  z-index: 99;
+  inset: 0;
+  background: rgb(0 0 0 / 32%);
+}
+
+/* Material 3 modal side sheet, anchored on the same side as the desktop sidebar. */
+.filter-sheet {
+  position: fixed;
+  z-index: 100;
+  inset-block: 0;
+  inset-inline-start: 0;
+  display: grid;
+  width: min(380px, 88vw);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  border-start-end-radius: var(--mat-sys-corner-large);
+  border-end-end-radius: var(--mat-sys-corner-large);
+  background: var(--mat-sys-surface-container-low);
+  padding-block: max(8px, env(safe-area-inset-top)) var(--sh-safe-bottom);
+  outline: none;
+}
+
+.filter-sheet .panel-head {
+  margin: 0;
+  padding: 8px 8px 0 16px;
+}
+
+.sheet-body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 12px 20px 24px;
+}
+
+.sheet-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--mat-sys-surface-container);
+  padding: 12px 16px;
+}
+
+.sheet-foot button:last-child {
+  flex: 1;
+  height: 48px;
+}
+
+.sheet-enter {
+  animation: sheet-in 280ms var(--sh-ease);
+}
+
+.sheet-leave {
+  animation: sheet-out 200ms var(--sh-ease) forwards;
+}
+
+.scrim-enter {
+  animation: fade-in 280ms linear;
+}
+
+.scrim-leave {
+  animation: fade-out 200ms linear forwards;
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateX(calc(100% * var(--sh-inline-start-sign)));
   }
 }
+
+@keyframes sheet-out {
+  to {
+    transform: translateX(calc(100% * var(--sh-inline-start-sign)));
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+/* ---------- Responsive ---------- */
 
 @media (max-width: 839.98px) {
   .page {
     padding-block-start: 20px;
   }
 
-  .filters {
+  .browse {
+    grid-template-columns: 1fr;
     margin-block-start: 16px;
   }
 
-  .filters mat-chip-listbox {
-    margin-inline: calc(var(--sh-gutter) * -1);
-    padding-inline: var(--sh-gutter);
+  .results-head {
+    flex-wrap: wrap;
   }
 
-  .search {
-    width: 100%;
+  .count {
+    font: var(--mat-sys-body-medium);
   }
 
   .sort {
-    width: 180px;
+    width: 100%;
+    flex-basis: 100%;
+  }
+
+  .active {
+    margin-inline: calc(var(--sh-gutter) * -1);
+    padding-inline: var(--sh-gutter);
   }
 }
 
 @media (max-width: 599.98px) {
   .grid {
-    grid-template-columns: 1fr;
     gap: 16px;
+    grid-template-columns: 1fr;
   }
 }

@@ -76,6 +76,10 @@ html {
   );
   @include mat.theme-overrides(map.merge($arabic-tracking, $flat-elevation));
 
+  // Pages sit on pure white; tonal containers (surface-container-*) carry structure.
+  --mat-sys-surface: #ffffff;
+  --mat-sys-background: #ffffff;
+
   // Application roles Material 3 does not define. Values come from the same HCT
   // tonal system as the generated palette and pass WCAG AA on their surfaces.
   --sh-success: #196c40;
@@ -133,8 +137,10 @@ html {
   }
 }
 
-// Component tokens whose defaults are hard-coded shadows rather than system levels.
+// No shadows and no borders anywhere: hierarchy comes from tone, spacing and type.
+// Component tokens that default to shadows or outlines are neutralised here.
 html {
+  // Shadows hard-coded by some components rather than read from system levels.
   --mat-menu-container-elevation-shadow: none;
   --mat-select-container-elevation-shadow: none;
   --mat-autocomplete-container-elevation-shadow: none;
@@ -146,6 +152,32 @@ html {
   --mat-slide-toggle-disabled-handle-elevation-shadow: none;
   --mat-slider-handle-elevation: none;
   --mat-card-elevated-container-elevation: none;
+
+  // Text fields use the filled style without the resting underline; the focus
+  // indicator stays because keyboard and screen-magnifier users rely on it.
+  --mat-form-field-filled-container-color: var(--mat-sys-surface-container-high);
+  --mat-form-field-filled-active-indicator-color: transparent;
+  --mat-form-field-filled-hover-active-indicator-color: transparent;
+  --mat-form-field-filled-error-active-indicator-color: transparent;
+  --mat-form-field-filled-error-hover-active-indicator-color: transparent;
+  --mat-form-field-filled-disabled-active-indicator-color: transparent;
+
+  // Chips, segmented buttons, switches, tables, tabs, cards and drawers.
+  --mat-chip-outline-width: 0;
+  --mat-chip-elevated-container-color: var(--mat-sys-surface-container-high);
+  --mat-button-toggle-divider-color: transparent;
+  --mat-button-toggle-background-color: var(--mat-sys-surface-container-high);
+  --mat-slide-toggle-track-outline-color: transparent;
+  --mat-slide-toggle-disabled-unselected-track-outline-color: transparent;
+  --mat-datepicker-calendar-date-today-outline-color: transparent;
+  --mat-datepicker-calendar-date-today-disabled-state-outline-color: transparent;
+  --mat-datepicker-calendar-date-today-selected-state-outline-color: transparent;
+  --mat-table-row-item-outline-color: transparent;
+  --mat-tab-divider-height: 0;
+  --mat-card-filled-container-color: var(--mat-sys-surface-container-low);
+  --mat-card-outlined-outline-color: transparent;
+  --mat-sidenav-container-divider-color: transparent;
+  --mat-divider-color: transparent;
 }
 
 .mat-mdc-snackbar-surface,
@@ -155,13 +187,15 @@ html {
   box-shadow: none !important;
 }
 
-// Without shadows, floating surfaces are separated by tone plus a hairline outline.
-.mat-mdc-menu-panel,
-.mat-mdc-select-panel,
-.mat-mdc-autocomplete-panel,
-.mat-datepicker-content:not(.mat-datepicker-content-touch) {
-  outline: 1px solid var(--mat-sys-outline-variant);
-  outline-offset: -1px;
+// Filled text fields are rounded on every corner once the underline is gone.
+.mat-mdc-form-field .mdc-text-field--filled {
+  overflow: hidden;
+  border-radius: var(--mat-sys-corner-medium);
+}
+
+// Today's date is marked with a tonal fill instead of an outline ring.
+.mat-calendar-body-today:not(.mat-calendar-body-selected) {
+  background: var(--mat-sys-surface-container-highest);
 }
 
 // ---------------------------------------------------------------------------
@@ -334,11 +368,10 @@ bdi,
   color: var(--mat-sys-on-surface-variant);
 }
 
-// Flat surfaces separated by tone and an outline instead of shadow.
+// Flat surfaces separated from the white page by tone alone.
 .sh-surface {
-  border: 1px solid var(--mat-sys-outline-variant);
   border-radius: var(--mat-sys-corner-large);
-  background: var(--mat-sys-surface-container-lowest);
+  background: var(--mat-sys-surface-container-low);
 }
 
 .sh-surface-tonal {
@@ -459,9 +492,8 @@ bdi,
 
 .mp-panel {
   min-width: 0;
-  border: 1px solid var(--mat-sys-outline-variant);
   border-radius: var(--mat-sys-corner-large);
-  background: var(--mat-sys-surface-container-lowest);
+  background: var(--mat-sys-surface-container-low);
   padding: 20px;
 }
 
@@ -501,12 +533,15 @@ bdi,
   color: var(--mat-sys-on-surface-variant);
 }
 
-// Data tables: flat, hairline rows, readable numerals.
+// Data tables: no rules between rows; alternating tone keeps rows readable.
 .mp-table {
   width: 100%;
   --mat-table-background-color: transparent;
-  --mat-table-row-item-outline-color: var(--mat-sys-outline-variant);
   --mat-table-header-headline-color: var(--mat-sys-on-surface-variant);
+}
+
+.mp-table .mat-mdc-row:nth-child(even) {
+  background: var(--mat-sys-surface-container);
 }
 
 .mp-table .mat-mdc-header-cell {
@@ -514,7 +549,7 @@ bdi,
 }
 
 .mp-table .mat-mdc-row:hover {
-  background: var(--mat-sys-surface-container-low);
+  background: var(--mat-sys-surface-container-high);
 }
 
 .mp-table .mat-mdc-cell {
@@ -535,16 +570,13 @@ bdi,
   font: var(--mat-sys-body-small);
 }
 
-// Compact lists replace tables on phones.
+// Compact lists replace tables on phones; rows are separated by space, not rules.
 .mp-list {
   display: grid;
+  gap: 4px;
   margin: 0;
   padding: 0;
   list-style: none;
-}
-
-.mp-list > li + li {
-  border-block-start: 1px solid var(--mat-sys-outline-variant);
 }
 
 .mp-row {
@@ -554,8 +586,9 @@ bdi,
   align-items: center;
   gap: 12px;
   border: 0;
+  border-radius: var(--mat-sys-corner-medium);
   background: none;
-  padding: 12px 4px;
+  padding: 12px 8px;
   color: inherit;
   font: inherit;
   text-align: start;
@@ -567,7 +600,7 @@ button.mp-row {
 }
 
 button.mp-row:hover {
-  background: var(--mat-sys-surface-container-low);
+  background: var(--mat-sys-surface-container);
 }
 
 .mp-row-main {
@@ -643,4 +676,18 @@ button.mp-row:hover {
   .mp-stats {
     gap: 8px;
   }
+}
+
+// Side sheets slide in from the inline-start edge: right in Arabic, left in LTR.
+html[dir='rtl'] {
+  --sh-inline-start-sign: 1;
+}
+
+html[dir='ltr'] {
+  --sh-inline-start-sign: -1;
+}
+
+// Applied while a modal side sheet is open so the page behind it stays still.
+html.sh-scroll-locked {
+  overflow: hidden;
 }

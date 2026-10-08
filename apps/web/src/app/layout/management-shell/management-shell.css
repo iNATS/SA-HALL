@@ -16,7 +16,6 @@ mat-sidenav-container {
 
 .drawer {
   width: 296px;
-  border-inline-end: 1px solid var(--mat-sys-outline-variant);
   --mat-sidenav-container-background-color: var(--mat-sys-surface-container-low);
   --mat-sidenav-container-shape: 0;
   --mat-sidenav-container-divider-color: transparent;
@@ -117,7 +116,6 @@ mat-nav-list a[aria-current='page'] {
   display: grid;
   justify-items: start;
   gap: 4px;
-  border-block-start: 1px solid var(--mat-sys-outline-variant);
   margin: 8px 12px 0;
   padding: 12px 0 24px;
 }
@@ -126,8 +124,12 @@ mat-nav-list a[aria-current='page'] {
   position: sticky;
   z-index: 30;
   inset-block-start: 0;
-  border-block-end: 1px solid var(--mat-sys-outline-variant);
   background: var(--mat-sys-surface);
+  transition: background-color var(--sh-duration) var(--sh-ease);
+}
+
+.app-bar.scrolled {
+  background: var(--mat-sys-surface-container);
 }
 
 mat-toolbar {
@@ -154,8 +156,8 @@ mat-toolbar {
 }
 
 .demo-chip {
-  border: 1px solid var(--mat-sys-outline-variant);
   border-radius: var(--mat-sys-corner-small);
+  background: var(--mat-sys-surface-container-high);
   padding: 2px 8px;
   color: var(--mat-sys-on-surface-variant);
   font: var(--mat-sys-label-medium);

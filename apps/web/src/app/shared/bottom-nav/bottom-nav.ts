@@ -42,7 +42,6 @@ import { Icon } from '../icon/icon';
       inset-inline: 0;
       inset-block-end: 0;
       display: block;
-      border-block-start: 1px solid var(--mat-sys-outline-variant);
       background: var(--mat-sys-surface-container);
       padding-block-end: var(--sh-safe-bottom);
     }

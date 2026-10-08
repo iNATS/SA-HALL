@@ -89,7 +89,6 @@ const KINDS: readonly { kind: RequestKind; label: string; icon: IconName }[] = [
   `,
   styles: `
     nav {
-      border-block-end: 1px solid var(--mat-sys-outline-variant);
     }
     .count {
       display: inline-grid;
@@ -114,13 +113,12 @@ const KINDS: readonly { kind: RequestKind; label: string; icon: IconName }[] = [
     .request {
       display: grid;
       gap: 14px;
-      border: 1px solid var(--mat-sys-outline-variant);
       border-radius: var(--mat-sys-corner-large);
-      background: var(--mat-sys-surface-container-lowest);
+      background: var(--mat-sys-surface-container-low);
       padding: 18px;
     }
     .request.decided {
-      background: var(--mat-sys-surface-container-low);
+      background: var(--mat-sys-surface-container);
     }
     .head {
       display: flex;

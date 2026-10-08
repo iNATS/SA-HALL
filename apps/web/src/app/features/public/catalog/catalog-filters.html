@@ -1,0 +1,96 @@
+<div class="group">
+  <mat-form-field subscriptSizing="dynamic">
+    <mat-label>{{ kind() === 'halls' ? 'اسم القاعة أو الحي' : 'الخدمة أو التصنيف' }}</mat-label>
+    <app-icon matIconPrefix name="search" />
+    <input
+      matInput
+      type="search"
+      enterkeyhint="search"
+      [value]="query()"
+      (input)="queryInput.emit($any($event.target).value)"
+      (change)="changed.emit({ q: $any($event.target).value.trim() || null })"
+    />
+  </mat-form-field>
+</div>
+
+@if (kind() === 'services') {
+  <section class="group" aria-labelledby="filter-category">
+    <h3 id="filter-category">التصنيف</h3>
+    <mat-chip-listbox
+      aria-labelledby="filter-category"
+      [value]="state().category"
+      (change)="chip('category', $event)"
+    >
+      @for (category of categories; track category) {
+        <mat-chip-option [value]="category">{{ category }}</mat-chip-option>
+      }
+    </mat-chip-listbox>
+  </section>
+}
+
+<section class="group" aria-labelledby="filter-city">
+  <h3 id="filter-city">المدينة</h3>
+  <mat-chip-listbox
+    aria-labelledby="filter-city"
+    [value]="state().city"
+    (change)="chip('city', $event)"
+  >
+    @for (city of cities; track city) {
+      <mat-chip-option [value]="city">{{ city }}</mat-chip-option>
+    }
+  </mat-chip-listbox>
+</section>
+
+@if (kind() === 'halls') {
+  <section class="group" aria-labelledby="filter-date">
+    <h3 id="filter-date">تاريخ المناسبة</h3>
+    <mat-form-field subscriptSizing="dynamic">
+      <mat-label>القاعات المتاحة في</mat-label>
+      <input
+        matInput
+        type="date"
+        [min]="minDate"
+        [value]="state().date ?? ''"
+        (change)="date($any($event.target).value)"
+      />
+    </mat-form-field>
+  </section>
+
+  <section class="group" aria-labelledby="filter-guests">
+    <h3 id="filter-guests">عدد الضيوف</h3>
+    <mat-chip-listbox
+      aria-labelledby="filter-guests"
+      [value]="state().guests"
+      (change)="chip('guests', $event)"
+    >
+      @for (option of guestOptions; track option.value) {
+        <mat-chip-option [value]="option.value">{{ option.label }}</mat-chip-option>
+      }
+    </mat-chip-listbox>
+  </section>
+
+  <section class="group" aria-labelledby="filter-budget">
+    <h3 id="filter-budget">أعلى سعر لليلة</h3>
+    <mat-chip-listbox
+      aria-labelledby="filter-budget"
+      [value]="state().budget"
+      (change)="chip('budget', $event)"
+    >
+      @for (budget of budgets; track budget) {
+        <mat-chip-option [value]="budget">{{ formatNumber(budget) }} ر.س</mat-chip-option>
+      }
+    </mat-chip-listbox>
+  </section>
+
+  <section class="group toggle">
+    <div>
+      <h3 id="filter-instant">حجز فوري</h3>
+      <p>قاعات تثبّت الموعد دون انتظار موافقة.</p>
+    </div>
+    <mat-slide-toggle
+      aria-labelledby="filter-instant"
+      [checked]="state().instant"
+      (change)="changed.emit({ instant: $event.checked ? 1 : null })"
+    />
+  </section>
+}

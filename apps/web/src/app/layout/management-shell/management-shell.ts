@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -16,6 +15,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, RouterLink, RouterOutlet } from '@angular/router';
 import { DEMO_ADMIN, DEMO_OWNER } from '../../core/demo/demo-data';
 import { DemoStore } from '../../core/demo/demo-store';
+import { injectScrolled } from '../../core/layout/scrolled';
 import { Viewport } from '../../core/layout/viewport';
 import {
   NavItem,
@@ -37,7 +37,6 @@ interface Alert {
   imports: [
     MatBadgeModule,
     MatButtonModule,
-    MatDividerModule,
     MatListModule,
     MatMenuModule,
     MatSidenavModule,
@@ -57,6 +56,7 @@ export class ManagementShell {
   protected readonly config = inject(ActivatedRoute).snapshot.data['nav'] as PortalNavigation;
   protected readonly compact = inject(Viewport).compact;
   protected readonly drawerOpen = signal(false);
+  protected readonly scrolled = injectScrolled();
 
   private readonly url = injectCurrentUrl();
   private readonly items = this.config.groups.flatMap((group) => group.items);

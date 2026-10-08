@@ -13,27 +13,27 @@
         </div>
       </div>
       <div class="sh-form-grid">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-form-field subscriptSizing="dynamic">
           <mat-label>بريد الدعم</mat-label>
           <input matInput type="email" dir="ltr" formControlName="supportEmail" required />
           <mat-error>أدخل بريداً صحيحاً.</mat-error>
         </mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-form-field subscriptSizing="dynamic">
           <mat-label>الرقم الموحد</mat-label>
           <input matInput type="tel" dir="ltr" formControlName="supportPhone" required />
           <mat-error>أدخل رقماً من 9 أو 10 أرقام.</mat-error>
         </mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-form-field subscriptSizing="dynamic">
           <mat-label>عمولة المنصة %</mat-label>
           <input matInput type="number" inputmode="decimal" formControlName="commission" required />
           <mat-error>بين 0% و30%.</mat-error>
         </mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-form-field subscriptSizing="dynamic">
           <mat-label>العربون الافتراضي %</mat-label>
           <input matInput type="number" inputmode="decimal" formControlName="deposit" required />
           <mat-error>بين 10% و100%.</mat-error>
         </mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-form-field subscriptSizing="dynamic">
           <mat-label>ضريبة القيمة المضافة</mat-label>
           <input matInput [value]="vatPercent + '%'" readonly />
           <mat-hint>تُحدَّث وفق هيئة الزكاة والضريبة والجمارك فقط</mat-hint>
@@ -79,12 +79,12 @@
         </div>
       </div>
       <div class="sh-form-grid">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="sh-span-all">
+        <mat-form-field subscriptSizing="dynamic" class="sh-span-all">
           <mat-label>اسم المنشأة</mat-label>
           <input matInput formControlName="name" required />
           <mat-error>أدخل اسم المنشأة.</mat-error>
         </mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-form-field subscriptSizing="dynamic">
           <mat-label>السجل التجاري</mat-label>
           <input
             matInput
@@ -95,23 +95,23 @@
           />
           <mat-error>10 أرقام.</mat-error>
         </mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-form-field subscriptSizing="dynamic">
           <mat-label>الرقم الضريبي</mat-label>
           <input matInput dir="ltr" inputmode="numeric" formControlName="vatNumber" required />
           <mat-hint>15 رقماً يبدأ وينتهي بـ 3</mat-hint>
           <mat-error>رقم ضريبي غير صالح.</mat-error>
         </mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-form-field subscriptSizing="dynamic">
           <mat-label>البريد الإلكتروني</mat-label>
           <input matInput type="email" dir="ltr" formControlName="email" required />
           <mat-error>أدخل بريداً صحيحاً.</mat-error>
         </mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-form-field subscriptSizing="dynamic">
           <mat-label>رقم التواصل</mat-label>
           <input matInput type="tel" dir="ltr" formControlName="phone" required />
           <mat-error>أدخل رقماً صحيحاً يبدأ بـ 0.</mat-error>
         </mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-form-field subscriptSizing="dynamic">
           <mat-label>المدينة</mat-label>
           <mat-select formControlName="city">
             @for (city of cities; track city) {
@@ -123,12 +123,12 @@
 
       <h3 class="sub">سياسة الحجز</h3>
       <div class="sh-form-grid">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-form-field subscriptSizing="dynamic">
           <mat-label>نسبة العربون %</mat-label>
           <input matInput type="number" inputmode="numeric" formControlName="deposit" required />
           <mat-error>بين 10% و100%.</mat-error>
         </mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-form-field subscriptSizing="dynamic">
           <mat-label>أقل مدة قبل المناسبة (أيام)</mat-label>
           <input matInput type="number" inputmode="numeric" formControlName="notice" required />
           <mat-error>من يوم إلى 60 يوماً.</mat-error>

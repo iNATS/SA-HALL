@@ -98,7 +98,6 @@ import { NumberPipe } from '../../../shared/pipes/format.pipes';
     }
     nav {
       margin-block-end: 24px;
-      border-block-end: 1px solid var(--mat-sys-outline-variant);
       --mat-tab-divider-height: 0;
     }
     .count {

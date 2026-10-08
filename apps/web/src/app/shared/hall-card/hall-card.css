@@ -6,14 +6,13 @@ mat-card {
   position: relative;
   height: 100%;
   overflow: hidden;
-  --mat-card-outlined-container-color: var(--mat-sys-surface-container-lowest);
-  --mat-card-outlined-container-shape: var(--mat-sys-corner-large);
-  transition: border-color var(--sh-duration) var(--sh-ease);
+  --mat-card-filled-container-shape: var(--mat-sys-corner-large);
+  transition: background-color var(--sh-duration) var(--sh-ease);
 }
 
 mat-card:hover,
 mat-card:focus-within {
-  border-color: var(--mat-sys-outline);
+  --mat-card-filled-container-color: var(--mat-sys-surface-container);
 }
 
 .media {
@@ -149,7 +148,6 @@ mat-card:hover .media img {
   align-items: baseline;
   gap: 6px;
   margin-block-start: 6px;
-  border-block-start: 1px solid var(--mat-sys-outline-variant);
   padding-block-start: 12px;
 }
 

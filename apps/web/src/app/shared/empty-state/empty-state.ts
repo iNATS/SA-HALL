@@ -18,8 +18,8 @@ import type { IconName } from '../icon/icons';
       display: grid;
       justify-items: center;
       gap: 8px;
-      border: 1px dashed var(--mat-sys-outline-variant);
       border-radius: var(--mat-sys-corner-large);
+      background: var(--mat-sys-surface-container-low);
       padding: 40px 24px;
       text-align: center;
     }

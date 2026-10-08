@@ -51,9 +51,8 @@ import { Status } from '../../../shared/status/status';
       display: flex;
       align-items: center;
       gap: 16px;
-      border: 1px solid var(--mat-sys-outline-variant);
       border-radius: var(--mat-sys-corner-large);
-      background: var(--mat-sys-surface-container-lowest);
+      background: var(--mat-sys-surface-container-low);
       padding: 16px;
     }
     .icon {

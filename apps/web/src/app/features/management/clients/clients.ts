@@ -31,7 +31,7 @@ interface ClientRow {
   template: `
     <div class="mp-page">
       <div class="mp-toolbar">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mp-search">
+        <mat-form-field subscriptSizing="dynamic" class="mp-search">
           <mat-label>الاسم أو رقم الجوال</mat-label>
           <app-icon matIconPrefix name="search" />
           <input

@@ -101,7 +101,7 @@
           }
           @if (booking.status === 'pending') {
             <p class="hint"><app-icon name="info" />يتاح الدفع بعد تأكيد القاعة للموعد.</p>
-            <button mat-stroked-button type="button" class="danger" (click)="cancel(booking)">
+            <button matButton="tonal" type="button" class="danger" (click)="cancel(booking)">
               إلغاء الطلب
             </button>
           }

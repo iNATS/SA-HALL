@@ -2,150 +2,190 @@
   <header class="intro">
     <p class="sh-eyebrow">{{ kind() === 'halls' ? 'اكتشف وقارن' : 'خدمات موثوقة' }}</p>
     <h1>{{ kind() === 'halls' ? 'قاعات تناسب كل لحظة' : 'خدمات تكمل تفاصيل مناسبتك' }}</h1>
-    <p class="summary" aria-live="polite">
-      <strong class="sh-num">{{ resultCount() | num }}</strong>
-      {{ kind() === 'halls' ? 'قاعة' : 'خدمة' }}
-      @if (city()) {
-        في {{ city() }}
-      }
-      @if (dateLabel(); as label) {
-        · متاحة في {{ label }}
-      }
-    </p>
   </header>
 
-  <div class="filters" role="search">
-    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search">
-      <mat-label>{{
-        kind() === 'halls' ? 'ابحث باسم القاعة أو الحي' : 'ابحث بالخدمة أو التصنيف'
-      }}</mat-label>
-      <app-icon matIconPrefix name="search" />
-      <input
-        matInput
-        type="search"
-        enterkeyhint="search"
-        [value]="query()"
-        (input)="query.set($any($event.target).value)"
-        (change)="setFilter('q', query().trim())"
-      />
-    </mat-form-field>
-
-    <mat-chip-listbox
-      class="sh-chip-scroll"
-      aria-label="المدينة"
-      [value]="city() ?? ''"
-      (change)="chipChange('city', $event)"
-    >
-      <mat-chip-option value="">كل المدن</mat-chip-option>
-      @for (option of cities; track option) {
-        <mat-chip-option [value]="option">{{ option }}</mat-chip-option>
-      }
-    </mat-chip-listbox>
-
-    @if (kind() === 'halls') {
-      <mat-chip-listbox
-        class="sh-chip-scroll"
-        aria-label="عدد الضيوف"
-        [value]="guestLimit()"
-        (change)="chipChange('guests', $event)"
-      >
-        @for (option of guestOptions; track option.value) {
-          <mat-chip-option [value]="option.value">{{ option.label }}</mat-chip-option>
-        }
-      </mat-chip-listbox>
-    }
-  </div>
-
-  <div class="results-head">
-    @if (hasFilters()) {
-      <button mat-button type="button" (click)="clearFilters()">
-        <app-icon name="close" />مسح عوامل التصفية
-      </button>
-    } @else {
-      <span class="sh-muted">كل النتائج</span>
-    }
-    @if (kind() === 'halls') {
-      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="sort">
-        <mat-label>الترتيب</mat-label>
-        <select
-          matNativeControl
-          [value]="sortKey()"
-          (change)="setFilter('sort', $any($event.target).value)"
-        >
-          @for (option of sortOptions; track option.value) {
-            <option [value]="option.value" [selected]="option.value === sortKey()">
-              {{ option.label }}
-            </option>
+  <div class="browse">
+    @if (!compact()) {
+      <aside class="filter-rail" aria-labelledby="rail-title">
+        <div class="panel-head">
+          <h2 id="rail-title">تصفية النتائج</h2>
+          @if (activeFilters().length) {
+            <button matButton type="button" (click)="clearFilters()">مسح الكل</button>
           }
-        </select>
-      </mat-form-field>
-    }
-  </div>
-
-  @if (kind() === 'halls') {
-    <div class="grid" role="list">
-      @for (hall of halls(); track hall.slug; let index = $index) {
-        <app-hall-card
-          role="listitem"
-          [hall]="hall"
-          [eager]="index < 2"
-          [headingLevel]="2"
-          sizes="(max-width: 599px) 92vw, (max-width: 1199px) 45vw, 380px"
+        </div>
+        <app-catalog-filters
+          [kind]="kind()"
+          [state]="filters()"
+          [query]="query()"
+          (queryInput)="query.set($event)"
+          (changed)="apply($event)"
         />
-      } @empty {
-        <app-empty-state
-          class="span-all"
-          icon="event_busy"
-          title="لا توجد قاعات مطابقة"
-          message="جرّب مدينة أخرى أو تاريخاً مختلفاً أو عدداً أقل من الضيوف."
-        >
-          <button mat-flat-button type="button" (click)="clearFilters()">عرض كل القاعات</button>
-        </app-empty-state>
+      </aside>
+    }
+
+    <section class="results" aria-labelledby="results-title">
+      <div class="results-head">
+        @if (compact()) {
+          <button
+            matButton="tonal"
+            type="button"
+            class="filter-trigger"
+            aria-haspopup="dialog"
+            [attr.aria-expanded]="sheetOpen()"
+            (click)="sheetOpen.set(true)"
+          >
+            <app-icon name="tune" />
+            تصفية
+            @if (activeFilters().length) {
+              <span class="badge sh-num">{{ activeFilters().length | num }}</span>
+            }
+          </button>
+        }
+        <h2 id="results-title" class="count" aria-live="polite">
+          <strong class="sh-num">{{ resultCount() | num }}</strong>
+          {{ kind() === 'halls' ? 'قاعة متاحة' : 'خدمة' }}
+        </h2>
+        @if (kind() === 'halls') {
+          <mat-form-field class="sort" subscriptSizing="dynamic">
+            <mat-label>الترتيب</mat-label>
+            <select matNativeControl (change)="setSort($any($event.target).value)">
+              @for (option of sortOptions; track option.value) {
+                <option [value]="option.value" [selected]="option.value === sortKey()">
+                  {{ option.label }}
+                </option>
+              }
+            </select>
+          </mat-form-field>
+        }
+      </div>
+
+      @if (activeFilters().length) {
+        <mat-chip-set class="active sh-chip-scroll" aria-label="عوامل التصفية المفعّلة">
+          @for (chip of activeFilters(); track chip.key) {
+            <mat-chip (removed)="remove(chip.key)">
+              {{ chip.label }}
+              <button matChipRemove [attr.aria-label]="'إزالة ' + chip.label">
+                <app-icon name="close" />
+              </button>
+            </mat-chip>
+          }
+        </mat-chip-set>
       }
-    </div>
-  } @else {
-    <p class="note">
-      <app-icon name="info" />تُضاف الخدمات إلى طلبك أثناء إتمام حجز القاعة، وتظهر أسعارها في
-      الملخص.
-    </p>
-    <div class="grid services" role="list">
-      @for (service of services(); track service.slug) {
-        <mat-card appearance="outlined" role="listitem" class="service">
-          <div class="service-head">
-            <span class="service-icon"><app-icon [name]="service.icon" /></span>
-            <div>
-              <p class="category">{{ service.category }}</p>
-              <h2>{{ service.name }}</h2>
-            </div>
-          </div>
-          <p class="description">{{ service.description }}</p>
-          <p class="meta">
-            <span><app-icon name="location_on" />{{ service.city }}</span>
-            <span class="rating"
-              ><app-icon name="star" filled /><span class="sh-num">{{
-                service.rating | num: true
-              }}</span></span
+
+      @if (kind() === 'halls') {
+        <div class="grid" role="list">
+          @for (hall of halls(); track hall.slug; let index = $index) {
+            <app-hall-card
+              role="listitem"
+              [hall]="hall"
+              [eager]="index < 2"
+              [headingLevel]="3"
+              sizes="(max-width: 599px) 92vw, (max-width: 1199px) 45vw, 300px"
+            />
+          } @empty {
+            <app-empty-state
+              class="span-all"
+              icon="event_busy"
+              title="لا توجد قاعات مطابقة"
+              message="جرّب مدينة أخرى أو تاريخاً مختلفاً أو ميزانية أعلى."
             >
-          </p>
-          <div class="service-foot">
-            <span>
-              <small>يبدأ من</small>
-              <strong class="sh-num">{{ service.price | sar }}</strong>
-              <small>{{ service.unit === 'guest' ? 'للفرد' : 'للمناسبة' }}</small>
-            </span>
-            <a mat-stroked-button routerLink="/halls">اختر قاعة</a>
-          </div>
-        </mat-card>
-      } @empty {
-        <app-empty-state
-          class="span-all"
-          icon="room_service"
-          title="لا توجد خدمات مطابقة"
-          message="جرّب عبارة بحث أخرى أو اختر كل المدن."
-        >
-          <button mat-flat-button type="button" (click)="clearFilters()">عرض كل الخدمات</button>
-        </app-empty-state>
+              <button matButton="filled" type="button" (click)="clearFilters()">
+                عرض كل القاعات
+              </button>
+            </app-empty-state>
+          }
+        </div>
+      } @else {
+        <p class="note">
+          <app-icon name="info" />تُضاف الخدمات إلى طلبك أثناء إتمام حجز القاعة، وتظهر أسعارها في
+          الملخص.
+        </p>
+        <div class="grid" role="list">
+          @for (service of services(); track service.slug) {
+            <mat-card appearance="filled" role="listitem" class="service">
+              <div class="service-head">
+                <span class="service-icon"><app-icon [name]="service.icon" /></span>
+                <div>
+                  <p class="category">{{ service.category }}</p>
+                  <h3>{{ service.name }}</h3>
+                </div>
+              </div>
+              <p class="description">{{ service.description }}</p>
+              <p class="meta">
+                <span><app-icon name="location_on" />{{ service.city }}</span>
+                <span class="rating"
+                  ><app-icon name="star" filled /><span class="sh-num">{{
+                    service.rating | num: true
+                  }}</span></span
+                >
+              </p>
+              <div class="service-foot">
+                <span>
+                  <small>يبدأ من</small>
+                  <strong class="sh-num">{{ service.price | sar }}</strong>
+                  <small>{{ service.unit === 'guest' ? 'للفرد' : 'للمناسبة' }}</small>
+                </span>
+                <a matButton="tonal" routerLink="/halls">اختر قاعة</a>
+              </div>
+            </mat-card>
+          } @empty {
+            <app-empty-state
+              class="span-all"
+              icon="room_service"
+              title="لا توجد خدمات مطابقة"
+              message="جرّب تصنيفاً آخر أو اختر كل المدن."
+            >
+              <button matButton="filled" type="button" (click)="clearFilters()">
+                عرض كل الخدمات
+              </button>
+            </app-empty-state>
+          }
+        </div>
       }
-    </div>
-  }
+    </section>
+  </div>
 </div>
+
+@if (compact() && sheetOpen()) {
+  <div
+    class="sheet-scrim"
+    animate.enter="scrim-enter"
+    animate.leave="scrim-leave"
+    (click)="sheetOpen.set(false)"
+  ></div>
+  <section
+    class="filter-sheet"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="sheet-title"
+    cdkTrapFocus
+    cdkTrapFocusAutoCapture
+    animate.enter="sheet-enter"
+    animate.leave="sheet-leave"
+    (keydown.escape)="sheetOpen.set(false)"
+  >
+    <header class="panel-head">
+      <h2 id="sheet-title">تصفية النتائج</h2>
+      <button mat-icon-button type="button" aria-label="إغلاق" (click)="sheetOpen.set(false)">
+        <app-icon name="close" />
+      </button>
+    </header>
+    <div class="sheet-body">
+      <app-catalog-filters
+        [kind]="kind()"
+        [state]="filters()"
+        [query]="query()"
+        (queryInput)="query.set($event)"
+        (changed)="apply($event)"
+      />
+    </div>
+    <footer class="sheet-foot">
+      <button matButton type="button" [disabled]="!activeFilters().length" (click)="clearFilters()">
+        مسح الكل
+      </button>
+      <button matButton="filled" type="button" (click)="sheetOpen.set(false)">
+        عرض {{ resultCount() | num }} {{ kind() === 'halls' ? 'قاعة' : 'خدمة' }}
+      </button>
+    </footer>
+  </section>
+}

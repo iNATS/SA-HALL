@@ -9,9 +9,8 @@
 
 .hall {
   overflow: hidden;
-  border: 1px solid var(--mat-sys-outline-variant);
   border-radius: var(--mat-sys-corner-large);
-  background: var(--mat-sys-surface-container-lowest);
+  background: var(--mat-sys-surface-container-low);
 }
 
 .hall img {
@@ -72,7 +71,7 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   border-radius: var(--mat-sys-corner-medium);
-  background: var(--mat-sys-surface-container-low);
+  background: var(--mat-sys-surface-container);
   padding: 10px 12px;
 }
 

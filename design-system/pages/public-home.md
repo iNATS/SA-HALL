@@ -21,3 +21,14 @@ This page restores the stronger composition of the legacy SA Hall homepage witho
 - The home search uses outlined text fields around native `select` and `date` controls so phones open
   their system pickers and the first screen stays light; the full Material date picker is reserved for
   checkout, where booked dates must be disabled.
+
+## Halls and services catalog
+
+- Wide windows: a floating filter sidebar on the inline-start side (right in Arabic), sticky under the
+  app bar on a `surface-container-low` panel with an extra-large radius; it scrolls internally when
+  taller than the viewport.
+- Phones: a tonal "تصفية" trigger with an active-filter count opens a Material 3 modal side sheet from
+  the same side, with a scrim, focus trapping, Escape to close, page scroll lock, focus returned to the
+  trigger, and a sticky "show N results" action.
+- Filters (search, city, availability date, guests, maximum nightly price, instant booking; category
+  for services) live in the URL so results are shareable, and applied filters appear as removable chips.

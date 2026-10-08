@@ -47,7 +47,7 @@
   </mat-sidenav>
 
   <mat-sidenav-content>
-    <header class="app-bar">
+    <header class="app-bar" [class.scrolled]="scrolled()">
       <mat-toolbar>
         @if (compact()) {
           <a class="mark" routerLink="/" aria-label="صالة، الموقع العام"><app-brand markOnly /></a>
@@ -110,7 +110,6 @@
     <strong>{{ identity.name }}</strong>
     <small>{{ identity.label }}</small>
   </div>
-  <mat-divider />
   <a mat-menu-item [routerLink]="config.role === 'admin' ? '/admin/settings' : '/owner/settings'">
     <app-icon name="settings" /><span>الإعدادات</span>
   </a>

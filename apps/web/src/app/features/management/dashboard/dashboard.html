@@ -11,7 +11,7 @@
       </p>
     </div>
     <a
-      mat-stroked-button
+      matButton="tonal"
       [routerLink]="role() === 'admin' ? '/admin/accounting' : '/owner/calendar'"
     >
       <app-icon [name]="role() === 'admin' ? 'account_balance_wallet' : 'calendar_month'" />

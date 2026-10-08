@@ -8,8 +8,12 @@
   position: sticky;
   z-index: 30;
   inset-block-start: 0;
-  border-block-end: 1px solid var(--mat-sys-outline-variant);
   background: var(--mat-sys-surface);
+  transition: background-color var(--sh-duration) var(--sh-ease);
+}
+
+.app-bar.scrolled {
+  background: var(--mat-sys-surface-container);
 }
 
 mat-toolbar {
@@ -54,8 +58,8 @@ mat-toolbar {
   min-height: 28px;
   align-items: center;
   margin-inline-end: 4px;
-  border: 1px solid var(--mat-sys-outline-variant);
   border-radius: var(--mat-sys-corner-small);
+  background: var(--mat-sys-surface-container-high);
   padding-inline: 10px;
   color: var(--mat-sys-on-surface-variant);
   font: var(--mat-sys-label-medium);
@@ -131,7 +135,6 @@ main {
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 8px 24px;
-  border-block-start: 1px solid rgb(255 255 255 / 14%);
   padding-block: 20px 28px;
   font: var(--mat-sys-body-small);
 }

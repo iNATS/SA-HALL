@@ -52,7 +52,7 @@ function stockState(stock: number): StatusView {
               }
             </div>
             @if (role() === 'admin') {
-              <button mat-stroked-button type="button" (click)="restock(item.product)">
+              <button matButton="tonal" type="button" (click)="restock(item.product)">
                 <app-icon name="add" />إضافة 50 للمخزون
               </button>
             } @else {
@@ -106,9 +106,8 @@ function stockState(stock: number): StatusView {
       display: grid;
       align-content: start;
       gap: 14px;
-      border: 1px solid var(--mat-sys-outline-variant);
       border-radius: var(--mat-sys-corner-large);
-      background: var(--mat-sys-surface-container-lowest);
+      background: var(--mat-sys-surface-container-low);
       padding: 18px;
     }
     .art {
@@ -117,7 +116,7 @@ function stockState(stock: number): StatusView {
       height: 96px;
       place-items: center;
       border-radius: var(--mat-sys-corner-medium);
-      background: var(--mat-sys-surface-container-low);
+      background: var(--mat-sys-surface-container);
       color: var(--mat-sys-primary);
     }
     .body {
@@ -159,8 +158,8 @@ function stockState(stock: number): StatusView {
     .stepper {
       display: flex;
       align-items: center;
-      border: 1px solid var(--mat-sys-outline-variant);
       border-radius: var(--mat-sys-corner-full);
+      background: var(--mat-sys-surface-container-high);
     }
     output {
       min-width: 32px;

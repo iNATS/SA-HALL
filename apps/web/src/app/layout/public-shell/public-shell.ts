@@ -11,6 +11,7 @@ import {
 import { BottomNav } from '../../shared/bottom-nav/bottom-nav';
 import { Brand } from '../../shared/brand/brand';
 import { Icon } from '../../shared/icon/icon';
+import { injectScrolled } from '../../core/layout/scrolled';
 import { injectRouteChrome } from '../route-chrome';
 
 @Component({
@@ -28,6 +29,7 @@ export class PublicShell {
   private readonly url = injectCurrentUrl();
   private readonly chrome = injectRouteChrome();
   protected readonly detail = computed(() => this.chrome() === 'detail');
+  protected readonly scrolled = injectScrolled();
 
   protected isActive(item: NavItem): boolean {
     return isNavActive(item, this.url());

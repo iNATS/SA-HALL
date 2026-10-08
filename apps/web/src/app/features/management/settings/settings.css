@@ -25,7 +25,6 @@ form > button {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  border-block-end: 1px solid var(--mat-sys-outline-variant);
   padding-block: 12px;
 }
 

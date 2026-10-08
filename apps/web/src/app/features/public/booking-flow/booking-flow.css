@@ -7,8 +7,12 @@
   position: sticky;
   z-index: 30;
   inset-block-start: 0;
-  border-block-end: 1px solid var(--mat-sys-outline-variant);
   background: var(--mat-sys-surface);
+  transition: background-color var(--sh-duration) var(--sh-ease);
+}
+
+.flow-bar.scrolled {
+  background: var(--mat-sys-surface-container);
 }
 
 mat-toolbar {
@@ -41,8 +45,8 @@ mat-toolbar {
 }
 
 .demo-chip {
-  border: 1px solid var(--mat-sys-outline-variant);
   border-radius: var(--mat-sys-corner-small);
+  background: var(--mat-sys-surface-container-high);
   padding: 2px 8px;
   color: var(--mat-sys-on-surface-variant);
   font: var(--mat-sys-label-medium);
@@ -70,9 +74,8 @@ mat-progress-bar {
 }
 
 .step-panel {
-  border: 1px solid var(--mat-sys-outline-variant);
   border-radius: var(--mat-sys-corner-extra-large);
-  background: var(--mat-sys-surface-container-lowest);
+  background: var(--mat-sys-surface-container-low);
   padding: 28px;
 }
 
@@ -101,17 +104,14 @@ mat-progress-bar {
 /* Radio and checkbox options rendered as selectable outlined cards. */
 .choice {
   display: block;
-  border: 1px solid var(--mat-sys-outline-variant);
   border-radius: var(--mat-sys-corner-large);
+  background: var(--mat-sys-surface-container);
   padding: 8px 8px 8px 16px;
-  transition:
-    border-color var(--sh-duration) var(--sh-ease),
-    background-color var(--sh-duration) var(--sh-ease);
+  transition: background-color var(--sh-duration) var(--sh-ease);
 }
 
 .choice.mat-mdc-radio-checked,
 .choice.mat-mdc-checkbox-checked {
-  border-color: var(--mat-sys-primary);
   background: var(--mat-sys-secondary-container);
 }
 
@@ -181,7 +181,6 @@ mat-progress-bar {
   align-items: center;
   gap: 12px;
   margin-block-start: 28px;
-  border-block-start: 1px solid var(--mat-sys-outline-variant);
   padding-block-start: 20px;
 }
 
@@ -228,7 +227,6 @@ mat-progress-bar {
 }
 
 .summary .total {
-  border-block-start: 1px solid var(--mat-sys-outline-variant);
   padding-block-start: 12px;
 }
 
@@ -358,7 +356,6 @@ mat-progress-bar {
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    border-block-start: 1px solid var(--mat-sys-outline-variant);
     background: var(--mat-sys-surface-container);
     padding: 12px 16px calc(12px + var(--sh-safe-bottom));
   }

@@ -77,9 +77,8 @@
 }
 
 .card {
-  border: 1px solid var(--mat-sys-outline-variant);
   border-radius: var(--mat-sys-corner-large);
-  background: var(--mat-sys-surface-container-lowest);
+  background: var(--mat-sys-surface-container-low);
   padding: 20px;
 }
 
@@ -113,7 +112,7 @@
   inset-block: 28px 0;
   inset-inline-start: 13px;
   width: 2px;
-  background: var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface-container-highest);
   content: '';
 }
 
@@ -128,24 +127,20 @@
   height: 28px;
   flex: none;
   place-items: center;
-  border: 2px solid var(--mat-sys-outline-variant);
   border-radius: 50%;
-  background: var(--mat-sys-surface-container-lowest);
+  background: var(--mat-sys-surface-container-highest);
 }
 
 .done .dot {
-  border-color: var(--mat-sys-primary);
   background: var(--mat-sys-primary);
   color: var(--mat-sys-on-primary);
 }
 
 .current .dot {
-  border-color: var(--sh-gold);
-  background: var(--mat-sys-tertiary-container);
+  background: var(--sh-gold);
 }
 
 .stopped .dot {
-  border-color: var(--mat-sys-error);
   background: var(--mat-sys-error);
   color: var(--mat-sys-on-error);
 }
@@ -190,8 +185,8 @@
 }
 
 .danger {
-  --mat-button-outlined-label-text-color: var(--mat-sys-error);
-  --mat-button-outlined-outline-color: var(--mat-sys-error);
+  --mat-button-tonal-container-color: var(--mat-sys-error-container);
+  --mat-button-tonal-label-text-color: var(--mat-sys-on-error-container);
 }
 
 @media (max-width: 839.98px) {

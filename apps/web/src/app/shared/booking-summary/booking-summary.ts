@@ -49,7 +49,6 @@ import { SarPipe } from '../pipes/format.pipes';
       gap: 20px;
     }
     .total {
-      border-block-start: 1px solid var(--mat-sys-outline-variant);
       padding-block-start: 12px;
     }
     .total dt,

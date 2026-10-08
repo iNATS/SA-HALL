@@ -22,8 +22,8 @@ on-primary            #FFFFFF    #3D0090
 primary-container     #EADDFF    #5429A7
 tertiary (gold)       #755B00    #EAC256
 tertiary-container    #FFDF91    #594400
-surface               #FEF7FF    #15121A
-outline-variant       #CBC3D5    #494453
+surface (page)        #FFFFFF    #15121A
+surface-container-low #F8F1FC    #1D1A22
 ```
 
 Application roles Material 3 does not define live beside the theme in `styles.scss`:
@@ -50,11 +50,21 @@ non-text minimum). Color never acts as the only state indicator: status pills al
 
 - 4 px base; common spacing: 8, 12, 16, 24, 32, 48.
 - Component radii: 8 px compact, 12 px controls, 16 px containers, 28 px sheets/FAB where Material specifies it. Avoid arbitrary giant radii.
-- Elevation is zero everywhere. `mat.theme-overrides` sets `level0`–`level5` to `none`, and component
+- No shadows and no borders. This is a hard rule, not a default. `mat.theme-overrides` sets `level0`–`level5` to `none`, and component
   tokens with hard-coded shadows (menu, select, autocomplete, datepicker, expansion, snack bar, bottom
   sheet, button toggle) are cleared in `styles.scss`.
-- Separate groups with surface tone (`surface-container-*`), whitespace and a 1 px `outline-variant`.
-  Floating surfaces (menus, select panels, date picker) get a hairline outline instead of a shadow.
+- The light-scheme page background is pure white (`--mat-sys-surface: #FFFFFF`). Structure comes only
+  from tonal layers on that white: `surface-container-low` for cards, panels and sidebars;
+  `surface-container` / `-high` for nested rows, inputs and hover; `secondary-container` for selection.
+  Dividers and hairlines are not used: rows are separated by spacing, tables by alternating row tone.
+- Material components are configured borderless through tokens in `styles.scss`: filled text fields
+  without the resting underline (all corners rounded), tonal buttons (`matButton="tonal"`) instead of
+  outlined buttons, filled cards (`appearance="filled"`), chips and segmented buttons without outlines,
+  switches without track outlines, and today's date marked with a tonal fill.
+- Top app bars sit on the white page and switch to `surface-container` once content scrolls under them
+  (Material 3 scrolled state), which replaces a bottom border or shadow.
+- Exceptions required for accessibility only: the visible keyboard focus ring, the text-field focus
+  indicator, checkbox/radio control outlines, and the tab selection indicator.
 - Desktop content max width is consistent per shell; operational pages prioritize useful density.
 
 ## Navigation and app behaviour
@@ -112,7 +122,7 @@ non-text minimum). Color never acts as the only state indicator: status pills al
 
 ## Prohibited patterns
 
-- Box shadows/drop shadows, decorative borders, random gradients
+- Box shadows, drop shadows, borders, outlines, hairline dividers and random gradients
 - Card grids for ordinary table data
 - Emoji as structural icons
 - Placeholder-only labels, hidden focus, color-only statuses

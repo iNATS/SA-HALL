@@ -50,7 +50,7 @@
   min-height: 92px;
   align-content: start;
   gap: 4px;
-  border: 1px solid transparent;
+  border: 0;
   border-radius: var(--mat-sys-corner-medium);
   background: var(--mat-sys-surface-container-low);
   padding: 6px;
@@ -61,7 +61,7 @@
 }
 
 .day:hover {
-  border-color: var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface-container-high);
 }
 
 .day.outside {
@@ -80,13 +80,12 @@
 }
 
 .today .num {
-  border: 2px solid var(--mat-sys-primary);
-  color: var(--mat-sys-primary);
+  background: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
   font-weight: 700;
 }
 
 .day.selected {
-  border-color: var(--mat-sys-primary);
   background: var(--mat-sys-secondary-container);
 }
 
@@ -143,7 +142,6 @@
 .swatch {
   width: 14px;
   height: 14px;
-  border: 1px solid var(--mat-sys-outline-variant);
   border-radius: 4px;
 }
 

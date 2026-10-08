@@ -99,9 +99,8 @@ h1 {
 .search-card {
   display: grid;
   gap: 16px;
-  border: 1px solid var(--mat-sys-outline-variant);
   border-radius: var(--mat-sys-corner-extra-large);
-  background: var(--mat-sys-surface-container-lowest);
+  background: var(--mat-sys-surface-container-low);
   padding: 24px;
   color: var(--mat-sys-on-surface);
 }
@@ -188,17 +187,16 @@ h1 {
   height: 100%;
   align-content: start;
   gap: 6px;
-  border: 1px solid transparent;
   border-radius: var(--mat-sys-corner-large);
   background: var(--mat-sys-surface-container-lowest);
   padding: 20px 16px;
   color: var(--mat-sys-on-surface);
   text-decoration: none;
-  transition: border-color var(--sh-duration) var(--sh-ease);
+  transition: background-color var(--sh-duration) var(--sh-ease);
 }
 
 .service-tile:hover {
-  border-color: var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface-container);
 }
 
 .service-tile span:last-child {
@@ -241,8 +239,9 @@ h1 {
   display: grid;
   align-content: start;
   gap: 8px;
-  border-block-start: 2px solid var(--sh-gold);
-  padding-block-start: 16px;
+  border-radius: var(--mat-sys-corner-large);
+  background: var(--mat-sys-surface-container-low);
+  padding: 20px;
 }
 
 .step-number {
@@ -299,8 +298,8 @@ h1 {
 }
 
 .light {
-  --mat-button-outlined-label-text-color: var(--sh-on-hero);
-  --mat-button-outlined-outline-color: rgb(255 255 255 / 40%);
+  --mat-button-tonal-container-color: rgb(255 255 255 / 14%);
+  --mat-button-tonal-label-text-color: var(--sh-on-hero);
 }
 
 /* ---------- Responsive ---------- */

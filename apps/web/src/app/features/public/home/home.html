@@ -55,7 +55,7 @@
       </mat-button-toggle-group>
       <h2 id="search-title">ابحث عن مناسبتك القادمة</h2>
       <div class="fields">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-form-field subscriptSizing="dynamic">
           <mat-label>المدينة</mat-label>
           <app-icon matIconPrefix name="location_on" />
           <select matNativeControl formControlName="city">
@@ -65,12 +65,12 @@
             }
           </select>
         </mat-form-field>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-form-field subscriptSizing="dynamic">
           <mat-label>تاريخ المناسبة</mat-label>
           <input matInput type="date" formControlName="date" [min]="minDate" />
         </mat-form-field>
         @if (search.controls.mode.value === 'halls') {
-          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="wide">
+          <mat-form-field subscriptSizing="dynamic" class="wide">
             <mat-label>عدد الضيوف</mat-label>
             <app-icon matIconPrefix name="groups" />
             <select matNativeControl formControlName="guests">
@@ -173,6 +173,6 @@
   </div>
   <div class="owner-actions">
     <a mat-flat-button class="gold" routerLink="/owner">استعرض لوحة المالك</a>
-    <a mat-stroked-button class="light" routerLink="/admin">لوحة إدارة المنصة</a>
+    <a matButton="tonal" class="light" routerLink="/admin">لوحة إدارة المنصة</a>
   </div>
 </section>

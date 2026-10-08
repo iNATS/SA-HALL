@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink } from '@angular/router';
+import { injectScrolled } from '../../core/layout/scrolled';
 import { Icon } from '../icon/icon';
 
 /**
@@ -32,6 +33,10 @@ import { Icon } from '../icon/icon';
       height: var(--sh-top-bar);
       padding-inline: 4px 8px;
       --mat-toolbar-container-background-color: var(--mat-sys-surface);
+      transition: background-color var(--sh-duration) var(--sh-ease);
+    }
+    :host(.scrolled) mat-toolbar {
+      --mat-toolbar-container-background-color: var(--mat-sys-surface-container);
     }
     .title {
       flex: 1;
@@ -42,9 +47,11 @@ import { Icon } from '../icon/icon';
       white-space: nowrap;
     }
   `,
+  host: { '[class.scrolled]': 'scrolled()' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DetailBar {
+  protected readonly scrolled = injectScrolled();
   readonly title = input.required<string>();
   readonly back = input.required<string | readonly unknown[]>();
   readonly backLabel = input('رجوع');

@@ -95,16 +95,15 @@ import { Status } from '../../../shared/status/status';
       align-items: center;
       gap: 16px;
       grid-template-columns: 160px minmax(0, 1fr) auto;
-      border: 1px solid var(--mat-sys-outline-variant);
       border-radius: var(--mat-sys-corner-large);
-      background: var(--mat-sys-surface-container-lowest);
+      background: var(--mat-sys-surface-container-low);
       padding: 12px;
       color: inherit;
       text-decoration: none;
-      transition: border-color var(--sh-duration) var(--sh-ease);
+      transition: background-color var(--sh-duration) var(--sh-ease);
     }
     .booking:hover {
-      border-color: var(--mat-sys-outline);
+      background: var(--mat-sys-surface-container);
     }
     img {
       width: 100%;
@@ -166,7 +165,6 @@ import { Status } from '../../../shared/status/status';
       .side {
         grid-column: 1 / -1;
         justify-content: space-between;
-        border-block-start: 1px solid var(--mat-sys-outline-variant);
         padding: 10px 4px 0;
       }
       h3 {

@@ -26,12 +26,12 @@ import { Icon } from '../../../shared/icon/icon';
         <h2 id="profile-title">البيانات الشخصية</h2>
         <p class="sh-muted">تُستخدم في حجوزاتك وفواتيرك فقط.</p>
         <div class="sh-form-grid">
-          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-form-field subscriptSizing="dynamic">
             <mat-label>الاسم الكامل</mat-label>
             <input matInput formControlName="name" autocomplete="name" required />
             <mat-error>أدخل الاسم الكامل.</mat-error>
           </mat-form-field>
-          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-form-field subscriptSizing="dynamic">
             <mat-label>رقم الجوال</mat-label>
             <input
               matInput
@@ -44,12 +44,12 @@ import { Icon } from '../../../shared/icon/icon';
             />
             <mat-error>أدخل رقم جوال سعودياً يبدأ بـ 05 من 10 أرقام.</mat-error>
           </mat-form-field>
-          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-form-field subscriptSizing="dynamic">
             <mat-label>البريد الإلكتروني</mat-label>
             <input matInput type="email" dir="ltr" formControlName="email" autocomplete="email" />
             <mat-error>أدخل بريداً إلكترونياً صحيحاً.</mat-error>
           </mat-form-field>
-          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-form-field subscriptSizing="dynamic">
             <mat-label>المدينة</mat-label>
             <mat-select formControlName="city">
               @for (city of cities; track city) {
@@ -96,9 +96,8 @@ import { Icon } from '../../../shared/icon/icon';
     .card {
       display: grid;
       gap: 12px;
-      border: 1px solid var(--mat-sys-outline-variant);
       border-radius: var(--mat-sys-corner-large);
-      background: var(--mat-sys-surface-container-lowest);
+      background: var(--mat-sys-surface-container-low);
       padding: 20px;
     }
     h2 {
@@ -114,7 +113,6 @@ import { Icon } from '../../../shared/icon/icon';
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      border-block-end: 1px solid var(--mat-sys-outline-variant);
       padding-block: 8px 14px;
     }
     .toggle div {

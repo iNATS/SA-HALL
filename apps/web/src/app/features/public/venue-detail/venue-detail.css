@@ -78,9 +78,8 @@
   grid-area: aside;
   display: grid;
   gap: 16px;
-  border: 1px solid var(--mat-sys-outline-variant);
   border-radius: var(--mat-sys-corner-extra-large);
-  background: var(--mat-sys-surface-container-lowest);
+  background: var(--mat-sys-surface-container-low);
   padding: 24px;
 }
 
@@ -145,19 +144,16 @@ h1 {
 
 .facts {
   display: grid;
-  gap: 1px;
+  gap: 8px;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   margin-block-start: 24px;
-  overflow: hidden;
-  border: 1px solid var(--mat-sys-outline-variant);
-  border-radius: var(--mat-sys-corner-large);
-  background: var(--mat-sys-outline-variant);
 }
 
 .facts div {
   display: grid;
   gap: 2px;
-  background: var(--mat-sys-surface-container-lowest);
+  border-radius: var(--mat-sys-corner-large);
+  background: var(--mat-sys-surface-container-low);
   padding: 14px 16px;
 }
 
@@ -289,7 +285,6 @@ h1 {
 }
 
 .estimate {
-  border-block-start: 1px solid var(--mat-sys-outline-variant);
   padding-block-start: 16px;
   font: var(--mat-sys-body-medium);
 }
@@ -435,7 +430,6 @@ h1 {
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    border-block-start: 1px solid var(--mat-sys-outline-variant);
     background: var(--mat-sys-surface-container);
     padding: 12px 16px calc(12px + var(--sh-safe-bottom));
   }

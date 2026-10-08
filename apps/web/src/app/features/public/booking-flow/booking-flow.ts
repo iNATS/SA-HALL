@@ -31,6 +31,7 @@ import { Booking, BookingLine } from '../../../core/domain/models';
 import { photoSrc } from '../../../core/domain/photos';
 import { DEPOSIT_RATE, quote } from '../../../core/domain/pricing';
 import { addDays, formatDate, localDate, toIsoDate } from '../../../core/format/format';
+import { injectScrolled } from '../../../core/layout/scrolled';
 import { Viewport } from '../../../core/layout/viewport';
 import { EmptyState } from '../../../shared/empty-state/empty-state';
 import { Icon } from '../../../shared/icon/icon';
@@ -72,6 +73,7 @@ export class BookingFlow implements OnInit {
   private readonly router = inject(Router);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   protected readonly compact = inject(Viewport).compact;
+  protected readonly scrolled = injectScrolled();
 
   readonly slug = input.required<string>();
   /** Optional prefill from the hall page (query parameters). */

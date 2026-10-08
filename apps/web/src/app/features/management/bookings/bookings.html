@@ -1,6 +1,6 @@
 <div class="mp-page">
   <div class="mp-toolbar">
-    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="mp-search">
+    <mat-form-field subscriptSizing="dynamic" class="mp-search">
       <mat-label>رقم الحجز أو اسم العميل</mat-label>
       <app-icon matIconPrefix name="search" />
       <input
@@ -11,7 +11,7 @@
         (change)="setParam('q', query().trim())"
       />
     </mat-form-field>
-    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="hall-filter">
+    <mat-form-field subscriptSizing="dynamic" class="hall-filter">
       <mat-label>القاعة</mat-label>
       <mat-select [value]="hall() ?? ''" (selectionChange)="setParam('hall', $event.value)">
         <mat-option value="">كل القاعات</mat-option>

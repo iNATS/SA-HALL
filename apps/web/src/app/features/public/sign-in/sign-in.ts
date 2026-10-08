@@ -75,13 +75,11 @@ interface Workspace {
       display: grid;
       align-content: start;
       gap: 10px;
-      border: 1px solid var(--mat-sys-outline-variant);
       border-radius: var(--mat-sys-corner-extra-large);
-      background: var(--mat-sys-surface-container-lowest);
+      background: var(--mat-sys-surface-container-low);
       padding: 24px;
     }
     .workspaces > li.featured {
-      border-color: transparent;
       background: var(--sh-hero-ink);
       color: var(--sh-on-hero);
       --mat-button-filled-container-color: var(--sh-hero-accent);

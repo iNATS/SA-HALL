@@ -1,5 +1,5 @@
 @if (hall(); as hall) {
-  <header class="flow-bar">
+  <header class="flow-bar" [class.scrolled]="scrolled()">
     <mat-toolbar>
       @if (created()) {
         <a mat-icon-button routerLink="/" aria-label="إغلاق والعودة للرئيسية">
@@ -82,7 +82,7 @@
             @case (0) {
               <div formGroupName="schedule" class="step-body">
                 <div class="sh-form-grid">
-                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-form-field subscriptSizing="dynamic">
                     <mat-label>تاريخ المناسبة</mat-label>
                     <input
                       matInput
@@ -106,7 +106,7 @@
                       <mat-error>اختر تاريخ المناسبة.</mat-error>
                     }
                   </mat-form-field>
-                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-form-field subscriptSizing="dynamic">
                     <mat-label>عدد الضيوف</mat-label>
                     <input
                       matInput
@@ -168,12 +168,12 @@
               <div formGroupName="contact" class="step-body">
                 <p class="sh-muted">نستخدم هذه البيانات لتأكيد الطلب وإرسال التحديثات فقط.</p>
                 <div class="sh-form-grid">
-                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-form-field subscriptSizing="dynamic">
                     <mat-label>الاسم الكامل</mat-label>
                     <input matInput formControlName="name" autocomplete="name" required />
                     <mat-error>أدخل الاسم الكامل (3 أحرف على الأقل).</mat-error>
                   </mat-form-field>
-                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-form-field subscriptSizing="dynamic">
                     <mat-label>رقم الجوال</mat-label>
                     <input
                       matInput
@@ -187,7 +187,7 @@
                     <mat-hint>مثال: 0501234567</mat-hint>
                     <mat-error>أدخل رقم جوال سعودياً يبدأ بـ 05 من 10 أرقام.</mat-error>
                   </mat-form-field>
-                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-form-field subscriptSizing="dynamic">
                     <mat-label>البريد الإلكتروني (اختياري)</mat-label>
                     <input
                       matInput
@@ -198,7 +198,7 @@
                     />
                     <mat-error>أدخل بريداً إلكترونياً صحيحاً.</mat-error>
                   </mat-form-field>
-                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-form-field subscriptSizing="dynamic">
                     <mat-label>طريقة التواصل المفضلة</mat-label>
                     <mat-select formControlName="channel">
                       <mat-option value="sms">رسالة نصية</mat-option>
@@ -206,11 +206,7 @@
                       <mat-option value="call">مكالمة هاتفية</mat-option>
                     </mat-select>
                   </mat-form-field>
-                  <mat-form-field
-                    appearance="outline"
-                    subscriptSizing="dynamic"
-                    class="sh-span-all"
-                  >
+                  <mat-form-field subscriptSizing="dynamic" class="sh-span-all">
                     <mat-label>ملاحظات للقاعة (اختياري)</mat-label>
                     <textarea matInput rows="3" formControlName="notes" maxlength="500"></textarea>
                     <mat-hint align="end"
